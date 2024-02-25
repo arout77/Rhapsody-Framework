@@ -1,0 +1,49 @@
+{
+    "name": "diamondphp/framework",
+    "type": "project",
+    "description": "Fully featured PHP 8 compatible framework",
+    "keywords": ["framework","PHP 8"],
+    "homepage": "https://github.com/arout77/diamondphp",
+    "version": "0.9.2-beta",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrew Rout",
+            "email": "arout@diamondphp.org",
+            "homepage": "https://diamondphp.org",
+            "role": "Developer"
+        }
+    ],
+	"require": {
+        "php": ">=8.3",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^2.11",
+        "doctrine/doctrine-migrations-bundle": "^3.3",
+        "doctrine/orm": "^2.17",
+        "pimple/pimple": "~3.5",
+        "phpdocumentor/reflection-docblock": "^5.3",
+        "phpstan/phpdoc-parser": "^1.24",
+        "symfony/event-dispatcher": "^7.0",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Src\\Block\\": "src/blocks",
+            "App\\ControllerOverride\\": "app/override/controllers",
+            "Src\\CoreControllerOverride\\": "src/override/controllers",
+            "Src\\": "src/",
+            "Src\\Controller\\": "src/controllers",
+            "App\\Events\\": "app/events",
+            "App\\Listeners\\": "app/listeners",
+            "Src\\Model\\": "src/models",
+            "App\\ModelOverride\\": "app/override/models",
+            "Src\\CoreModelOverride\\": "src/override/models",
+            "Src\\Plugin\\": "src/plugins",
+            "App\\Subscribers\\": "app/subscribers",
+            "App\\Controller\\": "app/controllers",
+            "App\\Model\\": "app/models"
+        }
+    }
+}
