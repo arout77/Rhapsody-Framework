@@ -26,6 +26,7 @@ class Template {
 			'debug' => true,
 			
 		]);
+		$this->twigEnv->addGlobal('base_url', $this->_settings->setting('site_url'));
 	}
 
 	public function render($template_file, $vars = [])
