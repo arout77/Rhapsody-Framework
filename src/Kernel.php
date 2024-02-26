@@ -16,6 +16,10 @@ class Kernel {
 	 */
 	protected $action;
 	/**
+	 * @var string
+	 */
+	protected $base_url;
+	/**
 	 * @var mixed
 	 */
 	public $cache;
@@ -112,6 +116,7 @@ class Kernel {
 
     function __construct(protected ServiceLocator $app)
     {
+		$this->base_url 			= $app['config']->setting("site_url");
         $this->config 			= $app['config'];
 		//$this->controller 		= $app['router']->controller;
 		$this->core   			= $app;

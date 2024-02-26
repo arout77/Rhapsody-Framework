@@ -169,7 +169,7 @@ class Config {
 		$this->setting['admin_template_folder'] = $this->setting['BASE_PATH'] . 'app/design/admin/' . $this->setting['template_name'] . '/';
 
 		# Template URL for fetching CSS / JS / IMG files
-		$this->setting['template_url'] = $this->setting['site_url'] . 'app/template/views/';
+		$this->setting['template_url'] = $this->setting['site_url'] . 'public/';
 
 		# Admin Template URL for fetching CSS / JS / IMG files
 		$this->setting['admin_template_url'] = $this->setting['site_url'] . 'app/design/admin/' . $this->setting['admin_template_name'] . '/';

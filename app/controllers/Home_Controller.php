@@ -8,6 +8,12 @@ class Home_Controller extends Base_Controller {
 
     public function index()
     {
-        echo "Wooooorkinnggg!";
+        $this->template->render(
+            'home/index.html.twig', 
+            [
+                'message' => 'Page Not Found',
+                'site_name' => 'Rhapsody Framework'
+            ]
+        );
     }
 }
