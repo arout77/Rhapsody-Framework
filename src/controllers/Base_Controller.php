@@ -16,9 +16,6 @@ class Base_Controller extends Kernel {
 	public function __construct($app)
 	{
 		parent::__construct($app);
-		echo $this->template->render('vars.html.twig', [
-			'base_url' => $this->base_url,
-		]);
 	}
 	/**
 	 * @param $headers
