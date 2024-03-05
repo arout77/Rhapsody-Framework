@@ -1551,9 +1551,11 @@ section {
 # Error Pages
 --------------------------------------------------------------*/
 .pageNotFound {
-  padding: 80px 0;
+  /* padding: 80px 0; */
   background: url("../img/404.jpg") no-repeat;
-  background-position: center center;
+  /* background-position: center center; */
   background-size: cover;
   position: relative;
+  height: 1000px;
+  color: #ffc451;
 }

@@ -27,7 +27,8 @@
         "symfony/event-dispatcher": "^7.0",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "symfony/asset": "^7.0"
+        "symfony/asset": "^7.0",
+        "symfony/mailer": "^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -41,7 +42,7 @@
             "Src\\Model\\": "src/models",
             "App\\ModelOverride\\": "app/override/models",
             "Src\\CoreModelOverride\\": "src/override/models",
-            "Src\\Plugin\\": "src/plugins",
+            "Src\\Middleware\\": "src/middleware",
             "App\\Subscribers\\": "app/subscribers",
             "App\\Controller\\": "app/controllers",
             "App\\Model\\": "app/models"

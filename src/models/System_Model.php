@@ -34,7 +34,7 @@ class System_Model {
 	/**
 	 * @var mixed
 	 */
-	protected $plugins;
+	protected $helper;
 	/**
 	 * @var mixed
 	 */
@@ -48,8 +48,9 @@ class System_Model {
 	public function __construct(\Pimple\Container $app) {
 		$this->db      = $app['database'];
 		$this->config  = $app['config'];
-		$this->plugins  = $app['plugin_core'];
+		$this->helper  = $app['plugin_core'];
 		$this->log     = $app['log'];
+		$this->load     = $app['load'];
 		$this->session = self::session();
 		//$this->hash         = self::hash();
 	}
@@ -79,7 +80,7 @@ class System_Model {
 	 * @return mixed
 	 */
 	public function session() {
-		return $this->plugin('session');
+		return $this->load->helper('SessionHelper');
 	}
 
 	/**
@@ -88,7 +89,7 @@ class System_Model {
 	 */
 	public function plugin($helper) {
 		# Load a plugin helper
-		return $this->plugins->plugin("$helper");
+		return $this->helper->get("$helper");
 	}
 
 }

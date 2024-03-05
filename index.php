@@ -120,7 +120,7 @@ if ($_GET) {
  * -----------------------------------------*/
 // Be sure to only make changes to session options
 // within the .env configuration file.
-$app['session']->start();
+// $app['session']->start();
 
 /*-------------------------------------------
  * Instantiate requested URL

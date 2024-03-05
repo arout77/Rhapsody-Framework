@@ -1,6 +1,6 @@
 <?php
 namespace Src;
-use Src\Plugins as Plugin_Core;
+use \Src\Middleware\Helper as Plugin_Core;
 
 class Profiler extends Plugin_Core {
 
