@@ -6,6 +6,7 @@
  * and manage dependencies
  */
 use Pimple\Container as Container;
+use Symfony\Component\Mailer\MailerInterface;
 
 $app = new Container;
 $app['app'] = $app;
@@ -75,32 +76,31 @@ $app['toolbox'] = function ($app) {
 };
 
 $app['profiler'] = function ($c) {
-	return new \Src\Profiler($c);
+	return new \Src\Profiler($c, $helperArr = []);
 };
 
 $app['event_manager'] = function ($app) {
 	return new \Src\EventManager($app);
 };
 
-// $app['email'] = function ($c) {
-// 	return new \App\Plugin\Email;
-// };
-
 $app['base_controller'] = function ($c) {
 	return new \Src\Controller\Base_Controller($c);
 };
 
-// $app['toolbox'] = function ($app) {
-// 	// Used to pass the toolbox as a function parameter to other objects
-// 	return $app;
-// };
-
 $app['plugin_core'] = function ($app) {
-	return new \Src\Plugins($app);
+	return new \Src\Middleware\Helper($app, $helperArr = []);
+};
+
+$app['mailer'] = function ($c, MailerInterface $mailer) {
+	return $mailer;
+};
+
+$app['email'] = function ($c) {
+	return new \Src\Middleware\EmailHelper($c);
 };
 
 $app['formatter'] = function ($c) {
-	return new \App\Plugin\Formatter;
+	return new \Src\Middleware\Formatter;
 };
 
 // new geo module
@@ -139,7 +139,7 @@ $app['hash'] = function ($c) {
 // };
 
 $app['session'] = function ($c) {
-	return new \Src\Session($c['config'], $c['database']);
+	return new \Src\Middleware\SessionHelper($c);
 };
 
 $app['template'] = function ($c) {

@@ -18,15 +18,16 @@ class Config {
 		$this->setting['db_pass'] = $env->get_global_configuration('db_pass');
 
 		# SMTP settings
-		$this->setting['smtp_host'] = $env->get_global_configuration('smtp_host');
-		$this->setting['smtp_name'] = $env->get_global_configuration('smtp_name');
-		$this->setting['smtp_username'] = $env->get_global_configuration('smtp_username');
-		$this->setting['smtp_password'] = $env->get_global_configuration('smtp_password');
-		$this->setting['smtp_port'] = $env->get_global_configuration('smtp_port');
-		$this->setting['smtp_auth'] = $env->get_global_configuration('smtp_auth');
-		$this->setting['smtp_secure'] = $env->get_global_configuration('smtp_secure');
-		$this->setting['smtp_html'] = $env->get_global_configuration('smtp_html');
-		$this->setting['smtp_debug'] = $env->get_global_configuration('smtp_debug');
+		// $this->setting['smtp_host'] = $env->get_global_configuration('smtp_host');
+		// $this->setting['smtp_name'] = $env->get_global_configuration('smtp_name');
+		// $this->setting['smtp_username'] = $env->get_global_configuration('smtp_username');
+		// $this->setting['smtp_password'] = $env->get_global_configuration('smtp_password');
+		// $this->setting['smtp_port'] = $env->get_global_configuration('smtp_port');
+		// $this->setting['smtp_auth'] = $env->get_global_configuration('smtp_auth');
+		// $this->setting['smtp_secure'] = $env->get_global_configuration('smtp_secure');
+		// $this->setting['smtp_html'] = $env->get_global_configuration('smtp_html');
+		// $this->setting['smtp_debug'] = $env->get_global_configuration('smtp_debug');
+		$this->setting['mailer_dsn'] = $env->get_global_configuration('MAILER_DSN');
 
 		# Default controller
 		$this->setting['default_controller'] = $env->get_global_configuration('default_controller');

@@ -8,14 +8,20 @@ use \Pimple\Container as ServiceLocator;
 
 class Template {
 
-	private $_settings;
+	protected $_settings;
+	protected $app;
 	public string $path_to_template_files;
 	public string $path_to_cache;
 	public $twigLoader;
 	public $twigEnv;
+	public $current_page;
+	// Needed for Symfony Mailer, which extends this class
+	protected $mailer_dsn;
 
 	public function __construct(ServiceLocator $app) {
+		$this->app = $app;
 		$this->_settings = $app['config'];
+		$this->mailer_dsn = $this->_settings->setting('mailer_dsn');
 		$this->path_to_template_files = $this->_settings->setting('template_folder');
 		$this->path_to_cache = $this->_settings->setting('var_path').'/cache/';
 
@@ -26,7 +32,9 @@ class Template {
 			'debug' => true,
 			
 		]);
+		// Pass some global vars to Twig templates
 		$this->twigEnv->addGlobal('base_url', $this->_settings->setting('site_url'));
+		$this->twigEnv->addGlobal('current_page', $app['router']->controller);
 	}
 
 	public function render($template_file, $vars = [])

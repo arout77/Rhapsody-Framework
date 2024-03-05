@@ -20,7 +20,7 @@ define('USER_PICS', DOC_ROOT . $_subdir . 'media/images/profile' . DS);
 define('USER_PICS_URL', SITE_URL . 'media/images/profile' . DS);
 define('VAR_PATH', $app['config']->setting('var_path'));
 define('VENDOR_PATH', $app['config']->setting('vendor_folder'));
-define('VIEWS_PATH', $app['config']->setting('template_folder') . 'views' . DS);
+define('VIEWS_PATH', $app['config']->setting('template_folder') . DS);
 define('SMARTY_PATH', VENDOR_PATH . 'smarty' . DS . 'smarty' . DS);
 if (!defined('SMARTY_DIR')) {
 	define('SMARTY_DIR', VENDOR_PATH . 'smarty' . DS . 'smarty' . DS . 'libs' . DS);
@@ -33,9 +33,13 @@ $_SERVER['HTTP_FORWARDED_FOR'] ??
 $_SERVER['HTTP_FORWARDED'] ??
 $_SERVER['REMOTE_ADDR'];
 if (str_contains($ip4, '::1') || str_contains($ip4, '127.0.0.1')) {
-	$externalContent = file_get_contents('http://checkip.dyndns.com/');
-	preg_match('/Current IP Address: \[?([:.0-9a-fA-F]+)\]?/', $externalContent, $m);
-	$ip4 = $m[1];
+	
+	if(file_get_contents('http://checkip.dyndns.com/') != false)
+	{
+		$externalContent = file_get_contents('http://checkip.dyndns.com/');
+		preg_match('/Current IP Address: \[?([:.0-9a-fA-F]+)\]?/', $externalContent, $m);
+		$ip4 = $m[1];
+	}
 }
 
 define('MY_IP4', $ip4);
