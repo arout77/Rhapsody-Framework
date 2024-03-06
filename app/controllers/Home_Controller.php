@@ -20,8 +20,8 @@ class Home_Controller extends Base_Controller
             ->cc()
             ->subject('Time for Symfony Mailer!')
             ->html($template);
-        
-        EmailHelper::send('emails/test.html.twig', $email);
+        // Send the email by uncommenting below
+        // EmailHelper::send('emails/test.html.twig', $email);
 
         $this->template->render(
             'home/index.html.twig', 
@@ -34,6 +34,7 @@ class Home_Controller extends Base_Controller
 
     public function test()
     {
+        
         $this->template->render(
             'home/test.html.twig', 
             [
