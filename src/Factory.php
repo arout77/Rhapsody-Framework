@@ -50,7 +50,8 @@ $app['router'] = function ($c) {
 };
 
 $app['database'] = function ($app) {
-	return new \Src\Database($app['app']);
+	$db = new \Src\Db;
+	return $db->init($app['app']);
 };
 
 $app['database_info'] = function ($c) {
