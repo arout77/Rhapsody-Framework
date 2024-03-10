@@ -49,9 +49,16 @@ $app['router'] = function ($c) {
 	return new \Src\Router;
 };
 
-$app['database'] = function ($app) {
-	$db = new \Src\Db;
-	return $db->init($app['app']);
+
+$app['database'] = function ($c) {
+	// Create instance of redbean orm
+	require_once VENDOR_PATH . 'gabordemooij/redbean/RedBeanPHP/R.php';
+	\RedBeanPHP\R::setup("mysql:host=" . $c['config']->setting('db_host') . ";
+		dbname=" . $c['config']->setting('db_name') . "", $c['config']->setting('db_user'), $c['config']->setting('db_pass'));
+
+	return \RedBeanPHP\R::getDatabaseAdapter()->getDatabase()->getPDO()->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+// uncomment the below in production environment to prevent database columns from changing
+// R::freeze( TRUE );
 };
 
 $app['database_info'] = function ($c) {

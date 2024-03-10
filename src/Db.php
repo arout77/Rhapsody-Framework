@@ -1,7 +1,7 @@
 <?php 
 namespace Src;
 
-use RedBeanPHP\R;
+use RedBeanPHP\R as R;
 
 /**
  * Documentation: https://redbeanphp.com/index.php?p=/tutorial

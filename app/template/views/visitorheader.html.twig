@@ -22,19 +22,26 @@
           <li class="dropdown">
           <a class="nav-link scrollto {% if current_page == 'documentation' %}active{% endif %}" href="{{ base_url }}documentation">Documentation</a>
             <ul>
-              <li><a href="#">Drop Down 1</a></li>
-              <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>
+              {# <li><a href="#"></a></li> #}
+              <li class="dropdown"><a href="{{ base_url }}documentation/getting_started/install"><span>Getting Started</span> <i class="bi bi-chevron-right"></i></a>
                 <ul>
-                  <li><a href="#">Deep Drop Down 1</a></li>
-                  <li><a href="#">Deep Drop Down 2</a></li>
-                  <li><a href="#">Deep Drop Down 3</a></li>
-                  <li><a href="#">Deep Drop Down 4</a></li>
-                  <li><a href="#">Deep Drop Down 5</a></li>
+                  <li><a href="{{ base_url }}documentation/getting_started/install">Installation</a></li>
+                  <li><a href="{{ base_url }}documentation/getting_started/configuration">Configuration</a></li>
+                  <li><a href="{{ base_url }}documentation/getting_started/structure">Directory Structure</a></li>
+                  <li><a href="{{ base_url }}documentation/getting_started/frontend">Frontend</a></li>
                 </ul>
               </li>
-              <li><a href="#">Drop Down 2</a></li>
-              <li><a href="#">Drop Down 3</a></li>
-              <li><a href="#">Drop Down 4</a></li>
+              <li class="dropdown"><a href="{{ base_url }}documentation/architecure"><span>Architecture</span> <i class="bi bi-chevron-right"></i></a>
+                <ul>
+                  <li><a href="{{ base_url }}documentation/architecture/request-lifecycle">Request Lifecycle</a></li>
+                </ul>
+              </li>
+              <li class="dropdown"><a href="{{ base_url }}documentation/components"><span>Components</span> <i class="bi bi-chevron-right"></i></a>
+                <ul>
+                  <li><a href="{{ base_url }}documentation/components/overview">Overview</a></li>
+                  <li><a href="{{ base_url }}documentation/components/email">Email</a></li>
+                </ul>
+              </li>
             </ul>
           </li>
           <li><a class="nav-link scrollto" href="#contact">Contact</a></li>

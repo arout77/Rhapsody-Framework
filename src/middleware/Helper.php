@@ -38,7 +38,7 @@ class Helper
 	public function __construct(\Pimple\Container $app) 
 	{
 		self::$config = $app['config'];
-		self::$db     = $app['database'];
+		//self::$db     = $app['database'];
 		self::$loader   = $app['load'];
 		self::$app   = $app['app'];
 	}

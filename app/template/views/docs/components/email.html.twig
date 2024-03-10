@@ -1,0 +1,67 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Email Component - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="email-component">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Email Component</h3>
+            <div class="card-subtitle text-muted mb-3">
+                The Email helper is a wrapper for Symfony's Mailer. Symfony's Mailer & Mime components form a powerful system for creating and sending emails - 
+                complete with support for multipart messages, Twig integration, CSS inlining, 
+                file attachments and a lot more.
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Configuration</h5>
+            <p class="card-text">
+                The only configuration needed to get started is to modify the <code>MAILER_DSN</code> 
+                option in your .env file. Below is an example how to enter your SMTP settings for Gmail.
+            </p>
+
+<pre>
+<code class="language-php" data-plugin-header="show-language">
+MAILER_DSN="smtp://user:password@smtp.mail.gmail.com:587"
+</code>
+</pre>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Sending Emails</h5>
+            <p class="card-text">
+                Once you have your SMTP credentials saved, you can use the Email helper by 
+                importing it into your controller.
+            </p>
+
+<pre>
+<code class="language-php" data-plugin-header="show-language">
+use \Src\Middleware\EmailHelper;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+</code>
+</pre>
+
+            <p class="card-text">
+                Next, we need to define the Twig template file for the email. By default, 
+                Rhapsody stores its email templates in the <code>/app/template/views/emails/</code> directory.
+            </p>
+
+<pre>
+<code class="language-php" data-plugin-header="show-language">
+$template = 'emails/test.html.twig';
+</code>
+</pre>
+
+            <a href="javascript:void(0)" class="card-link">Card link</a>
+            <a href="javascript:void(0)" class="card-link">Another link</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

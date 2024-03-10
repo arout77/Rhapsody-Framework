@@ -15,13 +15,26 @@ namespace App\Controller {
             );
         }
 
-        public function test()
+        public function getting_started()
         {
+            $page = $this->route->parameter[1];
+
             $this->template->render(
-                'docs/test.html.twig',
+                'docs/getting-started/'.$page.'.html.twig',
                 array(
                     'message'   => 'Page Not Found',
-                    'site_name' => self::data( 'Rhapsody' )
+                )
+            );
+        }
+
+        public function components()
+        {
+            $page = $this->route->parameter[1];
+
+            $this->template->render(
+                'docs/components/'.$page.'.html.twig',
+                array(
+                    'message'   => 'Page Not Found',
                 )
             );
         }

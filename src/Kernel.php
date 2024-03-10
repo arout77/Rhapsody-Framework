@@ -83,7 +83,7 @@ class Kernel
     /**
      * @var mixed
      */
-    protected $_db;
+    protected $db;
 
     /**
      * @var mixed

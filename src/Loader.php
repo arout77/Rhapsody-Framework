@@ -61,7 +61,7 @@ class Loader extends Template
     public function __construct( $c )
     {
         $this->app = $c['app'];
-        $this->db      = $c['database'];
+        //$this->db      = $c['database'];
         $this->config  = $c['config'];
         //$this->session = $c['session'];
         $this->log     = $c['log'];
