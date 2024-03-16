@@ -31,7 +31,6 @@
     },
     "autoload": {
         "psr-4": {
-            "Src\\Block\\": "src/blocks",
             "App\\ControllerOverride\\": "app/override/controllers",
             "Src\\CoreControllerOverride\\": "src/override/controllers",
             "Src\\": "src/",
@@ -45,6 +44,7 @@
             "App\\Subscribers\\": "app/subscribers",
             "App\\Controller\\": "app/controllers",
             "App\\Model\\": "app/models",
+            "App\\Scripts\\": "var/scripts",
             "RedBeanPHP\\": "src/"
         }
     }

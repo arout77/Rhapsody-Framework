@@ -41,11 +41,6 @@ class Config {
 		# Customer service or support email address
 		$this->setting['site_email'] = $env->get_global_configuration('site_email');
 
-		# Site admin name
-		$this->setting['site_admin'] = $env->get_global_configuration('site_admin');
-		$this->setting['admin_controller'] = $env->get_global_configuration('admin_controller');
-		$this->setting['admin_ip'] = $env->get_global_configuration('admin_ip');
-
 		# Address
 		$this->setting['street_address'] = $env->get_global_configuration('street_address');
 		$this->setting['city'] = $env->get_global_configuration('city');
@@ -70,58 +65,13 @@ class Config {
 		# Name of the directory storing template files ( css/js/img, etc. )
 		$this->setting['template_name'] = $env->get_global_configuration('template_name');
 
-		# Name of the directory storing template files for administration area of website( css/js/img, etc. )
-		$this->setting['admin_template_name'] = $env->get_global_configuration('admin_template_name');
-
-		# Enable / disable breadcrumb links
-		$this->setting['breadcrumbs'] = $env->get_global_configuration('breadcrumbs');
-
 		# Put site in maintenance mode
 		$this->setting['maintenance_mode'] = $env->get_global_configuration('maintenance_mode');
 
 		# Check for common issues preventing system from running
 		$this->setting['system_startup_check'] = $env->get_global_configuration('system_startup_check');
 
-		$this->setting['signup_email_confirmation'] = $env->get_global_configuration('signup_email_confirmation');
-
 		$this->setting['compression'] = $env->get_global_configuration('compression');
-
-		$this->setting['login_math'] = $env->get_global_configuration('login_math');
-
-		# Image gallery settings
-		$this->setting['total_img_allowed'] = $env->get_global_configuration('total_img_allowed');
-
-		$this->setting['img_file_size'] = $env->get_global_configuration('img_file_size');
-
-		$this->setting['img_height'] = $env->get_global_configuration('img_height');
-		# Maximum image width in pixels. Set to zero for unlimited
-		$this->setting['img_width'] = $env->get_global_configuration('img_width');
-
-		$this->setting['img_type'] = $env->get_global_configuration('img_type');
-
-		/*----------------------------------------
-		 * Global messenger inbox settings
-		 */
-		# Enable the messenger system by setting this to true
-		$this->setting['inbox_enabled'] = $env->get_global_configuration('inbox_enabled');
-
-		# Max number of saved messages in inbox
-		$this->setting['inbox_limit'] = $env->get_global_configuration('inbox_limit');
-
-		# Allow email addresses to be sent in messages?
-		$this->setting['inbox_allow_email'] = $env->get_global_configuration('inbox_allow_email');
-
-		# Allow URLs to be sent in messages?
-		$this->setting['inbox_allow_url'] = $env->get_global_configuration('inbox_allow_url');
-
-		# Allow links to be sent in messages?
-		$this->setting['inbox_allow_link'] = $env->get_global_configuration('inbox_allow_link');
-
-		# Allow images to be sent in messages?
-		$this->setting['inbox_allow_image'] = $env->get_global_configuration('inbox_allow_image');
-
-		# Allow HTML formatting ( <strong>, <em>, <h1>, etc. ) to be sent in messages?
-		$this->setting['inbox_allow_formatting'] = $env->get_global_configuration('inbox_allow_formatting');
 
 		$this->setting['site_url'] = $env->get_global_configuration('site_url');
 
@@ -136,8 +86,17 @@ class Config {
 		# Sanitize or remove all html tags
 		$this->setting['strip_all_tags'] = $env->get_global_configuration('strip_all_tags');
 
-		# Location of front controller
-		$this->setting['BASE_PATH'] = BASE_PATH;
+		# Base directory where application should begin search for files
+		# if folders were moved
+		if($env->get_global_configuration('base_path') == "")
+		{
+			if($this->setting['subdir'] == "")
+				$this->setting['base_path'] = $_SERVER['DOCUMENT_ROOT'] . self::DS;
+			else 
+				$this->setting['base_path'] = $_SERVER['DOCUMENT_ROOT'] . self::DS . $this->setting['subdir'];
+		} else {
+			$this->setting['base_path'] = $env->get_global_configuration('base_path') . self::DS;
+		}
 
 		# Location of app folder
 		$this->setting['app_path'] = $env->get_global_configuration('app_path');
@@ -146,34 +105,28 @@ class Config {
 		$this->setting['system_path'] = $env->get_global_configuration('system_folder');
 
 		# Location of the plugins directory
-		$this->setting['plugins_path'] = $this->setting['app_path'] . 'plugins' . self::DS;
+		$this->setting['plugins_path'] = $this->setting['system_path'] . self::DS . 'middleware' . self::DS;
 
 		# Location of the public directory
 		$this->setting['public_path'] = $env->get_global_configuration('public_path');
 
 		# Controllers directory
-		$this->setting['controllers_path'] = $this->setting['app_path'] . DS . 'controllers' . DS;
+		$this->setting['controllers_path'] = $this->setting['app_path'] . self::DS . 'controllers' . self::DS;
 
 		# Models directory
-		$this->setting['models_path'] = $this->setting['app_path'] . 'models' . DS;
+		$this->setting['models_path'] = $this->setting['app_path'] . self::DS . 'models' . self::DS;
 
 		# Var folder
 		$this->setting['var_path'] = $env->get_global_configuration('var_path');
 
 		# Vendor folder
-		$this->setting['vendor_folder'] = BASE_PATH . self::DS . 'vendor' . self::DS;
+		$this->setting['vendor_folder'] = $this->setting['base_path'] . self::DS . 'vendor' . self::DS;
 
 		# Location of template directory
 		$this->setting['template_folder'] = $this->setting['app_path'] . 'template/views/';
 
-		# Location of admin template directory
-		$this->setting['admin_template_folder'] = $this->setting['BASE_PATH'] . 'app/design/admin/' . $this->setting['template_name'] . '/';
-
 		# Template URL for fetching CSS / JS / IMG files
 		$this->setting['template_url'] = $this->setting['site_url'] . 'public/';
-
-		# Admin Template URL for fetching CSS / JS / IMG files
-		$this->setting['admin_template_url'] = $this->setting['site_url'] . 'app/design/admin/' . $this->setting['admin_template_name'] . '/';
 
 		# Enable / disable Memcached helper
 		if (extension_loaded('memcached')) {

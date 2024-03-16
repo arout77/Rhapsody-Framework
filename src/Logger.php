@@ -2,7 +2,7 @@
 namespace Src;
 
 /**
- * File:    /app/code/core/system/Logger.php
+ * File:    /src/Logger.php
  * Purpose: Handles system and user-defined event logging
  */
 

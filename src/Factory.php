@@ -6,12 +6,12 @@
  * and manage dependencies
  */
 use Pimple\Container as Container;
-use Symfony\Component\Mailer\MailerInterface;
 
 $app = new Container;
 $app['app'] = $app;
 
 $app['global_config_import'] = function () {
+	if(!defined('ENV_PATH')) require_once 'Paths.php';
 	return new \Src\Import(ENV_PATH);
 };
 

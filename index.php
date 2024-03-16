@@ -24,7 +24,7 @@
 /**
  * An open source application development framework designed for PHP 7
  *
- * @package         DiamondPHP Framwework
+ * @package         Rhapsody Framwework
  * @author          Andrew Rout [ arout@diamondphp.org ]
  * @copyright       Copyright (c) 2024, Andrew Rout
  * @license         https://diamondphp.org/support/license
@@ -41,7 +41,7 @@ define('DS', DIRECTORY_SEPARATOR);
 // For security purposes, we recommend the front controller
 // to be the only PHP file stored in a publicly accessible folder
 if (!defined('BASE_PATH')) {
-	$dir = getcwd();
+	$dir = dirname(__FILE__);
 	$dir = chop($dir);
 	$dir = chop($dir, "/");
 	define('BASE_PATH', $dir . DS);
@@ -50,24 +50,23 @@ if (!defined('BASE_PATH')) {
 // If you moved your .env file to another directory,
 // remove BASE_PATH . below and enter the full file path
 define('ENV_PATH', BASE_PATH . '.env');
-$file = ENV_PATH;
 
 // Check for and attempt to fix read permissions to the .env file
 // Will not work on all servers
-$fp = fileperms($file);
-if (file_exists($file)) {
+$fp = fileperms(ENV_PATH);
+if (file_exists(ENV_PATH)) {
 	if (substr(sprintf('%o', $fp), -4) != 0644) {
-		chmod($file, 0644);
+		chmod(ENV_PATH, 0644);
 	}
 }
 
-// Either the $file variable above is set incorrectly,
+// Either the ENV_PATH variable above is set incorrectly,
 // or we just cannot read the file. Alert user and abort.
-if (!is_readable($file)) {
+if (!is_readable(ENV_PATH)) {
 	exit('<h3>Either the <span style="color: red;">.env</span> global configuration file was not found,
         or the file does not have read permissions. Exiting...</h3>');
 }
-unset($file);
+
 unset($fp);
 
 require_once BASE_PATH . 'vendor' . DS . 'autoload.php';

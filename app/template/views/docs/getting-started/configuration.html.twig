@@ -1,0 +1,385 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Configuration - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="configuration">
+	<div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">How To Access Configuration Settings</h3>
+            <div class="card-subtitle text-muted mb-3">
+              Typically, you would access the configuration settings contained in the .env file directly in your 
+              controllers, or pass them from your controllers as variables to your views. You may also access 
+			  them in your <a href="{{ base_url }}documentation/components/scripts">custom scripts</a>. 
+              The syntax for getting the value of the settings is as follows: 
+              <p>
+                <code>$this->config->setting('')</code>
+              </p>
+              <p>In the above example, we would pass the label of the option listed in the .env file, in the 
+                form of a string.</p>
+              <p>Lets take a look at an example of how we can get the website name and 
+                pass it to the Twig view file.</p>
+            </div>           
+        </div>
+    </div>
+
+File:  /app/controllers/Example_Controller.php
+<pre>
+<code class="language-php" data-plugin-header="show-language">
+&lt;?php
+namespace App\Controller;
+use Src\Controller\Base_Controller;
+
+class Example_Controller extends Base_Controller
+{
+	public function index()
+	{
+		// Get the 'site_name' option from .env and assign it to $foo
+		$foo = $this->config->setting('site_name');
+
+		// Get the 'site_url' option from .env and assign it to $bar
+		$bar = $this->config->setting('site_url');
+
+		// Set the Twig template file
+		// Instantiate Twig variable 'website_name' and assign it value of $foo
+		// Do the same with 'url' and $bar
+		$this->template->render('example.html.twig', [
+			'website_name' 	=> $foo,
+			'url' 			=> $bar,
+		]);
+	}
+}
+</code>
+</pre>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Configuration</h3>
+            <div class="card-subtitle text-muted mb-3">
+                Now that you have installed Rhapsody Framework, it's time to set up your environment. Locate 
+                your <code>.env.example</code> file (located in the same directory as index.php unless you moved it).
+            </div>           
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Environment Settings</h5>
+            <p class="card-text">
+                Locate your <code>.env.example</code> file, and rename it to <code>.env</code>. <br>
+                This file is the main configuration file that is parsed by the <var>Configuration class</var>, 
+                and used throughout the application.
+            </p>
+
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> Please note that when editing values in the .env file, the values must always be wrapped 
+                in double quotes; even integer / boolean values. The parser uses weak type checking to 
+                evaluate the values.
+            </div>
+
+            <div class="card nav-align-top mb-4">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                  <li class="nav-item">
+                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-home" aria-controls="navs-justified-home" aria-selected="true">
+                      <i class="tf-icons bx bx-data"></i> Database
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-profile" aria-controls="navs-justified-profile" aria-selected="false">
+                      <i class="tf-icons bx bx-folder"></i> Folder Locations
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-messages" aria-controls="navs-justified-messages" aria-selected="false">
+                      <i class="tf-icons bx bx-globe"></i> Global Application
+                    </button>
+                  </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="navs-justified-home" role="tabpanel">
+                        <ul>
+                            <li><a href="#dbengine">Database Engine</a></li>
+                            <li><a href="#dbhost">Database Host</a></li>
+                            <li><a href="#dbport">Database Port</a></li>
+                            <li><a href="#dbname">Database Name</a></li>
+                            <li><a href="#dbuser">Database User</a></li>
+                            <li><a href="#dbpass">Database Pass</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="navs-justified-profile" role="tabpanel">
+                        <ul>
+                            <li><a href="#apppath">App Directory</a></li>
+                            <li><a href="#basepath">Base Directory</a></li>
+                            <li><a href="#logpath">Log Directory</a></li>
+                            <li><a href="#publicpath">Public Directory</a></li>
+                            <li><a href="#subdir">Subdirectory</a></li>
+                            <li><a href="#varpath">Var Directory</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="navs-justified-messages" role="tabpanel">
+                        <div class="row">
+                          <div class="col-xs-12 col-md-3">
+                            <h6>Site Settings</h6>
+                            <ul>
+                                <li><a href="#siteurl">Site URL</a></li>
+                                <li><a href="#sitename">Website Name</a></li>
+                                <li><a href="#sitetz">Timezone</a></li>
+                                <li><a href="#siteemail">Site Email</a></li>
+                                <li><a href="#street_address">Address</a></li>
+                                <li><a href="#city">City</a></li>
+                                <li><a href="#state">State</a></li>
+                                <li><a href="#zipcode">Zipcode</a></li>
+                                <li><a href="#telephone">Phone</a></li>
+                            </ul>
+                          </div>
+
+                          <div class="col-xs-12 col-md-3">
+                            <h6>Debug/Error Settings</h6>
+                            <ul>
+                                <li><a href="#errorreports">Error Reports</a></li>
+                                <li><a href="#debugmode">Debug Mode</a></li>
+                                <li><a href="#debugtoolbar">Debug Toolbar</a></li>
+                                <li><a href="#logerrors">Error Logging</a></li>
+                            </ul>
+
+                            <h6>Session Settings</h6>
+                            <ul>
+                                <li><a href="#siteurl">Session Name</a></li>
+                                <li><a href="#sitename">Strict Mode</a></li>
+                                <li><a href="#sitetz">Cookie Lifetime</a></li>
+                                <li><a href="#siteemail">Cookie Domain</a></li>
+                                <li><a href="#street_address">Cookie HTTP Only</a></li>
+                                <li><a href="#city">Session Cache Limiter</a></li>
+                            </ul>
+                          </div>
+
+                          <div class="col-xs-12 col-md-3">
+                            <h6>Misc. Settings</h6>
+                            <ul>
+                                <li><a href="#siteurl">site_url</a></li>
+                                <li><a href="#sitename">site_name</a></li>
+                                <li><a href="#sitetz">site_timezone</a></li>
+                                <li><a href="#siteemail">site_email</a></li>
+                                <li><a href="#street_address">street_address</a></li>
+                                <li><a href="#city">city</a></li>
+                                <li><a href="#state">state</a></li>
+                                <li><a href="#zipcode">zipcode</a></li>
+                                <li><a href="#telephone">telephone</a></li>
+                            </ul>
+                          </div>
+
+                          <div class="col-xs-12 col-md-3">
+                            <h6>&nbsp;</h6>
+                            <ul>
+                                <li><a href="#siteurl">site_url</a></li>
+                                <li><a href="#sitename">site_name</a></li>
+                                <li><a href="#sitetz">site_timezone</a></li>
+                                <li><a href="#siteemail">site_email</a></li>
+                                <li><a href="#street_address">street_address</a></li>
+                                <li><a href="#city">city</a></li>
+                                <li><a href="#state">state</a></li>
+                                <li><a href="#zipcode">zipcode</a></li>
+                                <li><a href="#telephone">telephone</a></li>
+                            </ul>
+                          </div>
+                      </div>
+                    </div>
+                </div>
+              </div>
+
+            <div class="divider text-start">
+                <div class="divider-text">Database</div>
+            </div>
+            <dl class="row mt-2">
+                <dt class="col-sm-2" id="dbengine">db_type</dt>
+                <dd class="col-sm-10">
+                  <p>
+                    This option is the database engine that you are using. 
+                    Options are mysql, mssql, postgresql or ODBC (select mysql if you're using MariaDB).
+                  </p>
+                </dd>
+                <dt class="col-sm-2" id="dbhost">db_host</dt>
+                <dd class="col-sm-10">
+                  <p>Where your database is hosted. Set to <strong>localhost</strong> by default.</p>
+                </dd>
+                <dt class="col-sm-2" id="dbport">db_port</dt>
+                <dd class="col-sm-10">
+                  <p>The port number used to connect to database. Default is 3306.</p>
+                </dd>
+                <dt class="col-sm-2" id="dbname">db_name</dt>
+                <dd class="col-sm-10">
+                  <p>Your database name. Support for multiple databases will be added in the future.</p>
+                </dd>
+                <dt class="col-sm-2" id="dbuser">db_user</dt>
+                <dd class="col-sm-10">
+                  <p>Database username</p>
+                </dd>
+                <dt class="col-sm-2" id="dbpass">db_pass</dt>
+                <dd class="col-sm-10">
+                  <p>Database password</p>
+                </dd>
+            </dl>
+
+            <div class="divider text-start">
+                <div class="divider-text">Folder Locations</div>
+            </div>
+
+            <div class="alert alert-warning">
+                <i class="fa fa-exclamation-triangle"></i> Not all folder path settings contained in the .env file 
+                are listed below. It is recommended to only modify the settings covered here in the 
+                documentation.
+            </div>
+
+            <dl class="row mt-2">
+                <dt class="col-sm-2" id="apppath">app_path</dt>
+                <dd class="col-sm-10">
+                  <p>The path to the <code>app</code> folder. Contains your controllers, models, views and other 
+                    application logic. If you renamed the folder, enter the name here. 
+                    If you moved it, enter the full path to this folder, including the name. Make sure to include 
+                    a trailing slash.</p>
+                </dd>
+                <dt class="col-sm-2" id="basepath">base_path</dt>
+                <dd class="col-sm-10">
+                  <p>The <code>base_path</code> is the full file path to the directory that contains your 
+                    app, public, src, var and vendor folders. By default, this value is set to the server document root elsewhere internally by the application. 
+                    If you haven't moved any of your folders, leave this value blank. Otherwise, enter the 
+                    full file path to this folder, including the name. 
+                    If you moved it, enter the full path to this folder, including the name. DO NOT include 
+                    a trailing slash.</p>
+                </dd>
+                <dt class="col-sm-2" id="logpath">log_path</dt>
+                <dd class="col-sm-10">
+                  <p>The path to the folder that stores system and user generated log files. Set to <code>/var/logs/</code> by default. 
+                    If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+                    a trailing slash.</p>
+                </dd>
+                <dt class="col-sm-2" id="publicpath">public_path</dt>
+                <dd class="col-sm-10">
+                  <p>The path to the <code>public</code> folder. This folder is where you will store all of your 
+                web accessible assets (css, javascript, images, fonts, etc). you can rename it if you wish, but it must 
+             remain in a folder accessible from the web; i.e., in the server document root.</p>
+                </dd>
+                <dt class="col-sm-2" id="subdir">subdir</dt>
+                <dd class="col-sm-10">
+                  <p>Reminder: the "installation directory" is considered to be the directory that contains the 
+                    index.php and htaccess files. If installed in a subdirectory under the server DOCUMENT_ROOT, enter name of subdirectory
+                     folder here. No trailing slash. Otherwise, leave blank</p>
+                </dd>
+                <dt class="col-sm-2" id="varpath">var_path</dt>
+                <dd class="col-sm-10">
+                  <p>The path to the <code>var</code> folder. This folder contains cache files, system and 
+                user generated log files, and scripts (code intended to be run from the command line). 
+                If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+                a trailing slash.</p>
+                </dd>
+            </dl>
+
+            <div class="divider text-start">
+              <div class="divider-text">Global Application Settings</div>
+            </div>
+
+            <h6 style="text-decoration:underline;">Website</h6>
+            <dl class="row mt-2">
+              <dt class="col-sm-2" id="siteurl">site_url</dt>
+              <dd class="col-sm-10">
+                <p><code>Required</code>. Contains your controllers, models, views and other 
+                  application logic. If you renamed the folder, enter the name here. 
+                  If you moved it, enter the full path to this folder, including the name. Make sure to include 
+                  a trailing slash.</p>
+              </dd>
+              <dt class="col-sm-2" id="sitename">site_name</dt>
+              <dd class="col-sm-10">
+                <p><code>Required</code>. By default, this value is set to the server document root elsewhere internally by the application. 
+                  If you haven't moved any of your folders, leave this value blank. Otherwise, enter the 
+                  full file path to this folder, including the name. 
+                  If you moved it, enter the full path to this folder, including the name. DO NOT include 
+                  a trailing slash.</p>
+              </dd>
+              <dt class="col-sm-2" id="sitetz">site_timezone</dt>
+              <dd class="col-sm-10">
+                <p><code>Required</code>. Set to <code>/var/logs/</code> by default. 
+                  If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+                  a trailing slash.</p>
+              </dd>
+              <dt class="col-sm-2" id="siteemail">site_email</dt>
+              <dd class="col-sm-10">
+                <p>The path to the <code>public</code> folder. This folder is where you will store all of your 
+              web accessible assets (css, javascript, images, fonts, etc). you can rename it if you wish, but it must 
+           remain in a folder accessible from the web; i.e., in the server document root.</p>
+              </dd>
+              <dt class="col-sm-2" id="address">street_address</dt>
+              <dd class="col-sm-10">
+                <p>Reminder: the "installation directory" is considered to be the directory that contains the 
+                  index.php and htaccess files. If installed in a subdirectory under the server DOCUMENT_ROOT, enter name of subdirectory
+                   folder here. No trailing slash. Otherwise, leave blank</p>
+              </dd>
+              <dt class="col-sm-2" id="city">city</dt>
+              <dd class="col-sm-10">
+                <p>The path to the <code>var</code> folder. This folder contains cache files, system and 
+              user generated log files, and scripts (code intended to be run from the command line). 
+              If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+              a trailing slash.</p>
+              </dd>
+              <dt class="col-sm-2" id="state">state</dt>
+              <dd class="col-sm-10">
+                <p>The path to the <code>var</code> folder. This folder contains cache files, system and 
+              user generated log files, and scripts (code intended to be run from the command line). 
+              If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+              a trailing slash.</p>
+              </dd>
+              <dt class="col-sm-2" id="zipcode">zipcode</dt>
+              <dd class="col-sm-10">
+                <p>The path to the <code>var</code> folder. This folder contains cache files, system and 
+              user generated log files, and scripts (code intended to be run from the command line). 
+              If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+              a trailing slash.</p>
+              </dd>
+              <dt class="col-sm-2" id="telephone">telephone</dt>
+              <dd class="col-sm-10">
+                <p>The path to the <code>var</code> folder. This folder contains cache files, system and 
+              user generated log files, and scripts (code intended to be run from the command line). 
+              If you renamed the folder, enter the name here. If you moved it, enter the full path to this folder, including the name. Make sure to include 
+              a trailing slash.</p>
+              </dd>
+          </dl>
+
+		  <h6 style="text-decoration:underline;">Debug / Error</h6>
+            <dl class="row mt-2">
+              <dt class="col-sm-2" id="errorreports">error_reports</dt>
+              <dd class="col-sm-10">
+                <p><code>Required</code>. Set the level of PHP's error reporting. Options are 
+				<strong>ON / OFF / DEV MODE</strong></p>
+				<p>
+					'ON' sets error reporting to E_ALL & ~E_NOTICE [show all errors except notices]. <br>
+					'DEV MODE' sets error reporting to E_ALL [show all errors, including notices] <br>
+					'OFF' turns error reporting off completely
+				</p>
+				<p>
+					If set to ON or DEV MODE, errors will be displayed in the browser, as well as logged 
+					to the system.log file. MAKE SURE TO TURN THIS SETTING OFF IN PRODUCTION.
+				</p>
+              </dd>
+              <dt class="col-sm-2" id="debugmode">debug_mode</dt>
+              <dd class="col-sm-10">
+                <p><code>Required</code>. Options are <strong>ON / OFF</strong>. If debug_mode is turned on, you will get more detailed custom 
+				error messages. Requires error_reports to be ON or DEV MODE to use this feature.</p>
+              </dd>
+              <dt class="col-sm-2" id="debugtoolbar">debug_toolbar</dt>
+              <dd class="col-sm-10">
+                <p><code>Required</code>. Options are <strong>ON / OFF</strong>.  
+                  The Debug Toolbar provides environment and performance information. This should also be turned off 
+				on a profuction site.</p>
+              </dd>
+              <dt class="col-sm-2" id="logerrors">log_errors</dt>
+              <dd class="col-sm-10">
+                <p>Log run time errors to file ( /var/logs/system.log ). Options are <strong>ON / OFF</strong>. 
+					Turning this off will disable error logging completely, however, you can still manually log errors using the
+					Logger class.
+				</p>
+              </dd>
+          </dl>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

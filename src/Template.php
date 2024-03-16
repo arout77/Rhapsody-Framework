@@ -15,13 +15,10 @@ class Template {
 	public $twigLoader;
 	public $twigEnv;
 	public $current_page;
-	// Needed for Symfony Mailer, which extends this class
-	protected $mailer_dsn;
 
 	public function __construct(ServiceLocator $app) {
 		$this->app = $app;
 		$this->_settings = $app['config'];
-		$this->mailer_dsn = $this->_settings->setting('mailer_dsn');
 		$this->path_to_template_files = $this->_settings->setting('template_folder');
 		$this->path_to_cache = $this->_settings->setting('var_path').'/cache/';
 
