@@ -48,10 +48,11 @@ if (!is_readable('src/controllers/Base_Controller.php'))
 	exit("<h3>src/controllers/Base_Controller.php file either does not exist, or does not have read permissions (0644) in <code>src/controllers/Base_Controller.php</code></h3>");
 }
 
-if (!array_key_exists('mod_rewrite', $_SERVER) && !array_key_exists('REDIRECT_mod_rewrite', $_SERVER) && !array_key_exists('REDIRECT_HTTP_MOD_REWRITE', $_SERVER))
-{
-	exit('<h3>Apache module <code>mod_rewrite</code> was not detected. System exiting...</h3>');
-}
+// Legacy
+// if (!array_key_exists('mod_rewrite', $_SERVER) && !array_key_exists('REDIRECT_mod_rewrite', $_SERVER) && !array_key_exists('REDIRECT_HTTP_MOD_REWRITE', $_SERVER))
+// {
+// 	exit('<h3>Apache module <code>mod_rewrite</code> was not detected. System exiting...</h3>');
+// }
 
 if (!extension_loaded('pdo'))
 {

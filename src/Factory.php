@@ -58,7 +58,7 @@ $app['database'] = function ($c) {
 
 	return \RedBeanPHP\R::getDatabaseAdapter()->getDatabase()->getPDO()->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
 // uncomment the below in production environment to prevent database columns from changing
-// R::freeze( TRUE );
+// \RedBeanPHP\R::freeze( TRUE );
 };
 
 $app['database_info'] = function ($c) {
@@ -71,7 +71,7 @@ $app['load'] = function ($c) {
 };
 
 $app['log'] = function ($c) {
-	return new \Src\Logger();
+	return new \Src\Logger($c);
 };
 
 $app['system_model'] = function (\Pimple\Container $app) {

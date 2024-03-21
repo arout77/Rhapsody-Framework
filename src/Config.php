@@ -59,7 +59,7 @@ class Config {
 		$this->setting['debug_toolbar'] = $env->get_global_configuration('debug_toolbar');
 
 		$this->setting['log_errors'] = $env->get_global_configuration('log_errors');
-		$this->setting['log_path'] = $env->get_global_configuration('log_path');
+		$this->setting['log_path'] = $env->get_global_configuration('base_path').DS.$env->get_global_configuration('log_path');
 		$this->setting['log_file_max_size'] = $env->get_global_configuration('log_file_max_size');
 
 		# Name of the directory storing template files ( css/js/img, etc. )
@@ -99,10 +99,10 @@ class Config {
 		}
 
 		# Location of app folder
-		$this->setting['app_path'] = $env->get_global_configuration('app_path');
+		$this->setting['app_path'] = $this->setting['base_path'] . self::DS . $env->get_global_configuration('app_path');
 
 		# Location of the src directory
-		$this->setting['system_path'] = $env->get_global_configuration('system_folder');
+		$this->setting['system_path'] = $this->setting['base_path'] . self::DS . $env->get_global_configuration('system_folder');
 
 		# Location of the plugins directory
 		$this->setting['plugins_path'] = $this->setting['system_path'] . self::DS . 'middleware' . self::DS;
@@ -117,7 +117,7 @@ class Config {
 		$this->setting['models_path'] = $this->setting['app_path'] . self::DS . 'models' . self::DS;
 
 		# Var folder
-		$this->setting['var_path'] = $env->get_global_configuration('var_path');
+		$this->setting['var_path'] = $this->setting['base_path'] . self::DS . $env->get_global_configuration('var_path');
 
 		# Vendor folder
 		$this->setting['vendor_folder'] = $this->setting['base_path'] . self::DS . 'vendor' . self::DS;

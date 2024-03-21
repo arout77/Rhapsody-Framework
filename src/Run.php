@@ -1,24 +1,24 @@
 <?php
 
-if ($app['config']->setting('debug_mode') == 'ON' || $app['config']->setting('debug_mode') == 'on') {
+if ( strtoupper($app['config']->setting('debug_mode') ) == 'ON') {
 	// Start the timer for script exec time profiler
 	$profiler = new Src\Profiler($app, []);
 	$profiler->start_timer();
 }
 
-if ($app['config']->setting('maintenance_mode') === "TRUE") {
+if ( strtoupper($app['config']->setting('maintenance_mode') ) === "TRUE") {
 	if ($app['router']->controller_class !== 'Maintenance_Controller' &&
 		$app['router']->controller_class !== 'Contact_Controller') {
 		header('Location: ' . $app['config']->setting('site_url') . 'maintenance');
 	}
 }
 
-if ($app['config']->setting('system_startup_check') === "TRUE") {
+if ( strtoupper($app['config']->setting('system_startup_check')) === "TRUE") {
 	require_once 'system_startup_check.php';
 	exit;
 }
 
-if ($app['config']->setting('debug_mode') == 'ON' || $app['config']->setting('debug_mode') == 'on') {
+if ( strtoupper($app['config']->setting('debug_mode') ) == 'ON') {
 	// Stop the timer for script exec time profiler
 	$profiler->stop_timer();
 

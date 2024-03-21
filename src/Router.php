@@ -31,16 +31,19 @@ class Router
         // and store the currently used controller/action/parameter
         $urlSegments = $_SERVER["REQUEST_URI"];
         $urlSegments = explode("/", $urlSegments);
-
+        $self = str_replace("index.php", "", $_SERVER["PHP_SELF"]);
+        $self = str_replace("/", "", $self);
         // Filter out the host name and installed subdirectory if applicable
         if (
-            $urlSegments[0] == $_SERVER["SERVER_NAME"] ||
+            $urlSegments[0] == $_SERVER["SERVER_NAME"] || 
+            $urlSegments[0] == $self || 
+            $urlSegments[0] == $subdir || 
             $urlSegments[0] == ""
         ) {
             unset($urlSegments[0]);
         }
 
-        if ($urlSegments[1] == $subdir) {
+        if ($urlSegments[1] == $self || $urlSegments[1] == $subdir) {
             unset($urlSegments[1]);
         }
 

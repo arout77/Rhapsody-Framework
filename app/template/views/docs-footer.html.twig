@@ -7,24 +7,16 @@
           document.write(new Date().getFullYear());
         </script>
         , made with ❤️ by
-        <a href="{{ base_url }}" target="_blank" class="footer-link fw-bolder">ThemeSelection</a>
+        <a href="{{ base_url }}" target="_blank" class="footer-link fw-bolder">Rhapsody Framework</a>
       </div>
       <div>
-        <a href="{{ base_url }}/license/" class="footer-link me-4" target="_blank">License</a>
-        <a href="{{ base_url }}/" target="_blank" class="footer-link me-4">More Themes</a>
+        <a href="{{ base_url }}license/" class="footer-link me-4" target="_blank">License</a>
 
         <a
-          href="{{ base_url }}/demo/sneat-bootstrap-html-admin-template/documentation/"
+          href="{{ base_url }}documentation/"
           target="_blank"
           class="footer-link me-4"
           >Documentation</a
-        >
-
-        <a
-          href="{{ base_url }}"
-          target="_blank"
-          class="footer-link me-4"
-          >Support</a
         >
       </div>
     </div>
@@ -72,21 +64,13 @@
     }
 
   function darkMode() {
-      // document.getElementById("layout-menu").style.color = "white";
-      // document.body.style.backgroundColor = "#040040";
-      //code...
       document.body.classList.add("dark");
-      // document.getElementById("checkbox").onclick = lightMode;
       localStorage.setItem('mode', 'dark');
       mode = localStorage.getItem('mode');
   }
 
   function lightMode() {
-      // document.getElementById("layout-menu").style.color = "black";
-      // document.body.style.backgroundColor = "lightblue";
-      // //more code...
       document.body.classList.remove("dark");
-      // document.getElementById("checkbox").onclick = darkMode;
       localStorage.setItem('mode', 'light');
       mode = localStorage.getItem('mode');
   }

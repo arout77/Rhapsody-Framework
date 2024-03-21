@@ -26,6 +26,7 @@ $_SERVER['HTTP_FORWARDED_FOR'] ??
 $_SERVER['HTTP_FORWARDED'] ?? 
 $_SERVER['REMOTE_ADDR'] ?? 
 '127.0.0.1';
+ob_start();
 if (str_contains($ip4, '::1') || str_contains($ip4, '127.0.0.1')) {
 	
 	if(file_get_contents('http://checkip.dyndns.com/') != false)
@@ -35,6 +36,6 @@ if (str_contains($ip4, '::1') || str_contains($ip4, '127.0.0.1')) {
 		$ip4 = $m[1];
 	}
 }
-
+ob_clean();
 define('MY_IP4', $ip4);
 // define('MY_IP6', );

@@ -11,8 +11,13 @@ class Example extends KernelApi
     {
         return $this->config->setting('site_name');
     }
+
+    public function test(): string|null 
+    {
+        return $this->log->clean();
+    }
 }
 
 $kapi = new Example;
 $kapi->init($app);
-echo $kapi->getSiteName();
+$kapi->test();

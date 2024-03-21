@@ -1,0 +1,30 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Template System - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="views">
+	<div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Templating System</h3>
+            <div class="card-subtitle text-muted mb-3">
+              Rhapsody Framework uses the Twig template engine to display view files. For simplicity 
+              and future compatibility, the framework simply provides a wrapper in which to pass data to 
+              Twig; no functionality or syntax in Twig itself has been changed. If you are new to Twig, 
+              it is highly recommended to go over some of the <a href="https://twig.symfony.com" target="_blank">Twig documentation</a>. 
+              Twig is very powerful, but also very simple to get started in, especially if you have used a PHP 
+              template engine in the past, such as Blade or Smarty. At the minimum, you'll want to know about 
+              blocks, template inheritance, creating and displaying variables and looping in Twig. 
+              The syntax for getting the value of the settings is as follows: 
+              <p>
+                <code>$this->config->setting('')</code>
+              </p>
+              <p>In the above example, we would pass the label of the option listed in the .env file, in the 
+                form of a string.</p>
+              <p>Lets take a look at an example of how we can get the website name and 
+                pass it to the Twig view file.</p>
+            </div>           
+        </div>
+    </div>
+</section>
+{% endblock %}

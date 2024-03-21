@@ -8,6 +8,13 @@ namespace Src;
 
 class Logger {
 
+	protected $config;
+
+	public function __construct($app)
+	{
+		$this->config = $app['config'];
+	}
+
 	/**
 	 * @param $message
 	 * @param NULL $logfile
@@ -56,29 +63,89 @@ class Logger {
 		}
 	}
 
-	public function clean() {
+	public function clean() 
+	{
+		if (php_sapi_name() != "cli")
+		{
+			self::save("Log cleaning can only be run from command line.");
+			exit("Log cleaning can only be run from command line. Exiting...");
+		}
 
 		# Maximum size of log file allowed
 		$max_size = $this->config->setting('log_file_max_size') * 1000000;
+		$max_size_mb = $this->config->setting('log_file_max_size');
 
 		chdir(LOG_PATH);
 
-		foreach (glob("*.log") as $_file) {
+		$archiveDir = $this->config->setting("log_path") . '/archive';
+		$logFileArr = [];
+		$errors = [];
+		$date = date("Y-m-d");
 
-			if (filesize($_file) >= $max_size) {
-
-				$tar = new \PharData(basename($_file, ".log") . '-error-log-archive.tar');
+		foreach (glob("*.log") as $_file) 
+		{
+			if (filesize($_file) >= $max_size) 
+			{
+				$tar = new \PharData(basename($_file, ".log") . '-' . $date . '-' . time() .'-error-log-archive.tar');
 				$tar->addFile($_file);
 				$tar->compress(\Phar::GZ);
 
+				$_file = str_replace(".log", "", $_file);
+
 				# Move tarball to archives folder once complete
-				if (is_readable('archive/' . $_file . '-error-log-archive.tar')) {
-					rename($_file . '-error-log-archive.tar', 'archive/' . $_file . '-error-log-archive.tar');
-				} else {
-					rename($_file . '-error-log-archive.tar', 'archive/' . $_file . '_' . time() . '-error-log-archive.tar');
+				if(!is_dir('archive'))
+				{
+					mkdir('archive', 0644);
+				}
+
+				if(!rename($_file . '-' . $date . '-' . time() .'-error-log-archive.tar.gz', 
+				'archive/' . $_file . '-' . $date . '-' . time() .'-error-log-archive.tar.gz'))
+				{
+					exit("An error occurred while processing {$_file}.log");
+				}
+
+				# Delete old log file
+				if (!unlink($_file.".log")) 
+				{ 
+					$errors["$_file"] = $_file; 
+				} 
+				else { 
+					$logFileArr["$_file"] = $_file; 
+				}
+
+				if(!unlink($_file . '-' . $date . '-' . time() .'-error-log-archive.tar'))
+				{
+					echo "$_file . '-' . $date . '-' . time() .'-error-log-archive.tar' was not deleted.
+					 Please remove manually.";
 				}
 
 			}
+		}
+
+		if( empty($errors) && empty($logFileArr) )
+		{
+			echo "No log files larger than {$max_size_mb}MB found. Exiting...";
+		}
+
+		if( empty($errors) && !empty($logFileArr) )
+		{
+			foreach($logFileArr as $lfile)
+				echo "{$lfile}.log archived and moved to $archiveDir directory...\r\n";
+		}
+
+		if( !empty($errors) && empty($logFileArr) )
+		{
+			foreach($errors as $error)
+				echo "An error occurred while trying to process {$error}.log ...\r\n";
+		}
+
+		if( !empty($errors) && !empty($logFileArr) )
+		{
+			foreach($logFileArr as $lfile)
+				echo "{$lfile}.log moved to $archiveDir directory...\r\n";
+
+			foreach($errors as $error)
+				echo "An error occurred while trying to process {$error}.log ...\r\n";
 		}
 	}
 }

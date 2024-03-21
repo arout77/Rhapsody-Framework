@@ -44,7 +44,7 @@ class Home_Controller extends Base_Controller
     {
         $db = R::dispense( 'documentation' );
         $db->category = 'Components';
-        $db->subcategory = 'Email';
+        $db->subcategory = 'Scripts';
         $db->content = '';
         $id = R::store( $db );
 
