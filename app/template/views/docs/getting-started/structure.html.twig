@@ -1,15 +1,17 @@
 {% extends 'docs.html.twig' %}
 
-{% block title %}Documentation | Install - Rhapsody Framework{% endblock %}
+{% block title %}Documentation | Directory Overview - Rhapsody Framework{% endblock %}
 
 {% block content %}
-<section id="installation">
+<section id="structure">
     <div class="card mb-4">
         <div class="card-body">
-            <h3 class="card-title">Installation</h3>
+            <h3 class="card-title">Directory Overview</h3>
             <div class="card-subtitle text-muted mb-3">
-                Installing Rhapsody Framework is a breeze! Before you begin, please make sure that your environment 
-                meets the following requirements. 
+                <p class="card-text">The default directory structure of Rhapsody is nice and compact, with sensible naming conventions, 
+                helping you to find what you need quickly. Take a moment to get familiar with where everything is located, and be sure 
+                to view the notes below to avoid any conflicts as your application grows.
+                </p>
             </div>
         </div>
     </div>
@@ -18,7 +20,102 @@
     </style>
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title"><i class="fa-solid fa-circle-exclamation shimR"></i> Directories</h5>
+            <div class="row">
+                <div class="divider">
+                    <div class="divider-text divider-dashed text-start">Description</div>
+                </div>
+                <div class="col-md-3 col-12 mb-3 mb-md-0">
+                  <div class="list-group">
+                    <a class="list-group-item list-group-item-action active" id="list-app-list" data-bs-toggle="list" href="#list-app">app</a>
+                    <a class="list-group-item list-group-item-action" id="list-public-list" data-bs-toggle="list" href="#list-public">public</a>
+                    <a class="list-group-item list-group-item-action" id="list-src-list" data-bs-toggle="list" href="#list-src">src</a>
+                    <a class="list-group-item list-group-item-action" id="list-var-list" data-bs-toggle="list" href="#list-var">var</a>
+                    <a class="list-group-item list-group-item-action" id="list-vendor-list" data-bs-toggle="list" href="#list-vendor">vendor</a>
+                </div>
+                </div>
+                <div class="col-md-8 col-12">
+                  <div class="tab-content p-0">
+                    <div class="tab-pane fade active show" id="list-app">
+                        <p>
+                            The <strong>app</strong> directory is where your application logic and views/template files 
+                            are stored. This is where you will spend most, if not all, of your time working out of. 
+                            There are a few things to take note of:
+                        </p>
+                        <p>
+                            Inside the <strong>/app/controllers</strong> directory, you'll find another directory, named "override". 
+                            This directory is reserved for third-party middleware. If you install any middleware 
+                            and it includes a controller that matches the name of one of your controllers, the 
+                            third-party controller will take priority and be executed.
+                        </p>
+                        <p>
+                            The <strong>/app/models</strong> directory is where you store your models. 
+                        </p>
+                        <p>
+                            The <strong>views</strong> folder inside template directory is where your Twig template files are found. 
+                            It is good practice to create a folder inside the views directory for each of your controllers. 
+                            This will not only keep everything nice and organized, but will prevent name collisions where 
+                            two different controllers each need to render a view that has the same name.
+                        </p>
+                        <p>
+                            Additionally, this structure makes it very simple to have multiple options HTML templates for your site, 
+                            due to Twig's template inheritance. For example, when you first download the framework, you'll notice 
+                            that inside <strong>/template/views</strong>, there are Twig files named <code>base.html.twig</code> 
+                            and <code>docs.html.twig</code>. This allows us to apply one template to the main site, and a second 
+                            template for documentation, by simply creating views that extend either base.html.twig or docs.html.twig. 
+                            There is no limit to the number of different templates that you can implement on each site.
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="list-public">
+                        <p>
+                            The <strong>/public/template</strong> directory is where you will store all of your 
+                            web assets that need to be accessible from the web (CSS, Javascript, images, 
+                            fonts, multimedia, etc). It must remain in a web accessible folder; i.e., 
+                            somewhere in the server's document root (often named public_html, www or srv depending on your hosting) or a subdirectory. 
+                            If you're using multiple templates on your site, you may want to consider creating separate folders for each 
+                            templates assets. For example, the framework comes with two folders in the <strong>template</strong> 
+                            directory, named 'default' and 'docs'. The main site's assets are stored under 'default', and the 
+                            documentation portion of the site stores its assets under the 'docs' folder.
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="list-src">
+                        <div class="alert alert-danger">
+                            <i class="fa fa-exclamation-triangle"></i> <strong>Never</strong> edit a file 
+                            stored under the /src directory. Not only may this produce unexpected behavior, 
+                            but your changes will be overwritten when you update the framework. If you encounter 
+                            a bug, please report it. If you need custom functionality not provided by the core 
+                            framework, see the "Modules" documentation on how to create modules.
+                        </div>
+                        <p>
+                            The <strong>/src</strong> folder contains all of the framework's logic. Consider this 
+                            to be a "read-only" directory. Do not store anything here, or make any changes to any of the 
+                            files contained here. Look, but don't touch!
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="list-var">
+                        <p>
+                            The <strong>/var</strong> folder is where the system stores cache and log files, and 
+                            also where your custom scripts that are run via a terminal are kept.
+                        </p>
+                        <p>
+                            It is safe to delete cache files, new cache files will be generated if you have template 
+                            caching turned on; however you might experience a temporary slowdown while the cache is 
+                            regenerated. Log files may be deleted manually, or by running the 
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="list-vendor">
+                        Marzipan cake oat cake. Marshmallow pie chocolate. Liquorice oat cake donut halvah
+                        jelly-o. Jelly-o muffin macaroon cake gingerbread candy cupcake. Cake lollipop lollipop
+                        jelly brownie cake topping chocolate. Pie oat cake jelly. Lemon drops halvah jelly
+                        cookie bonbon cake cupcake ice cream. Donut tart bonbon sweet roll soufflé gummies
+                        biscuit. Wafer toffee topping jelly beans icing pie apple pie toffee pudding. Tiramisu
+                        powder macaroon tiramisu cake halvah.
+                      </div>
+                  </div>
+                </div>
+              </div>
+            <div class="divider">
+                <div class="divider-text divider-dashed text-start">Heirarchy</div>
+            </div>
             <p class="card-text">
                 <div id="jstree-custom-icons" class="jstree jstree-2 jstree-default-dark" role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant="j2_1" aria-busy="false">
                     <ul class="jstree-container-ul jstree-children" role="presentation">
@@ -41,42 +138,71 @@
                                 </li>
                             </ul>
                         </li>
-                        <li role="none" id="j2_8" class="jstree-node  jstree-open">
-                            <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_8_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder jstree-themeicon-custom" role="presentation"></i>js</a>
+
+                        <li role="none" id="j2_4" class="jstree-node  jstree-open">
+                            <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_4_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder jstree-themeicon-custom" role="presentation"></i> public</a>
                             <ul role="group" class="jstree-children">
-                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bxl-nodejs text-warning jstree-themeicon-custom" role="presentation"></i>jquery.js</a></li>
-                                <li role="none" id="j2_10" class="jstree-node  jstree-leaf jstree-last"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_10_anchor"><i class="jstree-icon jstree-themeicon bx bxl-nodejs text-warning jstree-themeicon-custom" role="presentation"></i>app.js</a></li>
+                                <li role="none" id="j2_8" class="jstree-node  jstree-open">
+                                    <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_8_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> default</a>
+                                    <ul role="group" class="jstree-children">
+                                        <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-warning jstree-themeicon-custom" role="presentation"></i> assets</a></li>
+                                        <ul role="group" class="jstree-children">
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> css</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> img</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> js</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> scss</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> vendor</a></li>
+                                        </ul>
+                                    </ul>
+                                </li>
+                                <li role="none" id="j2_8" class="jstree-node  jstree-open">
+                                    <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_8_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> docs</a>
+                                    <ul role="group" class="jstree-children">
+                                        <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-warning jstree-themeicon-custom" role="presentation"></i> assets</a></li>
+                                        <ul role="group" class="jstree-children">
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> css</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> fonts</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> img</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> js</a></li>
+                                            <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="3" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-danger jstree-themeicon-custom" role="presentation"></i> vendor</a></li>
+                                        </ul>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
+
+                        <li role="none" id="j2_8" class="jstree-node  jstree-open">
+                            <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_8_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder jstree-themeicon-custom" role="presentation"></i> src</a>
+                            <ul role="group" class="jstree-children">
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> controllers</a></li>
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> middleware</a></li>
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> models</a></li>
+                            </ul>
+                        </li>
+
+                        <li role="none" id="j2_8" class="jstree-node  jstree-open">
+                            <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_8_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder jstree-themeicon-custom" role="presentation"></i> var</a>
+                            <ul role="group" class="jstree-children">
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> cache</a></li>
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> logs</a></li>
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> scripts</a></li>
+                            </ul>
+                        </li>
+
+                        <li role="none" id="j2_8" class="jstree-node  jstree-open">
+                            <i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" aria-expanded="true" id="j2_8_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder jstree-themeicon-custom" role="presentation"></i> vendor</a>
+                            <ul role="group" class="jstree-children">
+                                <li role="none" id="j2_9" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="2" id="j2_9_anchor"><i class="jstree-icon jstree-themeicon bx bx-folder text-success jstree-themeicon-custom" role="presentation"></i> * third-party packages imported by Composer *</a></li>
+                            </ul>
+                        </li>
+
+                        <li>&nbsp;</li>
                         <li role="none" id="j2_11" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" id="j2_11_anchor"><i class="jstree-icon jstree-themeicon bx bxl-php text-danger jstree-themeicon-custom" role="presentation"></i> index.php</a></li>
                         <li role="none" id="j2_12" class="jstree-node  jstree-leaf"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" id="j2_12_anchor"><i class="jstree-icon jstree-themeicon bx bxl-html5 text-danger jstree-themeicon-custom" role="presentation"></i> .env.example</a></li>
-                        <li role="none" id="j2_13" class="jstree-node  jstree-leaf jstree-last"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" id="j2_13_anchor"><i class="jstree-icon jstree-themeicon bx bxl-html5 text-danger jstree-themeicon-custom" role="presentation"></i>page-two.html</a></li>
+                        <li role="none" id="j2_13" class="jstree-node  jstree-leaf jstree-last"><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="#" tabindex="-1" role="treeitem" aria-selected="false" aria-level="1" id="j2_13_anchor"><i class="jstree-icon jstree-themeicon bx bxl-html5 text-danger jstree-themeicon-custom" role="presentation"></i>.htaccess</a></li>
                     </ul>
                 </div>
             </p>
-        </div>
-    </div>
-    <div class="col-md-6 col-12">
-        <div class="card mb-4">
-          <h5 class="card-header">Custom Icons</h5>
-          <div class="card-body">
-            <div id="jstree-custom-icons"></div>
-          </div>
-        </div>
-      </div>
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Sending Emails</h5>
-            <p class="card-text">
-                Once you have your SMTP credentials saved, you can use the Email helper by 
-                importing it into your controller.
-            </p>
-            <p class="card-text">
-                Next, we need to define the Twig template file for the email. By default, 
-                Rhapsody stores its email templates in the <code>/app/template/views/emails/</code> directory.
-            </p>
-            <a href="javascript:void(0)" class="card-link">Card link</a>
-            <a href="javascript:void(0)" class="card-link">Another link</a>
         </div>
     </div>
 </section>

@@ -63,12 +63,12 @@ class Logger {
 		}
 	}
 
-	public function clean() 
+	public function archive() 
 	{
 		if (php_sapi_name() != "cli")
 		{
 			self::save("Log cleaning can only be run from command line.");
-			exit("Log cleaning can only be run from command line. Exiting...");
+			exit("Log cleaning can only be run from command line. Exiting...\r\n");
 		}
 
 		# Maximum size of log file allowed
@@ -124,7 +124,7 @@ class Logger {
 
 		if( empty($errors) && empty($logFileArr) )
 		{
-			echo "No log files larger than {$max_size_mb}MB found. Exiting...";
+			echo "No log files larger than {$max_size_mb}MB found. Exiting...\r\n";
 		}
 
 		if( empty($errors) && !empty($logFileArr) )
@@ -143,6 +143,74 @@ class Logger {
 		{
 			foreach($logFileArr as $lfile)
 				echo "{$lfile}.log moved to $archiveDir directory...\r\n";
+
+			foreach($errors as $error)
+				echo "An error occurred while trying to process {$error}.log ...\r\n";
+		}
+	}
+
+	public function delete(array $files = []) 
+	{
+		if (php_sapi_name() != "cli")
+		{
+			self::save("Log cleaning can only be run from command line.");
+			exit("Log cleaning can only be run from command line. Exiting...\r\n");
+		}
+
+		chdir(LOG_PATH);
+
+		$archiveDir = $this->config->setting("log_path") . '/archive';
+		$logFileArr = [];
+		$errors = [];
+
+		if( !empty($files) )
+		{
+			foreach (glob("{$files}.log") as $_file) 
+			{
+				# Delete old log file
+				if (!unlink($_file.".log")) 
+				{ 
+					$errors["$_file"] = $_file; 
+				} 
+				else { 
+					$logFileArr["$_file"] = $_file; 
+				}
+			}
+		} else {
+			foreach (glob("*.log") as $_file) 
+			{
+				# Delete old log file
+				if (!unlink($_file)) 
+				{ 
+					$errors["$_file"] = $_file; 
+				} 
+				else { 
+					$logFileArr["$_file"] = $_file; 
+				}
+			}
+		}
+
+		if( empty($errors) && empty($logFileArr) )
+		{
+			echo "No log files found. Exiting...\r\n";
+		}
+
+		if( empty($errors) && !empty($logFileArr) )
+		{
+			foreach($logFileArr as $lfile)
+				echo "{$lfile}.log was deleted...\r\n";
+		}
+
+		if( !empty($errors) && empty($logFileArr) )
+		{
+			foreach($errors as $error)
+				echo "An error occurred while trying to process {$error} ...\r\n";
+		}
+
+		if( !empty($errors) && !empty($logFileArr) )
+		{
+			foreach($logFileArr as $lfile)
+				echo "{$lfile}.log was deleted...\r\n";
 
 			foreach($errors as $error)
 				echo "An error occurred while trying to process {$error}.log ...\r\n";
