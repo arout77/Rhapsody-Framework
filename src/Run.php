@@ -1,24 +1,39 @@
 <?php
+use Src\Error;
+use Validate\Enums\Boolean;
+use Validate\Enums\Error_Reports;
 
-if ( strtoupper($app['config']->setting('debug_mode') ) == 'ON') {
+if ( strtoupper($app[ 'config' ]->setting('debug_mode') ) === Boolean::ON ) {
 	// Start the timer for script exec time profiler
 	$profiler = new Src\Profiler($app, []);
 	$profiler->start_timer();
 }
 
-if ( strtoupper($app['config']->setting('maintenance_mode') ) === "TRUE") {
+$maintenance_mode = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'maintenance_mode' )));
+if( is_null( $maintenance_mode ) )
+{
+	exit("Invalid value for maintenance mode. Valid settings are: 'ON' or 'OFF'");
+}
+
+if ( $maintenance_mode->value === Boolean::ON ) {
 	if ($app['router']->controller_class !== 'Maintenance_Controller' &&
 		$app['router']->controller_class !== 'Contact_Controller') {
 		header('Location: ' . $app['config']->setting('site_url') . 'maintenance');
 	}
 }
 
-if ( strtoupper($app['config']->setting('system_startup_check')) === "TRUE") {
+$system_startup_check = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'system_startup_check' )));
+if( is_null( $system_startup_check ) )
+{
+	exit("Invalid value for system startup check. Valid settings are: 'ON' or 'OFF'");
+}
+
+if ( $system_startup_check->value === Boolean::ON) {
 	require_once 'system_startup_check.php';
 	exit;
 }
 
-if ( strtoupper($app['config']->setting('debug_mode') ) == 'ON') {
+if ( strtoupper($app[ 'config' ]->setting('debug_mode') ) === Boolean::ON ) {
 	// Stop the timer for script exec time profiler
 	$profiler->stop_timer();
 

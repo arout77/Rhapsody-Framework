@@ -1,0 +1,46 @@
+{% extends "errors.html.twig" %}
+
+{% block title %}Error 404 - Page Not Found{% endblock %}
+
+{% block content %}
+<section id="about" class="d-flex align-items-center justify-content-center">
+    <table style="">
+        <caption><h3>DEBUG CONSOLE <i class="fa fa-bug"></i></h3></caption>
+        <tr>
+            <td style="width: 15%;"><strong>Message:</strong></td>
+            <td class="debug1">CLASS METHOD DOES NOT EXIST</td>
+        </tr>
+        <tr>
+            <td><strong>Method Called:</strong></td>
+            <td class="debug2 pink">{{ method }}()</td>
+        </tr>
+        <tr>
+            <td><strong>Controller:</strong></td>
+            <td class="debug3">{{ controller_path }}{{ controller }}_Controller</td>
+        </tr>
+        <tr></tr>
+        <tr>
+            <td><strong>How to Fix:</strong></td>
+            <td class="debug4">{{ controller }}_Controller was executed, but does not contain any 
+                methods named <code>{{ method }}</code>. <br>
+                Create the <code>{{ method }}()</code> method, and ensure that its visibility is 
+                'public':
+<pre>
+<code class="language-php">&lt;?php
+    class {{ controller }}_Controller extends Base_Controller
+    {
+        public function {{ method }}()
+        {
+            // Do stuff
+        }
+    }
+</code>
+</pre>
+
+                <br><br>
+                View <a href="{{base_url }}documentation/architecture/controllers" style="color: #ff6666">the Controllers documentation</a> for more information.
+            </td>
+        </tr>
+</table>
+</section>
+{% endblock %}

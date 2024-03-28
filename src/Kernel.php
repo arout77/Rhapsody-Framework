@@ -2,6 +2,8 @@
 namespace Src;
 
 use Pimple\Container as ServiceLocator;
+use Validate\Enums\Boolean;
+use Validate\Enums\Error_Reports;
 
 // As of PHP 8.2.0, creating class properties dynamically
 // has been deprecated. The following annotation re-enables
@@ -78,11 +80,6 @@ class Kernel
     /**
      * @var mixed
      */
-    protected $_data;
-
-    /**
-     * @var mixed
-     */
     protected $db;
 
     /**
@@ -104,6 +101,11 @@ class Kernel
      * @var mixed
      */
     protected $_html_purify;
+
+    /**
+     * @var string
+     */
+    protected $maintenance_mode;
 
     /**
      * @var mixed
@@ -136,29 +138,105 @@ class Kernel
     private $controller_filename;
 
     /**
+     * @var string
+     */
+    protected $debug_mode;
+
+    /**
+     * @var string
+     */
+    protected $system_startup_check;
+
+    /**
      * @param $app
      */
 
     public function __construct( protected ServiceLocator $app )
     {
-        $this->base_url   = $app[ 'config' ]->setting( 'site_url' );
-        $this->config     = $app[ 'config' ];
-        $this->controller = $app[ 'router' ]->controller;
-        $this->core       = $app;
-        // $this->cron       = $app['cron'];
-        $this->db      = $app[ 'database' ];
-        $this->db_info = $app[ 'database_info' ];
-        // $this->dispatcher = $app['dispatcher'];
-        $this->event_manager = $app[ 'event_manager' ];
-        // $this->html_purify         = $app['html_purify'];
-        $this->load      = $app[ 'load' ];
-        $this->log       = $app[ 'log' ];
-        $this->model     = $app[ 'system_model' ];
-        $this->parameter = $app[ 'router' ]->parameter;
-        $this->profiler  = $app[ 'profiler' ];
-        $this->route     = $app[ 'router' ];
-        $this->session   = $app[ 'session' ];
-        $this->template  = $app[ 'template' ];
-        $this->helper    = $app[ 'plugin_core' ];
+        $this->config           = $app[ 'config' ];
+        $this->core             = $app;
+
+        /**
+         * Run some sanity checks first. Make sure that .env file contains
+         * valid settings and throw error if not.
+         */
+        $debug_mode             = self::validate_enum('debug_mode', Boolean::class);
+        $debug_toolbar          = self::validate_enum('debug_toolbar', Boolean::class);
+        $err_reporting          = self::validate_enum('error_reports', Error_Reports::class);
+        $maintenance_mode       = self::validate_enum('maintenance_mode', Boolean::class);
+        $system_startup_check   = self::validate_enum('system_startup_check', Boolean::class);
+
+        $this->base_url         = $app[ 'config' ]->setting( 'site_url' );
+        $this->controller       = $app[ 'router' ]->controller;
+        // $this->cron          = $app['cron'];
+        $this->db               = $app[ 'database' ];
+        $this->db_info          = $app[ 'database_info' ];
+        $this->debug_mode       = $debug_mode;
+        $this->error_reports    = $err_reporting;
+        // $this->dispatcher    = $app['dispatcher'];
+        $this->event_manager    = $app[ 'event_manager' ];
+        // $this->html_purify   = $app['html_purify'];
+        $this->load             = $app[ 'load' ];
+        $this->log              = $app[ 'log' ];
+        $this->maintenance_mode = $maintenance_mode;
+        $this->model            = $app[ 'system_model' ];
+        $this->parameter        = $app[ 'router' ]->parameter;
+        $this->profiler         = $app[ 'profiler' ];
+        $this->route            = $app[ 'router' ];
+        $this->session          = $app[ 'session' ];
+        $this->template         = $app[ 'template' ];
+        $this->system_startup_check = $system_startup_check;
+        $this->helper           = $app[ 'plugin_core' ];
+
+        // $maintenance_mode = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'maintenance_mode' )));
+        // if( is_null( $maintenance_mode ) )
+        // {
+        //     exit("Invalid value for maintenance mode. Valid settings are: 'ON' or 'OFF'");
+        // }
+
+        // if ( $maintenance_mode->value === Boolean::ON ) {
+        //     if ($app['router']->controller_class !== 'Maintenance_Controller' &&
+        //         $app['router']->controller_class !== 'Contact_Controller') {
+        //         header('Location: ' . $app['config']->setting('site_url') . 'maintenance');
+        //     }
+        // }
+
+        // $system_startup_check = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'system_startup_check' )));
+        // if( is_null( $system_startup_check ) )
+        // {
+        //     exit("Invalid value for system startup check. Valid settings are: 'ON' or 'OFF'");
+        // }
+
+    }
+
+    private function validate_enum($value, $enum): bool|string
+    {
+        $setting = $enum::tryFrom(strtoupper($this->config->setting["$value"]));
+        if( is_null( $setting ) )
+        {
+            $params = [
+                'type' => 'Enum',
+                'category' => 'Configuration',
+                'triggeredBy' => $enum,
+                'object' => $value,
+                'value'  => $this->config->setting["$value"],
+                'valid_options' => $enum::cases()
+            ];
+            self::throwError($params);
+            return FALSE;
+        }
+        return $setting->value;
+    }
+
+    private function throwError($params)
+    {
+        $e = new Error($this->core); 
+        $e->type = $params['type'];
+        $e->category = $params['category'];
+        $e->triggeredBy = $params['triggeredBy'];
+        $e->object = $params['object'];
+        $e->value = $params['value'];
+        $e->valid_options = $params['valid_options'];
+        $e->display();exit;
     }
 }

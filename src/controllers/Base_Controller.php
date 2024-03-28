@@ -10,12 +10,13 @@ if ( count(get_included_files()) == 1 ) exit;
  * Purpose: Base class from which all controllers extend
  */
 
-class Base_Controller extends Kernel {
-
+class Base_Controller extends Kernel 
+{
 	public function __construct($app)
 	{
 		parent::__construct($app);
 	}
+
 	/**
 	 * @param $headers
 	 */
@@ -78,7 +79,7 @@ class Base_Controller extends Kernel {
 			if (!is_readable($this->config->setting('controllers_path') . $this->controller_filename)) {
 				# Controller file does not exist, or
 				# does not have read permissions
-				if ($this->config->setting('debug_mode') === 'OFF') {
+				if ($this->debug_mode === 'ON') {
 					return $this->redirect('error/_404');
 				} else {
 					$controller = new \Web\Controller\Error_Controller($this->core);
@@ -114,9 +115,11 @@ class Base_Controller extends Kernel {
 					$__instantiate_class->{$this->action}();
 				} else {
 					# Valid controller, but invalid action
-					// $this->template->assign('controller_path', $this->config->setting('controllers_path') . 'controllers/' . $this->controller_filename);
-					// $this->template->assign('content', 'error/action.tpl');
-					exit( $this->action . '() does not exist' );
+					if ($this->debug_mode !== 'ON') {
+						return $this->redirect('error/controller/'.$this->controller.'-'.$this->action);
+					}
+					
+					return $this->redirect('error');
 				}
 			} else {
 				# Controller file exists, but class name
@@ -127,14 +130,11 @@ class Base_Controller extends Kernel {
 			if (!is_readable($this->config->setting('controllers_path') . $this->controller_filename)) {
 				# Controller file does not exist, or
 				# does not have read permissions
-				if ($this->config->setting('debug_mode') === 'OFF') {
-					return $this->redirect('error/_404');
+				if ($this->debug_mode !== 'ON') {
+					return $this->redirect('error/controller/'.$this->controller.'-'.$this->action);
 				}
 				
-				return $this->redirect('error/_404');
-				$error = new \Src\Controller\Error_Controller($this->core);
-				$error->controller();
-				
+				return $this->redirect('error');
 			}
 		}
 
@@ -171,7 +171,7 @@ class Base_Controller extends Kernel {
 		}
 
 		# Controller file does not exist, or does not have read permissions
-		if ($this->config->setting('debug_mode') === 'OFF') {
+		if ($this->debug_mode === 'ON') {
 			return $this->redirect('error/controller/' . $this->controller);
 		}
 		

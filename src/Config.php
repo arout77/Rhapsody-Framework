@@ -99,10 +99,10 @@ class Config {
 		}
 
 		# Location of app folder
-		$this->setting['app_path'] = $this->setting['base_path'] . self::DS . $env->get_global_configuration('app_path');
+		$this->setting['app_path'] = $this->setting['base_path'] . $env->get_global_configuration('app_path');
 
 		# Location of the src directory
-		$this->setting['system_path'] = $this->setting['base_path'] . self::DS . $env->get_global_configuration('system_folder');
+		$this->setting['system_path'] = $this->setting['base_path'] . $env->get_global_configuration('system_folder');
 
 		# Location of the plugins directory
 		$this->setting['plugins_path'] = $this->setting['system_path'] . self::DS . 'middleware' . self::DS;

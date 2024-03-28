@@ -11,30 +11,40 @@ namespace App\Controller {
     {
         public function controller()
         {
-            $controllerName = ucwords( $this->route->parameter[1] );
+            $params = explode("-", $this->route->parameter[1]);
+            $controllerName = ucwords( $params[0] );
+            $methodName = $params[1];
 
-            $this->template->render(
-                'error/controller.html.twig',
-                array(
-                    'controller' => $controllerName
-                )
+            $this->template->render( 'error/controller.html.twig',
+                [
+                    'controller' => $controllerName,
+                    'method'     => $methodName,
+                ]
+            );
+        }
+
+        public function method()
+        {
+            $params = explode("-", $this->route->parameter[1]);
+            $controllerName = ucwords( $params[0] );
+            $methodName = $params[1];
+
+            $this->template->render( 'error/method.html.twig',
+                [
+                    'controller' => $controllerName,
+                    'method'     => $methodName,
+                ]
             );
         }
 
         public function index()
         {
-            $this->template->render(
-                'error/index.html.twig',
-                array(
-                    'message'   => 'Page Not Found',
-                    'site_name' => 'Rhapsody Framework'
-                )
-            );
+            $this->template->render('error/index.html.twig');
         }
 
         public function not_found()
         {
-            print 'The page you were looking for does not exist';
+            $this->template->render('error/index.html.twig');
         }
     }
 }

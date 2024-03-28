@@ -20,10 +20,7 @@ namespace App\Controller {
             $page = $this->route->parameter[1];
 
             $this->template->render(
-                'docs/getting-started/'.$page.'.html.twig',
-                array(
-                    'message'   => 'Page Not Found',
-                )
+                'docs/getting-started/'.$page.'.html.twig'
             );
         }
 
@@ -32,10 +29,7 @@ namespace App\Controller {
             $page = $this->route->parameter[1];
 
             $this->template->render(
-                'docs/components/'.$page.'.html.twig',
-                array(
-                    'message'   => 'Page Not Found',
-                )
+                'docs/components/'.$page.'.html.twig'
             );
         }
     }

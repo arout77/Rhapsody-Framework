@@ -1,0 +1,34 @@
+{% extends "errors.html.twig" %}
+
+{% block title %}Exception - {{ type }}{% endblock %}
+
+{% block content %}
+<section id="about" class="d-flex align-items-center justify-content-center">
+    <table style="">
+        <caption><h3>DEBUG CONSOLE <i class="fa fa-bug"></i></h3></caption>
+        <tr><td><p></p></td><td></td></tr>
+        <tr>
+            <td style="width: 15%;"><strong>Message:</strong></td>
+            <td class="debug1">{{ category }} Error</td>
+        </tr>
+        <tr>
+            <td><strong>Triggered By:</strong></td>
+            <td class="debug2">{{ triggeredBy }}</td>
+        </tr>
+        <tr>
+            <td><strong>Object:</strong></td>
+            <td class="debug3 pink">{{ object }}</td>
+        </tr>
+        <tr>
+            <td><strong>How to Fix:</strong></td>
+            <td class="debug4">{{ message|nl2br }} 
+                <ol>
+                {% for opt in valid_options %} 
+                    <li>"{{ opt.value }}"</li>
+                {% endfor %}
+                </ol>
+            </td>
+        </tr>
+    </table>
+</section>
+{% endblock %}

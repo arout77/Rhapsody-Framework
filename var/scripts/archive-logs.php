@@ -24,6 +24,7 @@ class LogHelper extends KernelApi
         foreach( $argv as $method )
         {
             $method = str_replace("-", "", $method);
+            $method = strtolower($method);
 
             if( method_exists($this, "$method") )
             {
@@ -35,6 +36,20 @@ class LogHelper extends KernelApi
         }
     }
 }
+/** 
+ * How to use this script
+ * ----------------------
+ * 
+ * Open a terminal, and change to this directory:
+ * 
+ * cd /path-to-install/var/scripts 
+ * 
+ * View the methods above, and pass the method as an
+ * argument in the command line:
+ * 
+ * php archive-logs.php -archive
+ * 
+ */
 
 // Instantiate our class
 $kapi = new LogHelper;

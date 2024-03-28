@@ -32,6 +32,10 @@ class Template {
 		// Pass some global vars to Twig templates
 		$this->twigEnv->addGlobal('base_url', $this->_settings->setting('site_url'));
 		$this->twigEnv->addGlobal('current_page', $app['router']->controller);
+		$this->twigEnv->addGlobal('controllers_path', $this->_settings->setting('controllers_path'));
+		$this->twigEnv->addGlobal('views_path', $this->_settings->setting('template_folder'));
+		$this->twigEnv->addGlobal('debug_mode', $this->_settings->setting('debug_mode'));
+		
 	}
 
 	public function render($template_file, $vars = [])

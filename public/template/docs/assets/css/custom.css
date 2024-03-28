@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+
 @font-face {
     font-family: 'Cinzel';
     src: url('../fonts/CinzelDecorative-Regular.ttf');
@@ -29,6 +31,10 @@ pre {
 
 pre[class*=language-] {
   padding: 0 1em;
+}
+
+code[class*=language-], pre[class*=language-] {
+  font-size: .80em;
 }
 
 .shimR {
@@ -69,8 +75,6 @@ code {
     z-index: 10;
     background: linear-gradient(#2e2a2a 41%, rgba(62, 58, 58, 0.11) 95%, rgb(114 102 102 / 6%)) !important;
 }
-
-@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
 * {box-sizing: border-box;}
 
@@ -142,15 +146,6 @@ body.dark .nav-align-top > .tab-content, .nav-align-right > .tab-content, .nav-a
   transform: translateX(24px);
 }
 
-
-
-
-
-
-
-
-
-/*  Support me if you like it */
 .support {
 	position: absolute;
 	right: 20px;

@@ -1559,3 +1559,13 @@ section {
   height: 1000px;
   color: #ffc451;
 }
+
+.console {
+  width: 100%;
+    background-color: #242424;
+    color: limegreen;
+    font-size: 1em;
+    line-height: 1.4em;
+    padding: 0 20px;
+    border: 4px solid limegreen;
+}
