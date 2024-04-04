@@ -16,6 +16,7 @@ class Config {
 		$this->setting['db_name'] = $env->get_global_configuration('db_name');
 		$this->setting['db_user'] = $env->get_global_configuration('db_user');
 		$this->setting['db_pass'] = $env->get_global_configuration('db_pass');
+		$this->setting['db_freeze'] = $env->get_global_configuration('db_freeze');
 
 		# SMTP settings
 		// $this->setting['smtp_host'] = $env->get_global_configuration('smtp_host');
@@ -128,7 +129,7 @@ class Config {
 		# Template URL for fetching CSS / JS / IMG files
 		$this->setting['template_url'] = $this->setting['site_url'] . 'public/';
 
-		# Enable / disable Memcached helper
+		# Enable / disable Memcached middleware
 		if (extension_loaded('memcached')) {
 			$this->setting['memcached'] = TRUE;
 		} else {

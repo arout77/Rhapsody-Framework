@@ -82,6 +82,7 @@ $system_folder = BASE_PATH . 'src' . DS;
 require_once $system_folder . 'Factory.php';
 // Load path definitions
 require_once $app['config']->setting('system_path') . 'Paths.php';
+
 // Check if system check was requested
 if ($app['config']->setting('system_startup_check') == 'TRUE') {
 	require_once SYSTEM_PATH . 'system_startup_check.php';
@@ -119,7 +120,7 @@ if ($_GET) {
  * -----------------------------------------*/
 // Be sure to only make changes to session options
 // within the .env configuration file.
-// $app['session']->start();
+$app['session']->start();
 
 /*-------------------------------------------
  * Instantiate requested URL

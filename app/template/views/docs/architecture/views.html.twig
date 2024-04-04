@@ -3,6 +3,38 @@
 {% block title %}Documentation | Template System - Rhapsody Framework{% endblock %}
 
 {% block content %}
+<section id="hero-animation">
+  <div id="landingHero" class="section-py landing-hero position-relative">
+    <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/hero-bg.png" alt="hero background" class="position-absolute top-0 start-50 translate-middle-x object-fit-contain w-100 h-100" data-speed="1">
+    <div class="container">
+      <div class="hero-text-box text-center">
+        <h1 class="text-primary hero-title display-4 fw-bold">Generating UI With Views</h1>
+        {# <h2 class="hero-sub-title h6 mb-4 pb-1">
+           Some subtitle goes here
+        </h2> 
+        <div class="landing-hero-btn d-inline-block position-relative">
+          <span class="hero-btn-item position-absolute d-none d-md-flex text-heading">Use it:
+            <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/Join-community-arrow.png" alt="Join community arrow" class="scaleX-n1-rtl"></span>
+            <a href="#" class="btn btn-primary">$this->model( "Example" )</a>
+        </div> #}
+      </div>
+    </div>
+  </div>
+</section>
+<p><br></p>
+<div class="card mb-4">
+  <div class="card-body">
+      <h3 class="card-title">Introduction</h3>
+      <div class="card-subtitle text-muted mb-3">
+          <blockquote cite="https://www.techtarget.com/whatis/definition/model-view-controller-MVC#:~:text=The%20MVC%20methodology%20separates%20an,out%20other%20data-related%20tasks.">
+            The view layer provides the UI necessary to interact with the application. It includes components needed to display the data and enables users to interact with that data. 
+            For example, the view layer might include buttons, links, tables, drop-down lists or text boxes.
+
+              <footer style="float:inline-end;">—Tech Target, <cite>What is model-view-controller (MVC)?</cite></footer>
+          </blockquote>
+      </div>
+  </div>
+</div>
 <section id="views">
 	<div class="card mb-4">
         <div class="card-body">

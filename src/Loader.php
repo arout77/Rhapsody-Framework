@@ -27,7 +27,7 @@ class Loader extends Template
     /**
      * @var mixed
      */
-    public $helperNamespace = "\Src\Middleware\\";
+    public $middlewareNamespace = "\Src\Middleware\\";
 
     /**
      * @var mixed
@@ -120,16 +120,16 @@ class Loader extends Template
     }
 
     /**
-     * @param  $helper
+     * @param  $middleware
      * @return mixed
      */
-    public function helper( $helperClass )
+    public function middleware( $middlewareClass )
     {
-        # Load a Toolbox helper
-        $ns     = $this->helperNamespace;
-        $helper = $ns.$helperClass;
+        # Load a Toolbox middleware
+        $ns     = $this->middlewareNamespace;
+        $middleware = $ns.$middlewareClass;
 
-        return new $helper($this->app);
+        return new $middleware($this->app);
     }
 
     /**
@@ -142,9 +142,9 @@ class Loader extends Template
         return get_class($interface);
     }
 
-    public function vendor( $helperClass )
+    public function vendor( $middlewareClass )
     {
-        return $helperClass;
+        return $middlewareClass;
     }
 
     /**
@@ -162,21 +162,22 @@ class Loader extends Template
                 .'Model.php';
             $this->model = $file.'Model';
 
-            return $this->model = new $this->model( $this->toolbox );
+            return $this->model = new $this->model( $this->app );
         }
         elseif ( is_readable( $dir.$file.'Model.php' ) )
         {
             require_once $dir.$file.'Model.php';
-            $this->model = '\Web\Model\\'.$file.'Model';
+            $this->model = '\App\Model\\'.$file.'Model';
 
-            return $this->model = new $this->model( $this->toolbox );
+            return $this->model = new $this->model( $this->app );
         }
         else
         {
             $filename = $dir.$file.'Model.php';
             $this->log->save( "Error opening {$filename}",
                 'system.log' );
-            require_once $dir.'errors/model.php';
+            exit("Error opening {$filename}");
+            // require_once $dir.'errors/model.php';
         }
     }
 

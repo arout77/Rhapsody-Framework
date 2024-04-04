@@ -15,12 +15,20 @@ namespace App\Controller {
             );
         }
 
-        public function getting_started()
+        public function architecture()
         {
             $page = $this->route->parameter[1];
 
+            $db = $this->model("Documentation");
+            
+            // Save this page to DB if it isn't already
+            if( empty( $db->getDocPage( "Architecture", ucwords($page) ) ) ) 
+            {
+                $db->addDocPage( "Architecture", ucwords($page) );
+            }
+
             $this->template->render(
-                'docs/getting-started/'.$page.'.html.twig'
+                'docs/architecture/'.$page.'.html.twig'
             );
         }
 
@@ -28,8 +36,35 @@ namespace App\Controller {
         {
             $page = $this->route->parameter[1];
 
+            $db = $this->model("Documentation");
+            
+            // Save this page to DB if it isn't already
+            if( empty( $db->getDocPage( "Components", ucwords($page) ) ) ) 
+            {
+                $db->addDocPage( "Components", ucwords($page) );
+            }
+
             $this->template->render(
                 'docs/components/'.$page.'.html.twig'
+            );
+        }
+        
+        public function getting_started()
+        {
+            $page = $this->route->parameter[1];
+
+            $db = $this->model("Documentation");
+            
+            // Save this page to DB if it isn't already
+            if( empty( $db->getDocPage( "Getting Started", ucwords($page) ) ) ) 
+            {
+                $db->addDocPage( "Getting Started", ucwords($page) );
+            }
+
+            $page = $this->route->parameter[1];
+
+            $this->template->render(
+                'docs/getting-started/'.$page.'.html.twig'
             );
         }
     }

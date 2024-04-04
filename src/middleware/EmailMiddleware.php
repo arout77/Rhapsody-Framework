@@ -12,7 +12,7 @@ use Symfony\Component\Mime\Email;
  * Documentation:  https://symfony.com/doc/current/mailer.html#twig-html-css
  * 
  **************************************************************************/
-abstract class EmailHelper extends Helper
+abstract class EmailMiddleware extends Helper
 {
     public static function send($emailTemplateFile, $email) 
     {

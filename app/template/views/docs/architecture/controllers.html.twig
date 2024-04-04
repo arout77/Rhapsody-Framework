@@ -1,0 +1,239 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Controllers - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="hero-animation">
+    <div id="landingHero" class="section-py landing-hero position-relative">
+      <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/hero-bg.png" alt="hero background" class="position-absolute top-0 start-50 translate-middle-x object-fit-contain w-100 h-100" data-speed="1">
+      <div class="container">
+        <div class="hero-text-box text-center">
+          <h1 class="text-primary hero-title display-4 fw-bold">Controllers and Routing</h1>
+          {# <h2 class="hero-sub-title h6 mb-4 pb-1">
+             Some subtitle goes here
+          </h2> 
+          <div class="landing-hero-btn d-inline-block position-relative">
+            <span class="hero-btn-item position-absolute d-none d-md-flex text-heading">Use it:
+              <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/Join-community-arrow.png" alt="Join community arrow" class="scaleX-n1-rtl"></span>
+              <a href="#" class="btn btn-primary">$this->model( "Example" )</a>
+          </div> #}
+        </div>
+      </div>
+    </div>
+</section>
+<p><br></p>
+<section id="models">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Introduction</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <blockquote cite="https://www.techtarget.com/whatis/definition/model-view-controller-MVC#:~:text=The%20MVC%20methodology%20separates%20an,out%20other%20data-related%20tasks.">
+                    The controller layer contains the application logic necessary to facilitate 
+                    communications across the application, acting as an interface between the view and 
+                    model layers. The controller is sometimes viewed as the brains of the application, 
+                    keeping everything moving and in sync.
+
+                    <footer style="float:inline-end;">—Tech Target, <cite>What is model-view-controller (MVC)?</cite></footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Overview</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <p>
+                    Your controllers deal with much of your application logic - it retrieves data from 
+                    your models, handles routing, renders your templates and accesses helper components 
+                    (session management, redirects and various other functionalities). While this may 
+                    sound like a lot, it is all a very simple and streamlined process. First, lets 
+                    learn how to create a controller, and how your URLs are mapped to each controller.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Creating a Controller</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <p class="card-text">
+                    Controllers have a few conventions that they must follow:
+                    <ul>
+                        <li>Stored in the <code>/app/controllers</code> directory</li>
+                        <li>Class name must match the file name</li>
+                        <li>Class name and file name must end with '_Controller'</li>
+                        <li>Use the <code>App\Controller</code> namespace</li>
+                        <li>Extend the <code>Base_Controller</code> class</li>
+                    </ul>
+                </p>
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Controller;
+
+use Src\Controller\Base_Controller;
+
+class Example_Controller extends Base_Controller
+{
+
+}
+</code>
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Routing</h5>
+            <p class="card-text">
+                Most PHP frameworks use one of two methods for route mapping - URL based or manual mapping. 
+                Both methods are effective and have their own advantages; Rhapsody uses URL based route matching 
+                for its ease of use and understanding. 
+            </p>
+            <p class="card-text">
+                URL based routing, as the name suggests, parses the requested URL and determines from that which 
+                controllers gets triggered. Essentially, the routing mechanism takes the URL, separates each segment, 
+                and looks for matching controllers. If you have ever used the CodeIgniter framework, then 
+                you're already familiar with the concept (but keep reading, as there are some differences as well).
+            </p>
+            <p class="card-text"> 
+                Lets suppose we have a retail store, and a visitor clicks on the 
+                following link: <br><br> <samp>https://example.com/shoes/men</samp> <br><br>
+                If we examine the above URL, we can ignore the domain name and just view the URL parameters:
+            </p>
+            <p>
+                <samp><span style="text-decoration: line-through;">https://example.com</span>/shoes/men</samp>
+            </p>
+            <p>
+                The two paramters are <code>/shoes</code> and <code>/men</code>. The <strong>first</strong> parameter of a url is 
+                <strong>always</strong> the name of the controller to be executed, and the second parameter is 
+                likewise always going to be the name of a method contained in the controller. So, in our example, 
+                when our visitor goes to <samp>https://example.com/shoes/men</samp>, the routing system will search 
+                for a controller named <samp>Shoes_Controller.php</samp> in the /app/controllers directory, and also 
+                a <samp>men()</samp> method inside of the Shoes controller class.
+            </p>
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Controller;
+
+use Src\Controller\Base_Controller;
+
+class Shoes_Controller extends Base_Controller
+{
+    public function men()
+    {
+        // If this method did not exist, an exception would occur 
+        // since the router searches this controller class for a 
+        // method with a name that matches the second url segment
+    }
+}
+</code>
+</pre>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Controller Defaults</h5>
+            <p class="card-text">
+                You may be curious what happens if a controller or method isn't specified in the url. 
+                Using our example above, what would happen if our visitor simply went to the home page?
+                <br><br> <samp>https://example.com</samp> <br><br>
+                In this instance, a default controller will be executed. In your <strong>.env</strong> 
+                config file, you can edit the <code>"default_controller"</code> option to specify which controller 
+                is the default. Note: the default controller is only triggered when <strong>no</strong> controller is requested in the url, 
+                i.e., what is typically the home page. It will <strong>not</strong> be triggered if a non-existent 
+                controller is requested. Essentially, it is simply intended to keep urls simple by allowing a visitor to view your home page 
+                without forcing them to go to <samp>https://example.com/home-page</samp>.
+            </p>
+            <p>
+                To recap the above:
+                <ul>
+                    <li><samp>https://example.com</samp> (no controller was requested) triggers the default controller</li>
+                    <li><samp>https://example.com/nonexistent-controller-name</samp> triggers an exception</li>
+                </ul>
+            </p>
+            <p class="card-text">
+                <h5 class="card-title">Controller Methods</h5>
+                By default, controllers will attempt to execute a method called <samp>index()</samp> if no method is passed 
+                in the URL. If your controller class does not contain an <samp>index()</samp> method, a 404 error will be 
+                triggered when attempting to visit that page.<br><br>
+                <samp>https://example.com/shoes</samp><br>
+                <em>No method was requested in the url, only the 'shoes' controller. The system will 
+                    attempt to execute the index() class method if it exists; otherwise, a 404 error is thrown.</em>
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Accessing Models and Middleware</h5>
+            <p class="card-text">
+                Your controllers inherit a lot of functionality from the <code>Base_Controller</code> class. 
+                Models and middleware are loaded using the <code>$this</code> keyword.
+<pre>
+<code class="language-php">
+$model = $this->model("Products");
+$session = $this->middleware("Session");
+</code>
+</pre>
+            </p>
+            <p><br></p>
+            <p class="card-text">
+                Lets peek at some code to see how this might be used in a typical application. We'll 
+                stick with our ecommerce store theme from above.
+            </p>
+
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Controller;
+
+use Src\Controller\Base_Controller;
+
+class Cart_Controller extends Base_Controller
+{
+    public function view()
+    {
+        // First check if user is logged in 
+        $session = $this->middleware("Session");
+
+        if( ! $session->id )
+        {
+            // redirect() is a method inherited from Base_Controller
+            $this->redirect("login");
+            exit;
+        }
+
+        // Load the shopping cart model
+        $cart = $this->model("Cart");
+
+        // Products in our shopping cart
+        $items = [];
+
+        if( ! empty( $cart->getProductsFromCart( $session->id ) ) )
+        {
+            // Save the shopping cart to $items, which will be passed to 
+            // the view file for rendering
+            $items = $cart->getProductsFromCart( $session->id );
+        }
+
+        // $this->template->render indicates which view file to display 
+        // for this page, and the second argument accepts a key - value 
+        // array for passing and assigning data to our views
+        $this->template->render( 'docs/index.html.twig', [
+            'items'   => $items,
+        ]);
+    }
+}
+</code>
+</pre>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

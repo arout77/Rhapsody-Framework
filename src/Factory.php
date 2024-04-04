@@ -6,6 +6,9 @@
  * and manage dependencies
  */
 use Pimple\Container as Container;
+use Src\Error;
+use Validate\Enums\Database_Types as DBTYPE;
+use Validate\Enums\Boolean as BOOLEAN;
 
 $app = new Container;
 $app['app'] = $app;
@@ -51,14 +54,64 @@ $app['router'] = function ($c) {
 
 
 $app['database'] = function ($c) {
+
+	$freeze = strtoupper($c['config']->setting('db_freeze'));
+	$dbengine = strtolower($c['config']->setting('db_type'));
+	$freeze_setting = BOOLEAN::tryFrom($freeze);
+	$dbengine_setting = DBTYPE::tryFrom($dbengine);
+
+	function throwError($params, $c)
+	{
+		$e = new Error($c); 
+		$e->type = $params['type'];
+		$e->category = $params['category'];
+		$e->triggeredBy = $params['triggeredBy'];
+		$e->object = $params['object'];
+		$e->value = $params['value'];
+		$e->valid_options = $params['valid_options'];
+		$e->display();exit;
+	}
+
+	if( is_null( $dbengine_setting ) )
+	{
+		$params = [
+			'type' => 'Enum',
+			'category' => 'Configuration',
+			'triggeredBy' => DBTYPE::class,
+			'object' => 'db_type',
+			'value'  => $c['config']->setting('db_type'),
+			'valid_options' => DBTYPE::cases()
+		];
+		
+		return throwError($params, $c);
+	}
+
+	if( is_null( $freeze_setting ) )
+	{
+		$params = [
+			'type' => 'Enum',
+			'category' => 'Configuration',
+			'triggeredBy' => BOOLEAN::class,
+			'object' => 'db_freeze',
+			'value'  => $c['config']->setting('db_freeze'),
+			'valid_options' => BOOLEAN::cases()
+		];
+		
+		return throwError($params, $c);
+	}
 	// Create instance of redbean orm
 	require_once VENDOR_PATH . 'gabordemooij/redbean/RedBeanPHP/R.php';
-	\RedBeanPHP\R::setup("mysql:host=" . $c['config']->setting('db_host') . ";
+	\RedBeanPHP\R::setup(
+		"{$dbengine}:host=" . $c['config']->setting('db_host') . ";
 		dbname=" . $c['config']->setting('db_name') . "", $c['config']->setting('db_user'), $c['config']->setting('db_pass'));
-
-	return \RedBeanPHP\R::getDatabaseAdapter()->getDatabase()->getPDO()->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
-// uncomment the below in production environment to prevent database columns from changing
-// \RedBeanPHP\R::freeze( TRUE );
+	
+	if( $freeze === BOOLEAN::OFF )
+	{
+		return \RedBeanPHP\R::getDatabaseAdapter()->getDatabase()->getPDO()->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+	}
+	
+	\RedBeanPHP\R::getDatabaseAdapter()->getDatabase()->getPDO()->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+	return \RedBeanPHP\R::freeze( TRUE );
 };
 
 $app['database_info'] = function ($c) {
@@ -84,7 +137,7 @@ $app['toolbox'] = function ($app) {
 };
 
 $app['profiler'] = function ($c) {
-	return new \Src\Profiler($c, $helperArr = []);
+	return new \Src\Profiler($c, $middlewareArr = []);
 };
 
 $app['event_manager'] = function ($app) {
@@ -95,8 +148,8 @@ $app['base_controller'] = function ($c) {
 	return new \Src\Controller\Base_Controller($c);
 };
 
-$app['plugin_core'] = function ($app) {
-	return new \Src\Middleware\Helper($app, $helperArr = []);
+$app['middleware'] = function ($app) {
+	return new \Src\Middleware\Helper($app, $middlewareArr = []);
 };
 
 $app['mailer'] = function ($c, MailerInterface $mailer) {
@@ -104,7 +157,7 @@ $app['mailer'] = function ($c, MailerInterface $mailer) {
 };
 
 $app['email'] = function ($c) {
-	return new \Src\Middleware\EmailHelper($c);
+	return new \Src\Middleware\EmailMiddleware($c);
 };
 
 $app['formatter'] = function ($c) {
@@ -147,7 +200,7 @@ $app['hash'] = function ($c) {
 // };
 
 $app['session'] = function ($c) {
-	return new \Src\Middleware\SessionHelper($c);
+	return new \Src\Middleware\SessionMiddleware($c);
 };
 
 $app['template'] = function ($c) {
@@ -217,7 +270,7 @@ $app['code_generator'] = function ($c) {
 return new \Src\Codegenerator($c);
 };
 
-#   Toolbox helpers
+#   Toolbox middlewares
 $app['breadcrumbs'] = function ($c) {
 $bc = new \App\Plugin\Breadcrumbs($c['router'], $c['config']);
 $bc->show();

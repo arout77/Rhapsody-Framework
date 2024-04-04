@@ -179,6 +179,7 @@ class Kernel
         $this->load             = $app[ 'load' ];
         $this->log              = $app[ 'log' ];
         $this->maintenance_mode = $maintenance_mode;
+        $this->middleware       = $app[ 'middleware' ];
         $this->model            = $app[ 'system_model' ];
         $this->parameter        = $app[ 'router' ]->parameter;
         $this->profiler         = $app[ 'profiler' ];
@@ -186,7 +187,6 @@ class Kernel
         $this->session          = $app[ 'session' ];
         $this->template         = $app[ 'template' ];
         $this->system_startup_check = $system_startup_check;
-        $this->helper           = $app[ 'plugin_core' ];
 
         // $maintenance_mode = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'maintenance_mode' )));
         // if( is_null( $maintenance_mode ) )

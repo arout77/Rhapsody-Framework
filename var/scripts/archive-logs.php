@@ -5,7 +5,7 @@ require_once '../../src/KernelApi.php';
 
 use Src\KernelApi;
 
-class LogHelper extends KernelApi
+class LogMiddleware extends KernelApi
 {
     public function archive(): string|null 
     {
@@ -52,7 +52,7 @@ class LogHelper extends KernelApi
  */
 
 // Instantiate our class
-$kapi = new LogHelper;
+$kapi = new LogMiddleware;
 // Import some Kernel functionality
 $kapi->init($app);
 // Run class methods that were passed as CLI parameters

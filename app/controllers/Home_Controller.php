@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use \Src\Controller\Base_Controller;
-use \Src\Middleware\EmailHelper;
+use \Src\Middleware\EmailMiddleware;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -25,7 +25,7 @@ class Home_Controller extends Base_Controller
                 ->subject('Time for Symfony Mailer!')
                 ->html($template);
             // Send the email by uncommenting below
-            // EmailHelper::send('emails/test.html.twig', $email);
+            // EmailMiddleware::send('emails/test.html.twig', $email);
         } catch (TransportExceptionInterface $e) {
             // some error prevented the email sending; display an
             // error message or try to resend the message

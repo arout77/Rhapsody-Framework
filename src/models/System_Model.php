@@ -1,7 +1,10 @@
 <?php
 namespace Src\Model;
 
-class System_Model {
+use RedBeanPHP\R;
+
+class System_Model extends R 
+{
 	/**
 	 * @var mixed
 	 */
@@ -34,7 +37,7 @@ class System_Model {
 	/**
 	 * @var mixed
 	 */
-	protected $helper;
+	protected $middleware;
 	/**
 	 * @var mixed
 	 */
@@ -48,10 +51,7 @@ class System_Model {
 	public function __construct(\Pimple\Container $app) {
 		$this->db      = $app['database'];
 		$this->config  = $app['config'];
-		$this->helper  = $app['plugin_core'];
 		$this->log     = $app['log'];
-		$this->load     = $app['load'];
-		$this->session = self::session();
 		//$this->hash         = self::hash();
 	}
 
@@ -75,21 +75,4 @@ class System_Model {
 		$hash = new \App\Plugin\Hash;
 		return $hash->verify($string, $base);
 	}
-
-	/**
-	 * @return mixed
-	 */
-	public function session() {
-		return $this->load->helper('SessionHelper');
-	}
-
-	/**
-	 * @param $helper
-	 * @return mixed
-	 */
-	public function plugin($helper) {
-		# Load a plugin helper
-		return $this->helper->get("$helper");
-	}
-
 }

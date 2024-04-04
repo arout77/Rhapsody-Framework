@@ -204,12 +204,12 @@ class Base_Controller extends Kernel
 	}
 
 	/**
-	 * @param $helper
+	 * @param $middleware
 	 * @return mixed
 	 */
-	public function plugin($helper) {
-		# Load a plugin helper
-		return $this->plugin["$helper"];
+	public function plugin($middleware) {
+		# Load a plugin middleware
+		return $this->plugin["$middleware"];
 	}
 
 }

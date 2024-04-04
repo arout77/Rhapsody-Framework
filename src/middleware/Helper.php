@@ -11,55 +11,55 @@ class Helper
 {
 
 	/***********************************************************\
-	| This class is the base class that all helpers which need
+	| This class is the base class that all middlewares which need
 	| access to system functionality must extend.
 	\***********************************************************/
 
 	/**
 	 * @var mixed
 	 */
-	protected static $app;
+	protected $app;
 	/**
 	 * @var mixed
 	 */
-	protected static $config;
+	protected $config;
 	/**
 	 * @var mixed
 	 */
-	protected static $db;
+	protected $db;
 	/**
 	 * @var mixed
 	 */
-	public static $loader;
+	public $loader;
 
 	/**
 	 * @param $db
 	 */
 	public function __construct(\Pimple\Container $app) 
 	{
-		self::$config = $app['config'];
-		//self::$db     = $app['database'];
-		self::$loader   = $app['load'];
-		self::$app   = $app['app'];
+		$this->config 	= $app['config'];
+		$this->db     	= $app['database'];
+		$this->loader   = $app['load'];
+		$this->app   	= $app['app'];
 	}
 
 	/**
-	 * @param $helper_name
+	 * @param $middleware_name
 	 * @return object
 	 */
-	public function get($helper_name): object 
+	public function get($middleware_name): object 
 	{
-		# Load a helper
-		return $this->load->helper("$helper_name");
+		# Load a middleware
+		return $this->load->middleware("$middleware_name");
 	}
 
 	/**
-	 * @param $helper_name
+	 * @param $middleware_name
 	 * @return object
 	 */
 	public static function getView($file) 
 	{
-		# Load a helper
+		# Load a middleware
 		return self::loadView("$file");
 	}
 

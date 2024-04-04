@@ -18,6 +18,6 @@ class EventManager extends Event {
         $this->data = $data;
         $this->db = $app['database'];
         $this->config = $app['config'];
-        $this->plugin = $app['plugin_core'];
+        $this->plugin = $app['middleware'];
     }
 }

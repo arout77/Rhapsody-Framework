@@ -1,0 +1,202 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Models - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="hero-animation">
+    <div id="landingHero" class="section-py landing-hero position-relative">
+      <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/hero-bg.png" alt="hero background" class="position-absolute top-0 start-50 translate-middle-x object-fit-contain w-100 h-100" data-speed="1">
+      <div class="container">
+        <div class="hero-text-box text-center">
+          <h1 class="text-primary hero-title display-4 fw-bold">Managing Your Data With Models</h1>
+          {# <h2 class="hero-sub-title h6 mb-4 pb-1">
+             Some subtitle goes here
+          </h2> 
+          <div class="landing-hero-btn d-inline-block position-relative">
+            <span class="hero-btn-item position-absolute d-none d-md-flex text-heading">Use it:
+              <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/Join-community-arrow.png" alt="Join community arrow" class="scaleX-n1-rtl"></span>
+              <a href="#" class="btn btn-primary">$this->model( "Example" )</a>
+          </div> #}
+        </div>
+      </div>
+    </div>
+</section>
+<p><br></p>
+<section id="models">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Introduction</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <blockquote cite="https://www.techtarget.com/whatis/definition/model-view-controller-MVC#:~:text=The%20MVC%20methodology%20separates%20an,out%20other%20data-related%20tasks.">
+                    The model layer is responsible for the application's data logic and storing and 
+                    retrieving data from back-end data stores. The model layer might also include 
+                    mechanisms for validating data and carrying out other data-related tasks. 
+                    This layer is responsible for maintaining all aspects of the data and ensuring its 
+                    integrity and accessibility.
+
+                    <footer style="float:inline-end;">—Tech Target, <cite>What is model-view-controller (MVC)?</cite></footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Overview</h5>
+            <p class="card-text">
+                Rhapsody uses the popular <a href="https://redbeanphp.com/index.php" target="_blank" 
+                class="bold">RedBeanPHP ORM</a> to interact with your database. The framework itself 
+                simply provides a light wrapper around RedBeanPHP's functions. That is to say, instead of calling 
+                RedBeanPHP's <code>R::</code> class directly, you make the class calls using <code>$this</code> 
+                instead. Everything else, including functions and syntax remains exactly the same. Therefore, 
+                rather than duplicating all of the <a href="https://redbeanphp.com/index.php?p=/crud" target="_blank" 
+                class="bold">ORM's documentation</a> here, we will instead talk about how to 
+                implement the ORM within the framework and some best practices.
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Configuring RedBeanPHP</h5>
+            <p class="card-text">
+                The only thing needed to set up RedBeanPHP is to enter your database connection settings 
+                in your <strong>.env</strong> file. The settings are described in the 
+                <a href="{{ base_url }}documentation/getting_started/configuration#dbengine" class="bold">Configuration</a> 
+                section of the documentation if you have not already browsed it. As a reminder, make sure to turn 
+                the <code>db_freeze</code> option to <strong>"ON"</strong> in a production environment.
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Creating A Model</h5>
+            <p class="card-text">
+                Models have a few conventions that they must follow:
+                <ul>
+                    <li>Stored in the <code>/app/models</code> directory</li>
+                    <li>Class name must match the file name</li>
+                    <li>Implement the <code>App\Model</code> namespace</li>
+                    <li>Extend the <code>System_Model</code> class</li>
+                </ul>
+            </p>
+            <p class="card-text">
+                Lets suppose that we have an ecommerce store, and want to create a model that manages  
+                all of our products. We would first create the PHP file:
+            </p>
+            <p class="card-text">
+                <samp>/app/models/ProductsModel.php</samp>
+            </p>
+            <p class="card-text">
+                Next, open the file and add the following:
+            </p>
+            <p class="card-text">
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Model;
+
+use Src\Model\System_Model;
+
+class ProductsModel extends System_Model
+{
+
+}
+</code>
+</pre>
+            </p>
+
+            <p class="card-text">
+                We now have a model created, ready to use, so all we have left to do is add some methods 
+                to it to make it useful.
+            </p>
+            
+            <p class="card-text">
+                As mentioned earlier, Rhapsody uses RedBeanPHP as the ORM, and does not change any of the 
+                syntax or method names, other than using <code>$this</code> for class calls. Lets use our 
+                Products model above to see an example of how to use the ORM to add a product to our inventory.
+            </p>
+
+            <p class="card-text">
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Model;
+
+use Src\Model\System_Model;
+
+class ProductsModel extends System_Model
+{
+    public function addProduct()
+    {
+        // In RedBeanPHP, R::dispense is one way to select a DB table to save data to
+        // In Rhapsody, we use '$this->' instead of 'R::'
+        // Lets select the products table since we are creating a new one to add to it
+        $db = $this->dispense( 'products' );
+
+        // In our products table, we have a column named 'category'. Lets add some shoes
+        $db->category = 'shoes';
+
+        // Are these men or women's shoes? Store this value in the 'gender' column of the products table
+        $db->gender = 'men';
+
+        // What size are these shoes?
+        $db->size = 12;
+
+        // What color are these shoes?
+        $db->color = 'white';
+
+        // What brand are these shoes?
+        $db->brand = 'Nike';
+
+        // Finally, save this to the database
+        // $id now contains the id of the entry we are saving
+        $id = $this->store( $db );
+    }
+}
+</code>
+</pre>
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Accessing Models</h5>
+            <p class="card-text">
+                Now that we've created our model, how do we actually use it? In Rhapsody, 
+                models are accessible from your controllers (and 
+                <a href="{{ base_url }}documentation/components/scripts">custom scripts</a>). 
+                You access them with the <code>$this->model("model_name")</code> syntax. Lets 
+                suppose we already have a Products controller, and want to access our model.
+            </p>
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Controller;
+
+use Src\Controller\Base_Controller;
+
+class Product_Controller extends Base_Controller
+{
+    public function inventory()
+    {
+        // Import the Products model
+        $products = $this->model("Products");
+
+        // Get all the men's shoes from our inventory 
+        $shoes = $products->getShoes( $sex = 'men' );
+
+        // Pass the $shoes object containing our shoes to our template
+        $this->template->render( 'products/clothing/shoes/display-shoes.html.twig', [
+            'shoes' = $shoes
+        ]);
+    }
+}
+</code>
+</pre>
+        </div>
+    </div>
+</section>
+{% endblock %}

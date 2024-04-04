@@ -1,8 +1,8 @@
 <?php
 namespace Src;
-use \Src\Middleware\Helper as Plugin_Core;
+use \Src\Middleware\Helper;
 
-class Profiler extends Plugin_Core {
+class Profiler extends Helper {
 
 	protected float $script_start_time;
 	protected float $script_stop_time;
