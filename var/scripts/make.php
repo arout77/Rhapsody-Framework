@@ -276,48 +276,7 @@ EOT;
             case '-v': self::make_view();
         };
 
-        // foreach( $argv as $parameter )
-        // {
-        //     $parameter = strtolower($parameter);
-
-        //     if( $parameter == '-c' )
-        //     {
-        //         self::make_controller();
-        //     }
-
-        //     if( $parameter == '-m' )
-        //     {
-        //         self::make_model();
-        //     }
-
-        //     if( $parameter == '-v' )
-        //     {
-        //         self::make_view();
-        //     }
-        // }
-
-
         return;
-
-        // $parameter = str_replace("-", "", $parameter);
-
-            // match ($parameter) {
-            //     'c' => $parameter = 'make_controller',
-            //     'controller' => $parameter = 'make_controller',
-            //     'm' => $parameter = 'make_model',
-            //     'model' => $parameter = 'make_model',
-            //     'v' => $parameter = 'make_view',
-            //     'view' => $parameter = 'make_view',
-            // };
-
-            // if( method_exists($this, "{$parameter}") )
-            // {
-            //     self::{$parameter}();
-            //     echo self::class . "::" . $parameter . "() was called \r\n";
-            // } else {
-            //     echo self::class . "::" . $parameter . "() does not exist! \r\n";
-            // }
-
     }
 }
 /** 
@@ -328,10 +287,7 @@ EOT;
  * 
  * cd /path-to-install/var/scripts 
  * 
- * View the methods above, and pass the method as an
- * argument in the command line:
- * 
- * php archive-logs.php -archive
+ * php make.php -h
  * 
  */
 

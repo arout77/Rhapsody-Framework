@@ -13,7 +13,7 @@ namespace App\Controller {
         {
             $params = explode("-", $this->route->parameter[1]);
             $controllerName = ucwords( $params[0] );
-            $methodName = $params[1];
+            $methodName = $params[1] ?? 'index';
 
             $this->template->render( 'error/controller.html.twig',
                 [

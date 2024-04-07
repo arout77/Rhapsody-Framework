@@ -8,7 +8,7 @@
         <caption><h3>DEBUG CONSOLE <i class="fa fa-bug"></i></h3></caption>
         <tr>
             <td style="width: 15%;"><strong>Message:</strong></td>
-            <td class="debug1">INVALID ACTION / METHOD DOES NOT EXIST</td>
+            <td class="debug1">INVALID CONTROLLER / CONTROLLER DOES NOT EXIST</td>
         </tr>
         <tr>
             <td><strong>Method Called:</strong></td>
@@ -24,11 +24,18 @@
                 If the file already exists, ensure that the server has read permissions to the file. 
                 Also ensure that the class name matches the file name -- {{ controller }}_Controller, 
                 as well as extends the core controller class:<br><br>
-                &lt?php 
-                    namespace Web\Controller;
-                    use App\Controller\Base_Controller;
-              
-                    class {{ controller }}_Controller extends Base_Controller{}
+<pre>
+    <code class="language-php">
+&lt?php
+namespace App\Controller;
+use Src\Controller\Base_Controller;
+
+class {{ controller }}_Controller extends Base_Controller
+{
+
+}
+</code>
+</pre>
                     <br><br>
                     Finally, ensure that the index() method exists within the {{ controller }} class. Each controller falls back 
                     on the index() method as the default action.<br><br>
