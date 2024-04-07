@@ -225,13 +225,29 @@ class Cart_Controller extends Base_Controller
         // $this->template->render indicates which view file to display 
         // for this page, and the second argument accepts a key - value 
         // array for passing and assigning data to our views
-        $this->template->render( 'docs/index.html.twig', [
+        $this->template->render( 'cart/view.html.twig', [
             'items'   => $items,
         ]);
     }
 }
 </code>
 </pre>
+
+        <p><br>
+            There's a lot going on in the above, so lets summarize everything from the ground up:
+
+            <ul>
+                <li>Visitor navigates to the following url - <samp>https://example.com/cart/view</samp></li>
+                <li>This request gets processed by your front controller (index.php)</li>
+                <li>The router matches the url to the <code>cart</code> controller and the <code>view</code> method</li>
+                <li>In the <code>view()</code> method, we first checked to see if the user is logged in, and redirect them to the login page if not</li>
+                <li>Next, we loaded the <samp>cart model</samp>, and passed the results to our view</li>
+                <li>
+                    Finally, we display the shopping cart by rendering the <samp>view.html.twig</samp> 
+                    (located in <code>/app/template/views/<strong>cart</strong></code> folder) template file.
+                </li>
+            </ul>
+        </p>
         </div>
     </div>
 

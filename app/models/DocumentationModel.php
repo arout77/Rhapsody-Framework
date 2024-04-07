@@ -12,12 +12,14 @@ class DocumentationModel extends System_Model
         $db->category = $category;
         $db->subcategory = $subcategory;
         $db->content = '';
+        $db->version = '';
+        $db->last_edit_date = date("Y-m-d");
         $id = $this->store( $db );
     }
 
-    public function getDocPage($category, $subcategory)
+    public function getDocPage($category, $subcategory, $version = '1.0.0')
     {
         // Check if this page exists
-        return $this->find( 'documentation', 'category = ? AND subcategory = ?', [$category, $subcategory] );
+        return $this->find( 'documentation', 'category = ? AND subcategory = ? AND version = ?', [$category, $subcategory, $version] );
     }
 }

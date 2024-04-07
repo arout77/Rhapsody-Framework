@@ -185,28 +185,8 @@ class Kernel
         $this->profiler         = $app[ 'profiler' ];
         $this->route            = $app[ 'router' ];
         $this->session          = $app[ 'session' ];
-        $this->template         = $app[ 'template' ];
         $this->system_startup_check = $system_startup_check;
-
-        // $maintenance_mode = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'maintenance_mode' )));
-        // if( is_null( $maintenance_mode ) )
-        // {
-        //     exit("Invalid value for maintenance mode. Valid settings are: 'ON' or 'OFF'");
-        // }
-
-        // if ( $maintenance_mode->value === Boolean::ON ) {
-        //     if ($app['router']->controller_class !== 'Maintenance_Controller' &&
-        //         $app['router']->controller_class !== 'Contact_Controller') {
-        //         header('Location: ' . $app['config']->setting('site_url') . 'maintenance');
-        //     }
-        // }
-
-        // $system_startup_check = Boolean::tryFrom(strtoupper($app[ 'config' ]->setting( 'system_startup_check' )));
-        // if( is_null( $system_startup_check ) )
-        // {
-        //     exit("Invalid value for system startup check. Valid settings are: 'ON' or 'OFF'");
-        // }
-
+        $this->template         = $app[ 'template' ];
     }
 
     private function validate_enum($value, $enum): bool|string
