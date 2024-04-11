@@ -10,10 +10,10 @@
 
     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
         <!-- Search -->
-        <form class="d-flex">
+        <form method="post" action="{{ base_url }}search/results" class="d-flex">
             <div class="input-group"  id="searchbar">
               <span class="input-group-text"><i class="tf-icons bx bx-search"></i></span>
-              <input type="text" class="form-control" placeholder="Search..." >
+              <input type="text" name="navSearch" class="form-control" placeholder="Search..." >
             </div>
           </form>
         <!-- /Search -->

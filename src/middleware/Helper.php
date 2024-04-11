@@ -50,7 +50,7 @@ class Helper
 	public function get($middleware_name): object 
 	{
 		# Load a middleware
-		return $this->load->middleware("$middleware_name");
+		return $this->app["$middleware_name"];
 	}
 
 	/**

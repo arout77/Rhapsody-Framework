@@ -29,6 +29,8 @@ class Template {
 			'debug' => true,
 			
 		]);
+		// Add var_dump to template files
+		$this->twigEnv->addExtension( new \Twig\Extension\DebugExtension() );
 		// Pass some global vars to Twig templates
 		$this->twigEnv->addGlobal('base_url', $this->_settings->setting('site_url'));
 		$this->twigEnv->addGlobal('current_page', $app['router']->controller);

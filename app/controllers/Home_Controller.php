@@ -42,17 +42,34 @@ class Home_Controller extends Base_Controller
 
     public function test()
     {
-        $db = R::dispense( 'documentation' );
-        $db->category = 'Components';
-        $db->subcategory = 'Scripts';
-        $db->content = '';
-        $id = R::store( $db );
+        // The $sql array to pass to pagination->config() method
+        $sql['table'] = 'documentation';
+        $dbQuery = "SELECT * FROM documentation WHERE category = 'Getting Started'";
+        $sql['parameters'] = 'Getting Started';
+        // How many results per page to display
+        $per_page = 20;
+        // The url containing data to be paginated. Leave blank or omit if home page
+        // otherwise just pass the controller name (and method if applicable)
+        $url = '';
+
+        $paginate = $this->middleware->get("pagination");
+        $paginate->config($sql, $per_page, $url);
+        $results = $paginate->runQuery();
+        $paginate = $this->middleware->get("pagination");
+        $totalRecords = $paginate->countResults($dbQuery);
+        $paginate->total = $totalRecords;
+        
+        $results = $paginate->runQuery($dbQuery);
+        $paginate->paginate();
 
         $this->template->render(
             'home/test.html.twig', 
             [
                 'message' => 'Page Not Found',
-                'site_name' => self::data('Rhapsody')
+                'site_name' => self::data('Rhapsody'),
+                'results' => $results,
+                'pagLinks' => $paginate->pageNumbers(),
+                'pagPerPage' => $paginate->itemsPerPage(),
             ]
         );
     }

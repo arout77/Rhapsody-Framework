@@ -104,8 +104,6 @@ class Base_Controller extends Kernel
 		$this->parameter = $this->route->parameter;
 		if (class_exists($_web_class)) {
 			# File was found and has proper file permissions
-			require_once $this->config->setting('controllers_path') . $this->controller_filename;
-
 			if (class_exists($_web_class)) {
 				# File found and class exists, so instantiate controller class
 				$__instantiate_class = new $_web_class($this->core);

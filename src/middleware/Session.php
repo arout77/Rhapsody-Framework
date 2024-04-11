@@ -16,7 +16,7 @@ namespace Src\Middleware {
 |
 |-----------------------------------------*/
 
-    class SessionMiddleware extends Helper
+    class Session extends Helper
     {
         /**
          * @var array

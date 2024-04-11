@@ -5,14 +5,14 @@ namespace Src\Middleware;
 use \Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
-use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Email as SymfonyEmail;
 
 /***************************************************************************
  * 
  * Documentation:  https://symfony.com/doc/current/mailer.html#twig-html-css
  * 
  **************************************************************************/
-abstract class EmailMiddleware extends Helper
+abstract class Email extends Helper
 {
     public static function send($emailTemplateFile, $email) 
     {

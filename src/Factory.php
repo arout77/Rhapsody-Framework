@@ -104,7 +104,7 @@ $app['database'] = function ($c) {
 	\RedBeanPHP\R::setup(
 		"{$dbengine}:host=" . $c['config']->setting('db_host') . ";
 		dbname=" . $c['config']->setting('db_name') . "", $c['config']->setting('db_user'), $c['config']->setting('db_pass'));
-	
+		// \RedBeanPHP\R::fancyDebug(TRUE);
 	if( $freeze === BOOLEAN::OFF )
 	{
 		return \RedBeanPHP\R::getDatabaseAdapter()->getDatabase()->getPDO()->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
@@ -157,7 +157,11 @@ $app['mailer'] = function ($c, MailerInterface $mailer) {
 };
 
 $app['email'] = function ($c) {
-	return new \Src\Middleware\EmailMiddleware($c);
+	return new \Src\Middleware\Email($c);
+};
+
+$app['pagination'] = function ($c) {
+	return new \Src\Middleware\Pagination($c);
 };
 
 $app['formatter'] = function ($c) {
@@ -200,7 +204,7 @@ $app['hash'] = function ($c) {
 // };
 
 $app['session'] = function ($c) {
-	return new \Src\Middleware\SessionMiddleware($c);
+	return new \Src\Middleware\Session($c);
 };
 
 $app['template'] = function ($c) {

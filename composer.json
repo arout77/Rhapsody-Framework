@@ -48,6 +48,7 @@
             "App\\Model\\": "app/models",
             "App\\Scripts\\": "var/scripts",
             "RedBeanPHP\\": "src/",
+            "RedBeanPHP\\Logger\\": "vendor\\gabordemooij\\redbean\\RedBeanPHP\\Logger",
             "Validate\\Enums\\": "src/enums"
         }
     }
