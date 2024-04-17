@@ -1,0 +1,160 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Pagination - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="hero-animation">
+    <div id="landingHero" class="section-py landing-hero position-relative">
+      <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/hero-bg.png" alt="hero background" class="position-absolute top-0 start-50 translate-middle-x object-fit-contain w-100 h-100" data-speed="1">
+      <div class="container">
+        <div class="hero-text-box text-center">
+          <h1 class="text-primary hero-title display-4 fw-bold">Paginating Large Data Sets</h1>
+          {# <h2 class="hero-sub-title h6 mb-4 pb-1">
+             Some subtitle goes here
+          </h2> 
+          <div class="landing-hero-btn d-inline-block position-relative">
+            <span class="hero-btn-item position-absolute d-none d-md-flex text-heading">Use it:
+              <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/Join-community-arrow.png" alt="Join community arrow" class="scaleX-n1-rtl"></span>
+              <a href="#" class="btn btn-primary">$this->model( "Example" )</a>
+          </div> #}
+        </div>
+      </div>
+    </div>
+</section>
+<p><br></p>
+<section id="models">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Pagination Overview</h3>
+            <div class="card-subtitle text-muted mb-3">
+                If you aren't already familiar with the term, pagination is simply taking a large collection of data 
+                and splitting it up into multiple different pages. You've almost certainly seen a pagination menu on websites you 
+                have visited before; they typically look something like this:
+                <p>
+                    <nav aria-label="Page navigation">
+                      <ul class="pagination">
+                        <li class="page-item prev">
+                          <a class="page-link" href="javascript:void(0);"><i class="tf-icon bx bx-chevrons-left"></i></a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="javascript:void(0);">1</a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="javascript:void(0);">2</a>
+                        </li>
+                        <li class="page-item active">
+                          <a class="page-link" href="javascript:void(0);">3</a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="javascript:void(0);">4</a>
+                        </li>
+                        <li class="page-item">
+                          <a class="page-link" href="javascript:void(0);">5</a>
+                        </li>
+                        <li class="page-item next">
+                          <a class="page-link" href="javascript:void(0);"><i class="tf-icon bx bx-chevron-right"></i></a>
+                        </li>
+                      </ul>
+                    </nav>
+                </p>
+                <p>
+                    Without pagination, you would be displaying all of your records to your visitor at once. As you can imagine, 
+                    scrolling through hundreds or thousands of rows of data is not very user-friendly (and could severly hamper performance). Rhapsody provides you with a Pagination class that you can use to easily paginate any dataset, no 
+                    matter how large.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Using the Pagination middleware</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <p>
+                    The first step to using the pagination class is to import it from inside your controller:
+                </p>
+                <p><code>$paginate = $this->load->middleware( 'pagination' );</code></p>
+                <p>
+                    Next, you'll need to define a few options for your pagination menu, which will be passed to the <samp>config()</samp> method:
+
+                    <ul>
+                        <li>The URL of the page displaying your data</li>
+                        <li>The data (typically a model) being paginated</li>
+                        <li>The number of results to display on each page</li>
+                    </ul>
+                </p>
+
+                <p>That's all! The pagination class will take care of the rest for you. Let's review the options above.</p>
+
+                <ol>
+                    <li>
+                        You do not need to pass the entire URL; only use the url segments (including the trailing slash). 
+                        If your url is <samp>https:://example.com/products/shoes/</samp>, you just need to use <strong>'products/shoes/'</strong> as the URL
+                    </li>
+                    <li>The data must be an iterable object, such as database results or an array. Typically, you'll pass it a model.</li>
+                    <li>The number of results to display on each page. If this value isn't specified, it defaults to 20.</li>
+                </ol>
+
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Controller;
+
+use Src\Controller\Base_Controller;
+
+class Products_Controller extends Base_Controller
+{
+    public function results()
+    {
+        /***** First define our options *****/
+        // Our data that needs to be paginated.
+        $model      = $this->model( 'Products' );
+        $dataset    = $model->getShoes();
+        // The URL segments
+        $url        = 'products/shoes/';
+        // How many results per page to show
+        $per_page   = 10;
+
+        /***** Now we load the Pagination class *****/
+        $paginate   = $this->load->middleware( 'pagination' );
+        // Pass the options from above to the config() method
+        $paginate->config( $dataset, $url, $per_page );
+        // Store our results to be passed to Twig
+        $results    = $paginate->runQuery();
+        // Display the pagination menu
+        $links      = $paginate->links();
+
+        $this->template->render( "products/view.html.twig", [
+            'results' => $results,
+            'url' => $url,
+            'links' => $links,
+        ] );
+    }
+}
+</code>
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Creating a Controller</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <p class="card-text">
+                    Controllers have a few conventions that they must follow:
+                    <ul>
+                        <li>Stored in the <code>/app/controllers</code> directory</li>
+                        <li>Class name must match the file name</li>
+                        <li>Class name and file name must end with '_Controller'</li>
+                        <li>Use the <code>App\Controller</code> namespace</li>
+                        <li>Extend the <code>Base_Controller</code> class</li>
+                    </ul>
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

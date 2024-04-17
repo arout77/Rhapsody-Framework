@@ -8,202 +8,164 @@ use Src\Model\System_Model;
 #[\AllowDynamicProperties]
 class Pagination extends System_Model
 {
-    public $results_per_page;
-    public $range;
-    public $current_page;
-    public $total_pages;
-    public $url;
-    public $query;
-    public $offset;
-    public $dataset;
-    // Dropdown select how many results per page to show
-    public $item_select;
+	// Array containing data to be paginated
+	public $dataset;
 
-    public function __construct( $app )
-    {
-        parent::__construct( $app );
+	// Element ID for select menu Jump To
+	public $elid;
 
-        //set default values
-        $this->results_per_page = 20;
-        $this->range            = 3;
-        $this->current_page     = $_GET['page'] ?? 1;		
-        $this->total		    = 0;
-        $this->item_select      = [5,10,20,50,100,'All'];
-        $this->url = $this->config->setting( 'site_url' );
-    }
+	// Total number of rows returned
+	public $num_records;
 
-    public function config( $sql, $results_per_page = 20, $url = '', $range = 5)
-    {
-        $this->current_page = $_GET['page'] ?? 1;
-        $this->results_per_page = $results_per_page;
-        $this->offset = ($this->current_page - 1) * $results_per_page;
-        $this->query = $sql;
-        $this->url = $this->config->setting( 'site_url' ) . DS . $url;
-        $this->range = $range;
-        $this->dataset = self::runQuery( $sql );
-        $this->total_pages = self::countResults();
+	// Offset for pagination
+	public $offset;
 
-        return $this;
-    }
+	// Current page
+	public $page;
 
-    
+	// How many results to display per page
+	public $perpage;
 
-    /**
-     * paginate main function
-     * 
-     * @author              The-Di-Lab <thedilab@gmail.com>
-     * @access              public
-     * @return              type
-     */
-    public function paginate()
-    {
-        //get current page
-        if(isset($_GET['current'])){
-            $this->currentPage  = $_GET['current'];		
-        }			
-        //get item per page
-        if(isset($_GET['item'])){
-            $this->itemsPerPage = $_GET['item'];
-        }			
-        //get page numbers
-        $this->_pageNumHtml = $this->_getPageNumbers();			
-        //get item per page select box
-        $this->_itemHtml	= $this->_getItemSelect();	
-    }
+	// The sql being executed
+	public $query;
 
-    /**
-     * return pagination numbers in a format of UL list
-     * 
-     * @author              The-Di-Lab <thedilab@gmail.com>
-     * @access              public
-     * @param               type $parameter
-     * @return              string
-     */
-    public function pageNumbers()
-    {
-        if(empty($this->_pageNumHtml)){
-            exit('Please call function paginate() first.');
-        }
-        return $this->_pageNumHtml;
-    }
+	// Range between current page and surrounding links to show in pag menu
+	public $range = 5;
 
-    /**
-     * return jump menu in a format of select box
-     *
-     * @author              The-Di-Lab <thedilab@gmail.com>
-     * @access              public
-     * @return              string
-     */
-    public function itemsPerPage()
-    {          
-        if(empty($this->_itemHtml)){
-            exit('Please call function paginate() first.');
-        }
-        return $this->_itemHtml;	
-    }
+	// Total number of pages to paginate
+	public $total_pages;
 
-    /**
-     * return page numbers html formats
-     *
-     * @author              The-Di-Lab <thedilab@gmail.com>
-     * @access              public
-     * @return              string
-     */
-    private function  _getPageNumbers()
-    {
-        $html  = '<nav aria-label="Page navigation"><ul class="pagination">'; 
-        //previous link button
-        if($this->textNav&&($this->currentPage>1)){
-            $html.='<li class="page-item prev"><a class="link" href="'.$this->_link .'?current='.($this->currentPage-1).'"';
-            $html.='>'.$this->_navigation['pre'].'</a></li>';
-        }        	
-        //do ranged pagination only when total pages is greater than the range
-        if($this->total > $this->range){				
-            $start = ($this->currentPage <= $this->range)?1:($this->currentPage - $this->range);
-            $end   = ($this->total - $this->currentPage >= $this->range)?($this->currentPage+$this->range): $this->total;
-        }else{
-            $start = 1;
-            $end   = $this->total;
-        }    
-        //loop through page numbers
-        for($i = $start; $i <= $end; $i++){
-                $html.='<li class="page-item"><a class="page-link" href="'.$this->_link .'?current='.$i.'"';
-                if($i==$this->currentPage) $html.="class='current'";
-                $html.='>'.$i.'</a></li>';
-        }
-        //next link button
-        if($this->textNav&&($this->currentPage<$this->total)){
-            $html.='<li class="next"><a href="'.$this->_link .'?current='.($this->currentPage+1).'"';
-            $html.='><i class="tf-icon bx bx-chevron-right"></i></a></li>';
-        }
-        $html .= '</ul></nav>';
-        return $html;
-    }
-    
-    /**
-     * return item select box
-     *
-     * @author              The-Di-Lab <thedilab@gmail.com>
-     * @access              public
-     * @return              string
-     */
-    private function  _getItemSelect()
-    {
-        $items = '';
-        $ippArray = $this->itemSelect;   			
-        foreach($ippArray as $ippOpt){   
-            $items .= ($ippOpt == $this->itemsPerPage) ? "<option selected value=\"$ippOpt\">$ippOpt</option>\n":"<option value=\"$ippOpt\">$ippOpt</option>\n";
-        }   			
-        return "<span class=\"paginate\">".$this->_navigation['ipp']."</span>
-        <select class=\"paginate\" onchange=\"window.location='$this->_link?current=1&item='+this[this.selectedIndex].value;return false\">$items</select>\n";   	
-    }
+	// The url where pagination is displayed
+	public $url;
 
-    
+	public function config( $sql, $url, $per_page = 20 ): void
+	{
+		$this->page = 1;
+		if ( !empty( $_GET["page"] ) )
+		{
+			$this->page = $_GET["page"];
+		}
 
-    public function countResults($sql)
-    {
-        //$this->fancyDebug( TRUE );
-        $pdo = $this->getPDO();
-        $writer = $this->getWriter();
-        // $table = $writer->esc( $sql['table'] );
-        $query = $sql;
-        // $parameters =  $sql['parameters'];
-        // exit(var_dump( "{$sql} LIMIT " . ($this->currentPage - 1) * $this->itemsPerPage . ", ". $this->itemsPerPage));
-        $q = $this->getAssocRow( 
-            $query
-        );
-        return count($q);
-    }
+		$this->offset      = ( $this->page * $this->perpage ) - 1;
+		$this->total_pages = 0;
+		$this->perpage     = $per_page;
+		$this->url         = $this->config->setting( 'site_url' ) . $url;
+		$this->dataset     = $sql;
+		$this->num_records = count( $this->dataset );
+		if ( $this->num_records != 0 && $this->num_records != '' )
+		{
+			$this->total_pages = 30;
+		}
 
-    public function runQuery($sql)
-    {
-        // $this->fancyDebug( TRUE );
-        $pdo = $this->getPDO();
-        $writer = $this->getWriter();
-        // $table = $writer->esc( $sql['table'] );
-        $query = $sql;
-        // $parameters =  $sql['parameters'];
-        // exit(var_dump( "{$sql} LIMIT " . ($this->currentPage - 1) * $this->itemsPerPage . ", ". $this->itemsPerPage));
-        $q = $this->getAssocRow( 
-            "{$query} LIMIT " . ($this->currentPage - 1) * $this->itemsPerPage . ", ". $this->itemsPerPage
-        );
+		$this->elid = md5( time() . mt_rand( 1, 10000 ) );
+	}
 
-        return $q;
-    }
+	public function links(): string
+	{
+		$backOnePage = 1;
+		if (  ( $this->page - $this->range - 1 ) > 1 )
+		{
+			$backOnePage = $this->page - $this->range - 1;
+		}
 
-    public function display()
-    {
-        $navbar = '<nav aria-label="Page navigation">';
-        $navbar.= '<ul class="pagination">';
+		$links = '<nav aria-label="Page navigation">';
+		$links .= '<ul class="pagination pagination-md">';
 
-        // Show back buttons
-        if( $this->total_pages > 1 && $this->current_page != 1 )
-        {
-            $navbar.= '<li class="page-item first"><a class="page-link" href="'.$this->url.'"><i class="tf-icon bx bx-chevrons-left"></i></a></li>';
-            $navbar.= '<li class="page-item prev"><a class="page-link" href="'.$this->url.'"><i class="tf-icon bx bx-chevron-left"></i></a></li>';
-        }
+		// Show first page link if previous page link below doesnt take to first page
+		if ( $backOnePage > 1 )
+		{
+			$links .= '<li class="page-item prev">
+							<a class="page-link" href="' . $this->url . '?page=1">
+								<i class="tf-icon bx bx-chevrons-left"></i> First
+							</a>
+						</li>';
+		}
+		// Previous
+		$links .= '<li class="page-item prev">
+						<a class="page-link" href="' . $this->url . '?page=' . $backOnePage . '">
+							<i class="tf-icon bx bx-chevron-left"></i>
+						</a>
+	  				</li>';
+		// Numbered buttons
+		for ( $i = 1; $i <= $this->total_pages; $i++ )
+		{
+			if ( (int) $this->page === $i )
+			{
+				$active_page_css = 'active';
+			}
+			else
+			{
+				$active_page_css = '';
+			}
 
-        $navbar.= '<li class="page-item"><a class="page-link" href="'.$this->url.'">1</a></li>';
-    }
-     
+			// Only display links within the specified range
+			if (  ( $i >= $this->page - $this->range ) && ( $i <= $this->page + $this->range ) )
+			{
+				$links .= '<li class="page-item ' . $active_page_css . '">
+							<a class="page-link" href="' . $this->url . '?page=' . $i . '">' . $i . '</a>
+						</li>';
+			}
+		}
+		// Show last page button
+		if (  ( $this->total_pages > 9 ) )
+		{
+			$links .= '<li class="page-item">
+						<a class="page-link" href="' . $this->url . '?page=' . $this->total_pages . '">
+							<i class="tf-icon bx bx-chevrons-right"></i> Last
+						</a>
+					</li>';
+			$links .= '<li class="page-item" style="margin-left: 40px;">' . self::showSelectMenu() . '</li>';
+		}
+
+		$links .= '</ul>';
+		$links .= '</nav>';
+
+		return $links;
+	}
+
+	public function runQuery(): array | string
+	{
+		$content = [];
+
+		$page    = $this->page;
+		$numrecs = $this->num_records;
+		$perpage = $this->perpage;
+
+		$start = 0;
+
+		if ( $page > 1 )
+		{
+			$start = ( $page * $perpage ) - $perpage;
+		}
+
+		$stop = ( $start + $perpage ) - 1;
+
+		for ( $i = 0; $i <= $this->num_records; $i++ )
+		{
+			if (  ( $i >= $start ) && ( $i <= $stop ) )
+			{
+				$content[] = $this->dataset[$i];
+			}
+		}
+
+		return $content;
+	}
+
+	public function showSelectMenu(): string
+	{
+		$select .= '<select name="pagination_' . $this->elid . '"
+					class="form-select"
+					id="' . $this->elid . '"
+					onChange="window.document.location.href=this.options[this.selectedIndex].value;">';
+
+		$select .= '<option>Jump To Page</option>';
+
+		for ( $i = 1; $i <= $this->total_pages; $i++ )
+		{
+			$select .= '<option value="' . $this->url . '?page=' . $i . '">' . $i . '</option>';
+		}
+
+		$select .= '</select>';
+		return $select;
+	}
 }

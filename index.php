@@ -33,41 +33,45 @@
  * @filesource
  *
  */
-declare (strict_types = 1);
+declare ( strict_types = 1 );
 
-define('DS', DIRECTORY_SEPARATOR);
+define( 'DS', DIRECTORY_SEPARATOR );
 
 // Defines the location of the front controller (this file)
 // For security purposes, we recommend the front controller
 // to be the only PHP file stored in a publicly accessible folder
-if (!defined('BASE_PATH')) {
-	$dir = dirname(__FILE__);
-	$dir = chop($dir);
-	$dir = chop($dir, "/");
-	define('BASE_PATH', $dir . DS);
+if ( !defined( 'BASE_PATH' ) )
+{
+	$dir = dirname( __FILE__ );
+	$dir = chop( $dir );
+	$dir = chop( $dir, "/" );
+	define( 'BASE_PATH', $dir . DS );
 }
 
 // If you moved your .env file to another directory,
 // remove BASE_PATH . below and enter the full file path
-define('ENV_PATH', BASE_PATH . '.env');
+define( 'ENV_PATH', BASE_PATH . '.env' );
 
 // Check for and attempt to fix read permissions to the .env file
 // Will not work on all servers
-$fp = fileperms(ENV_PATH);
-if (file_exists(ENV_PATH)) {
-	if (substr(sprintf('%o', $fp), -4) != 0644) {
-		chmod(ENV_PATH, 0644);
+$fp = fileperms( ENV_PATH );
+if ( file_exists( ENV_PATH ) )
+{
+	if ( substr( sprintf( '%o', $fp ), -4 ) != 0644 )
+	{
+		chmod( ENV_PATH, 0644 );
 	}
 }
 
 // Either the ENV_PATH variable above is set incorrectly,
 // or we just cannot read the file. Alert user and abort.
-if (!is_readable(ENV_PATH)) {
-	exit('<h3>Either the <span style="color: red;">.env</span> global configuration file was not found,
-        or the file does not have read permissions. Exiting...</h3>');
+if ( !is_readable( ENV_PATH ) )
+{
+	exit( '<h3>Either the <span style="color: red;">.env</span> global configuration file was not found,
+        or the file does not have read permissions. Exiting...</h3>' );
 }
 
-unset($fp);
+unset( $fp );
 
 require_once BASE_PATH . 'vendor' . DS . 'autoload.php';
 
@@ -81,14 +85,15 @@ $system_folder = BASE_PATH . 'src' . DS;
 // Import service locator
 require_once $system_folder . 'Factory.php';
 // Load path definitions
-require_once $app['config']->setting('system_path') . 'Paths.php';
+require_once $system_folder . 'Paths.php';
 
 // Check if system check was requested
-if ($app['config']->setting('system_startup_check') == 'TRUE') {
+if ( $app['config']->setting( 'system_startup_check' ) == 'TRUE' )
+{
 	require_once SYSTEM_PATH . 'system_startup_check.php';
 }
 // Needed for router to build routes
-$subdir = $app['config']->setting('subdir');
+$subdir = $app['config']->setting( 'subdir' );
 
 /*-------------------------------------------
  * Process the request
@@ -98,9 +103,10 @@ $subdir = $app['config']->setting('subdir');
  * -----------------------------------------*/
 
 # Get and set currently used controller, action and parameters
-$app['router']->getRoute($subdir);
+$app['router']->getRoute( $subdir );
 
-if ($_POST) {
+if ( $_POST )
+{
 	// $token = filter_input(INPUT_POST, 'token', FILTER_SANITIZE_STRING);
 
 	// if (!$token || $token !== $_SESSION['token']) {
@@ -111,7 +117,8 @@ if ($_POST) {
 	// $app['router']->interceptPost($_POST, $app);
 }
 
-if ($_GET) {
+if ( $_GET )
+{
 	// $app['router']->interceptGet($app);
 }
 
@@ -126,8 +133,8 @@ $app['session']->start();
  * Instantiate requested URL
  * -----------------------------------------*/
 # Display the requested page
-require_once $app['config']->setting('system_path') . 'Run.php';
-$app['base_controller']->__construct($app);
+require_once $app['config']->setting( 'system_path' ) . 'Run.php';
+$app['base_controller']->__construct( $app );
 $app['base_controller']->parse();
 
-unset($subdir);
+unset( $subdir );
