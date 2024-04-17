@@ -54,7 +54,7 @@ class Pagination extends System_Model
 		$this->num_records = count( $this->dataset );
 		if ( $this->num_records != 0 && $this->num_records != '' )
 		{
-			$this->total_pages = 30;
+			$this->total_pages = ceil( $this->num_records / $this->perpage );
 		}
 
 		$this->elid = md5( time() . mt_rand( 1, 10000 ) );
