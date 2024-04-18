@@ -17,7 +17,7 @@ class Search_Controller extends Base_Controller
 		$dataset  = $this->model( 'Search' );
 		$sql      = $dataset->testing();
 		$url      = 'search/results/';
-		$per_page = 5;
+		$per_page = 10;
 		$pag      = $this->load->middleware( 'pagination' );
 		$pag->config( $sql, $url, $per_page );
 		$results = $pag->runQuery();
@@ -25,8 +25,6 @@ class Search_Controller extends Base_Controller
 
 		$this->template->render( "search/results.html.twig", [
 			'results' => $results,
-			'searchTerm' => $searchTerm,
-			'url' => $url,
 			'links' => $links,
 		] );
 	}

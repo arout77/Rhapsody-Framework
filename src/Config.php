@@ -181,7 +181,7 @@ class Config
 		$this->setting['session.cache_limiter'] = $env->get_global_configuration( 'session.cache_limiter' );
 
 		# Release version
-		$this->setting['software_version'] = '0.92.1';
+		$this->setting['software_version'] = '1.0.0';
 	}
 
 	/**

@@ -95,6 +95,7 @@
                     <li>The number of results to display on each page. If this value isn't specified, it defaults to 20.</li>
                 </ol>
 
+<em>File: /app/controllers/Products_Controller.php</em>
 <pre>
 <code class="language-php">
 &lt;?php
@@ -124,9 +125,9 @@ class Products_Controller extends Base_Controller
         // Display the pagination menu
         $links      = $paginate->links();
 
+        // Pass the processed data and nav menu to our view file
         $this->template->render( "products/view.html.twig", [
             'results' => $results,
-            'url' => $url,
             'links' => $links,
         ] );
     }
@@ -139,17 +140,97 @@ class Products_Controller extends Base_Controller
 
     <div class="card mb-4">
         <div class="card-body">
-            <h3 class="card-title">Creating a Controller</h3>
+        <h4 class="card-title">The view file</h4>
+            <div class="card-subtitle text-muted mb-3">
+                Our work in the controller is done, now all that is left is to open our view file and 
+                print the results.<br><br>
+
+<em>File: /app/template/views/products/view.html.twig</em>
+<pre>
+<code class="language-twig">
+&lt;section id="searchresults">
+    &lt;div class="card mb-4">
+        &lt;div class="card-body">
+            &lt;h3 class="card-title">Results&lt;/h3>
+            &lt;div class="card-subtitle text-muted mb-3">
+                &lt;p class="card-text">
+                &lcub;% if results|length > 0 %}
+                    &lcub;% for result in results %}
+                        &lt;div>&lcub;&lcub; result.subcategory }}&lt;/div>
+                    &lcub;% endfor %}
+
+                    &lcub;{ links|raw }}
+
+                &lcub;% else %}
+                    &lt;p>No results found&lt;/p>
+                &lcub;% endif %}
+                &lt;/p>
+            &lt;/div>
+        &lt;/div>
+    &lt;/div>
+&lt;/section>
+</code>
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Summary</h3>
             <div class="card-subtitle text-muted mb-3">
                 <p class="card-text">
-                    Controllers have a few conventions that they must follow:
-                    <ul>
-                        <li>Stored in the <code>/app/controllers</code> directory</li>
-                        <li>Class name must match the file name</li>
-                        <li>Class name and file name must end with '_Controller'</li>
-                        <li>Use the <code>App\Controller</code> namespace</li>
-                        <li>Extend the <code>Base_Controller</code> class</li>
-                    </ul>
+
+                    That's all there is to it! To recap the code example above:
+
+                    <h4>Configuration</h4>
+                    <ol>
+                        <li>
+                            First, we retrieved our data, generated from the getShoes() method in our Products model:<br>
+                            <code>
+                            $model = $this->model( 'Products' );<br>
+                            $dataset    = $model->getShoes();
+                            </code>
+                        </li>
+                        <li>Next, we defined the URL of the page that is displaying our paginated data:<br>
+                            <code>$url = 'products/shoes/';</code> <small><em># (We only need to pass the url segments)</em></small>
+                        </li>
+                        <li>
+                            Then, we told the Paginator class how many results to display on each page:<br>
+                            <code>$per_page = 10;</code>
+                        </li>
+                    </ol>
+
+                    Configuration options are now complete. To implement and display our paginated results:
+                    <p></p>
+                    <h4>Implementation</h4>
+                    <ol>
+                        <li>
+                            We imported the Pagination class:<br>
+                            <code>$paginate = $this->load->middleware( 'pagination' );</code>
+                        </li>
+                        <li>
+                            Then we passed the configuration variables to the Pagination config():<br>
+                            <code>$paginate->config( $dataset, $url, $per_page );</code>
+                        </li>
+                        <li>
+                            Next, we processed the data and saved it to a variable:<br>
+                            <code>$results = $paginate->runQuery();</code>
+                        </li>
+                        <li>
+                            And we saved the resulting pagination nav menu to a variable:<br>
+                            <code>$links = $paginate->links();</code>
+                        </li>
+                        <li>
+                            Finally, we passed the results and nav menu to our Twig template to be displayed:<br>
+                            <code>
+                            $this->template->render( "search/results.html.twig", [<br>
+                                'results' => $results,<br>
+                                'links' => $links,<br>
+                            ] );
+                            </code>
+                        </li>
+                    </ol>
                 </p>
 
             </div>

@@ -4,7 +4,6 @@
 
 {% block content %}
 <section id="searchresults">
-    {{ links|raw }}
     <div class="card mb-4">
         <div class="card-body">
             <h3 class="card-title">Results</h3>
@@ -16,6 +15,8 @@
                 		<div>{{ result.subcategory }}</div>
                 	
                 	{% endfor %}
+
+                	{{ links|raw }}
 
                 {% else %}
                 	<p>No results found</p>

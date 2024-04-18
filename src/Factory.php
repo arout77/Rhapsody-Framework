@@ -10,7 +10,7 @@ use Src\Error;
 use Validate\Enums\Boolean as BOOLEAN;
 use Validate\Enums\Database_Types as DBTYPE;
 
-$app = new Container;
+$app        = new Container;
 $app['app'] = $app;
 
 $app['global_config_import'] = function ()
@@ -63,20 +63,19 @@ $app['router'] = function ( $c )
 
 $app['database'] = function ( $c )
 {
-
-	$freeze = strtoupper( $c['config']->setting( 'db_freeze' ) );
-	$dbengine = strtolower( $c['config']->setting( 'db_type' ) );
-	$freeze_setting = BOOLEAN::tryFrom( $freeze );
+	$freeze           = strtoupper( $c['config']->setting( 'db_freeze' ) );
+	$dbengine         = strtolower( $c['config']->setting( 'db_type' ) );
+	$freeze_setting   = BOOLEAN::tryFrom( $freeze );
 	$dbengine_setting = DBTYPE::tryFrom( $dbengine );
 
 	function throwError( $params, $c )
 	{
-		$e = new Error( $c );
-		$e->type = $params['type'];
-		$e->category = $params['category'];
-		$e->triggeredBy = $params['triggeredBy'];
-		$e->object = $params['object'];
-		$e->value = $params['value'];
+		$e                = new Error( $c );
+		$e->type          = $params['type'];
+		$e->category      = $params['category'];
+		$e->triggeredBy   = $params['triggeredBy'];
+		$e->object        = $params['object'];
+		$e->value         = $params['value'];
 		$e->valid_options = $params['valid_options'];
 		$e->display();exit;
 	}
@@ -84,11 +83,11 @@ $app['database'] = function ( $c )
 	if ( is_null( $dbengine_setting ) )
 	{
 		$params = [
-			'type'          => 'Enum',
-			'category'      => 'Configuration',
-			'triggeredBy'   => DBTYPE::class,
-			'object'        => 'db_type',
-			'value'         => $c['config']->setting( 'db_type' ),
+			'type' => 'Enum',
+			'category' => 'Configuration',
+			'triggeredBy' => DBTYPE::class,
+			'object' => 'db_type',
+			'value' => $c['config']->setting( 'db_type' ),
 			'valid_options' => DBTYPE::cases(),
 		];
 
@@ -98,11 +97,11 @@ $app['database'] = function ( $c )
 	if ( is_null( $freeze_setting ) )
 	{
 		$params = [
-			'type'          => 'Enum',
-			'category'      => 'Configuration',
-			'triggeredBy'   => BOOLEAN::class,
-			'object'        => 'db_freeze',
-			'value'         => $c['config']->setting( 'db_freeze' ),
+			'type' => 'Enum',
+			'category' => 'Configuration',
+			'triggeredBy' => BOOLEAN::class,
+			'object' => 'db_freeze',
+			'value' => $c['config']->setting( 'db_freeze' ),
 			'valid_options' => BOOLEAN::cases(),
 		];
 

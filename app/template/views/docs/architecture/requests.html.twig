@@ -1,0 +1,194 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Models - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<section id="hero-animation">
+    <div id="landingHero" class="section-py landing-hero position-relative">
+      <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/hero-bg.png" alt="hero background" class="position-absolute top-0 start-50 translate-middle-x object-fit-contain w-100 h-100" data-speed="1">
+      <div class="container">
+        <div class="hero-text-box text-center">
+          <h1 class="text-primary hero-title display-4 fw-bold">Request Lifecycle</h1>
+          <h2 class="hero-sub-title h6 mb-4 pb-1">
+             Understanding the lifecycles of HTTP requests in Rhapsody 
+          </h2> 
+          {# <div class="landing-hero-btn d-inline-block position-relative">
+            <span class="hero-btn-item position-absolute d-none d-md-flex text-heading">Use it:
+              <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/Join-community-arrow.png" alt="Join community arrow" class="scaleX-n1-rtl"></span>
+              <a href="#" class="btn btn-primary">$this->model( "Example" )</a>
+          </div> #}
+        </div>
+      </div>
+    </div>
+</section>
+<p><br></p>
+<section id="requestlifecycle">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Introduction</h3>
+            <div class="card-subtitle text-muted mb-3">
+                A high-level understanding of how Rhapsody handles requests will help you understand what is done and when, 
+                making an easier and more pleasant environment to develop in. The request lifecycle in Rhapsody is fairly 
+                straightforward and designed to be simple to develop in and extend the framework.
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Front Controller</h5>
+            <p class="card-text">
+                Starting from the beginning, when your application recieves an HTTP request, the incoming HTTP request is forwarded to the <code>index.php</code> file, via .htaccess or server configuration. This file, known as the <em>front controller</em>, doesn't actually do a whole lot. What it does do is import some objects needed by the application, and the Composer autoloader. Rhapsody uses 
+                <strong>PSR-4</strong> autoloading. Additionally, it will fire up a PHP session, and do some basic startup checks (if enabled in your configuration file). Finally, it instantiates the <code>Base_Controller</code> class. The Base_Controller itself doesn't actually <em>do</em> much, it's primary duties are to simply 
+                import many services via dependency injection that you will find yourself using often, and to simplify 
+                controller creation for the developer.
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Middleware</h5>
+            <p class="card-text">
+                After the front controller imports the necessary configuration and application files, the <code>Kernel</code> 
+                will parse some middleware that performs some basic security and stability checks. This is the point when you 
+                can also inject middleware of your own, as covered elsewhere in the documentation. If everything checks out, 
+                the request is then passed on to the <code>Router</code>.
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Routing</h5>
+            <p class="card-text">
+                The router 
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Controllers</h5>
+            <p class="card-text">
+                When you create a controller, 
+            </p>
+            <p class="card-text">
+                Lets suppose that we have an ecommerce store, and want to create a model that manages  
+                all of our products. We would first create the PHP file:
+            </p>
+            <p class="card-text">
+                <samp>/app/models/ProductsModel.php</samp>
+            </p>
+            <p class="card-text">
+                Next, open the file and add the following:
+            </p>
+            <p class="card-text">
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Model;
+
+use Src\Model\System_Model;
+
+class ProductsModel extends System_Model
+{
+
+}
+</code>
+</pre>
+            </p>
+
+            <p class="card-text">
+                We now have a model created, ready to use, so all we have left to do is add some methods 
+                to it to make it useful.
+            </p>
+            
+            <p class="card-text">
+                As mentioned earlier, Rhapsody uses RedBeanPHP as the ORM, and does not change any of the 
+                syntax or method names, other than using <code>$this</code> for class calls. Lets use our 
+                Products model above to see an example of how to use the ORM to add a product to our inventory.
+            </p>
+
+            <p class="card-text">
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Model;
+
+use Src\Model\System_Model;
+
+class ProductsModel extends System_Model
+{
+    public function addProduct()
+    {
+        // In RedBeanPHP, R::dispense is one way to select a DB table to save data to
+        // In Rhapsody, we use '$this->' instead of 'R::'
+        // Lets select the products table since we are creating a new one to add to it
+        $db = $this->dispense( 'products' );
+
+        // In our products table, we have a column named 'category'. Lets add some shoes
+        $db->category = 'shoes';
+
+        // Are these men or women's shoes? Store this value in the 'gender' column of the products table
+        $db->gender = 'men';
+
+        // What size are these shoes?
+        $db->size = 12;
+
+        // What color are these shoes?
+        $db->color = 'white';
+
+        // What brand are these shoes?
+        $db->brand = 'Nike';
+
+        // Finally, save this to the database
+        // $id now contains the id of the entry we are saving
+        $id = $this->store( $db );
+    }
+}
+</code>
+</pre>
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Accessing Models</h5>
+            <p class="card-text">
+                Now that we've created our model, how do we actually use it? In Rhapsody, 
+                models are accessible from your controllers (and 
+                <a href="{{ base_url }}documentation/components/scripts">custom scripts</a>). 
+                You access them with the <code>$this->model("model_name")</code> syntax. Lets 
+                suppose we already have a Products controller, and want to access our model.
+            </p>
+<pre>
+<code class="language-php">
+&lt;?php
+namespace App\Controller;
+
+use Src\Controller\Base_Controller;
+
+class Product_Controller extends Base_Controller
+{
+    public function inventory()
+    {
+        // Import the Products model
+        $products = $this->model("Products");
+
+        // Get all the men's shoes from our inventory 
+        $shoes = $products->getShoes( $sex = 'men' );
+
+        // Pass the $shoes object containing our shoes to our template
+        $this->template->render( 'products/clothing/shoes/display-shoes.html.twig', [
+            'shoes' = $shoes
+        ]);
+    }
+}
+</code>
+</pre>
+        </div>
+    </div>
+</section>
+{% endblock %}
