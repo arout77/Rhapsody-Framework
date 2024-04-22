@@ -22,6 +22,21 @@
                 	<p>No results found</p>
                 {% endif %}
                 </p>
+                <p>
+                    <em>{{ total_records }} results found</em>
+                </p>
+
+                
+                {% if errors|length > 0 %}
+                    <div class="alert alert-danger">
+                    {% for error in errors %}
+
+                        <div>{{ error }}</div>
+                    
+                    {% endfor %}
+                    </div>
+                {% endif %}
+                
             </div>
         </div>
     </div>

@@ -174,7 +174,7 @@ class Kernel
 		$this->debug_mode    = $debug_mode;
 		$this->error_reports = $err_reporting;
 		// $this->dispatcher    = $app['dispatcher'];
-		$this->event_manager = $app['event_manager'];
+		// $this->event_manager = $app['event_manager'];
 		// $this->html_purify   = $app['html_purify'];
 		$this->load                 = $app['load'];
 		$this->log                  = $app['log'];
@@ -189,9 +189,13 @@ class Kernel
 		$this->template             = $app['template'];
 	}
 
-	private function throwError( $params )
+	/**
+	 * @param $params
+	 */
+	public function throwError( $params, $message = '' )
 	{
 		$e                = new Error( $this->core );
+		$e->message       = $message;
 		$e->type          = $params['type'];
 		$e->category      = $params['category'];
 		$e->triggeredBy   = $params['triggeredBy'];
@@ -202,17 +206,22 @@ class Kernel
 		exit;
 	}
 
+	/**
+	 * @param $value
+	 * @param $enum
+	 * @return mixed
+	 */
 	private function validate_enum( $value, $enum ): bool | string
 	{
 		$setting = $enum::tryFrom( strtoupper( $this->config->setting["$value"] ) );
 		if ( is_null( $setting ) )
 		{
 			$params = [
-				'type' => 'Enum',
-				'category' => 'Configuration',
-				'triggeredBy' => $enum,
-				'object' => $value,
-				'value' => $this->config->setting["$value"],
+				'type'          => 'Enum',
+				'category'      => 'Configuration',
+				'triggeredBy'   => $enum,
+				'object'        => $value,
+				'value'         => $this->config->setting["$value"],
 				'valid_options' => $enum::cases(),
 			];
 			self::throwError( $params );

@@ -9,43 +9,76 @@ use Src\Model\System_Model;
 class Pagination extends System_Model
 {
 	// Array containing data to be paginated
+	/**
+	 * @var mixed
+	 */
 	public $dataset;
 
 	// Element ID for select menu Jump To
+	/**
+	 * @var mixed
+	 */
 	public $elid;
 
 	// Total number of rows returned
+	/**
+	 * @var mixed
+	 */
 	public $num_records;
 
 	// Offset for pagination
+	/**
+	 * @var mixed
+	 */
 	public $offset;
 
 	// Current page
+	/**
+	 * @var mixed
+	 */
 	public $page;
 
 	// How many results to display per page
+	/**
+	 * @var mixed
+	 */
 	public $perpage;
 
 	// The sql being executed
+	/**
+	 * @var mixed
+	 */
 	public $query;
 
 	// Range between current page and surrounding links to show in pag menu
+	/**
+	 * @var int
+	 */
 	public $range = 5;
 
 	// Total number of pages to paginate
+	/**
+	 * @var mixed
+	 */
 	public $total_pages;
 
 	// The url where pagination is displayed
+	/**
+	 * @var mixed
+	 */
 	public $url;
 
+	/**
+	 * @param $sql
+	 * @param $url
+	 * @param $per_page
+	 */
 	public function config( $sql, $url, $per_page = 20 ): void
 	{
-		$this->page = 1;
-		if ( !empty( $_GET["page"] ) )
-		{
-			$this->page = $_GET["page"];
-		}
-
+		$url               = chop( $url );
+		$url               = chop( $url, "/" );
+		$url               = $url . '/';
+		$this->page        = $_GET["page"] ?? 1;
 		$this->offset      = ( $this->page * $this->perpage ) - 1;
 		$this->total_pages = 0;
 		$this->perpage     = $per_page;
@@ -60,6 +93,9 @@ class Pagination extends System_Model
 		$this->elid = md5( time() . mt_rand( 1, 10000 ) );
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function links(): string
 	{
 		$backOnePage = 1;
@@ -81,11 +117,15 @@ class Pagination extends System_Model
 						</li>';
 		}
 		// Previous
-		$links .= '<li class="page-item prev">
+		if ( $this->page > 1 )
+		{
+			$links .= '<li class="page-item prev">
 						<a class="page-link" href="' . $this->url . '?page=' . $backOnePage . '">
 							<i class="tf-icon bx bx-chevron-left"></i>
 						</a>
 	  				</li>';
+		}
+
 		// Numbered buttons
 		for ( $i = 1; $i <= $this->total_pages; $i++ )
 		{
@@ -99,7 +139,7 @@ class Pagination extends System_Model
 			}
 
 			// Only display links within the specified range
-			if (  ( $i >= $this->page - $this->range ) && ( $i <= $this->page + $this->range ) )
+			if (  ( $i >= $this->page - $this->range ) && ( $i <= $this->page + $this->range ) && $this->total_pages > 1 )
 			{
 				$links .= '<li class="page-item ' . $active_page_css . '">
 							<a class="page-link" href="' . $this->url . '?page=' . $i . '">' . $i . '</a>
@@ -123,6 +163,9 @@ class Pagination extends System_Model
 		return $links;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function runQuery(): array | string
 	{
 		$content = [];
@@ -151,6 +194,9 @@ class Pagination extends System_Model
 		return $content;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function showSelectMenu(): string
 	{
 		$select .= '<select name="pagination_' . $this->elid . '"

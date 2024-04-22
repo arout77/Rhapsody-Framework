@@ -7,47 +7,49 @@ namespace Src\Middleware;
 // that functionality. All children classes inherit this.
 #[\AllowDynamicProperties]
 
-class Helper 
+class Helper
 {
-
-	/***********************************************************\
-	| This class is the base class that all middlewares which need
-	| access to system functionality must extend.
-	\***********************************************************/
-
-	/**
-	 * @var mixed
-	 */
-	protected $app;
-	/**
-	 * @var mixed
-	 */
-	protected $config;
-	/**
-	 * @var mixed
-	 */
-	protected $db;
 	/**
 	 * @var mixed
 	 */
 	public $loader;
 
+	/***********************************************************\
+		| This class is the base class that all middlewares which need
+		| access to system functionality must extend.
+	*/
+
+	/**
+	 * @var mixed
+	 */
+	protected $app;
+
+	/**
+	 * @var mixed
+	 */
+	protected $config;
+
+	/**
+	 * @var mixed
+	 */
+	protected $db;
+
 	/**
 	 * @param $db
 	 */
-	public function __construct(\Pimple\Container $app) 
+	public function __construct( \Pimple\Container $app )
 	{
-		$this->config 	= $app['config'];
-		$this->db     	= $app['database'];
-		$this->loader   = $app['load'];
-		$this->app   	= $app['app'];
+		$this->config = $app['config'];
+		$this->db     = $app['database'];
+		$this->loader = $app['load'];
+		$this->app    = $app['app'];
 	}
 
 	/**
 	 * @param $middleware_name
 	 * @return object
 	 */
-	public function get($middleware_name): object 
+	public function get( $middleware_name ): object
 	{
 		# Load a middleware
 		return $this->app["$middleware_name"];
@@ -57,47 +59,48 @@ class Helper
 	 * @param $middleware_name
 	 * @return object
 	 */
-	public static function getView($file) 
+	public static function getView( $file )
 	{
 		# Load a middleware
-		return self::loadView("$file");
+		return self::loadView( "$file" );
+	}
+
+	/**
+	 * @param $file
+	 */
+	public static function loadView( $file )
+	{
+		return self::loader()->view( "$file" );
+	}
+
+	/**
+	 * @param $file
+	 * @return object
+	 */
+	public static function loader()
+	{
+		return self::$loader;
 	}
 
 	/**
 	 * @param $model
 	 * @return object
 	 */
-	public function model($model) 
+	public function model( $model )
 	{
-		return $this->load->model("$model");
-	}
-
-	/**
-	 * @param $file
-	 * @return object
-	 */
-	public static function loader() 
-	{
-		return self::$loader;
-	}
-
-	/**
-	 * @param $file
-	 */
-	public static function loadView($file) 
-	{
-		return self::loader()->view("$file");
+		return $this->load->model( "$model" );
 	}
 
 	/**
 	 * @param $url
 	 */
-	public function redirect($url) 
+	public function redirect( $url )
 	{
-		if ($url === 'http_referer') {
-			return header('Location: ' . $_SERVER['HTTP_REFERER']);
+		if ( $url === 'http_referer' )
+		{
+			return header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
 			exit;
 		}
-		return header('Location: ' . SITE_URL . $url);
+		return header( 'Location: ' . SITE_URL . $url );
 	}
 }

@@ -23,10 +23,19 @@
             <td><strong>How to Fix:</strong></td>
             <td class="debug4">{{ message|nl2br }} 
                 <ol>
-                {% for opt in valid_options %} 
-                    <li>"{{ opt.value }}"</li>
-                {% endfor %}
+                    {% for opt in valid_options %} 
+                        {% if opt.value is not empty %}
+                            <li>"{{ opt.value }}"</li>
+                        {% endif %}
+                    {% endfor %}
                 </ol>
+                <ul>
+                {% for opt in valid_options %}
+                    {% if opt is not empty %}
+                        <li>{{ opt }}</li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
             </td>
         </tr>
     </table>

@@ -17,6 +17,9 @@ if ( count( get_included_files() ) == 1 )
 
 class Base_Controller extends Kernel
 {
+	/**
+	 * @param $app
+	 */
 	public function __construct( $app )
 	{
 		parent::__construct( $app );

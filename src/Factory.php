@@ -68,6 +68,10 @@ $app['database'] = function ( $c )
 	$freeze_setting   = BOOLEAN::tryFrom( $freeze );
 	$dbengine_setting = DBTYPE::tryFrom( $dbengine );
 
+	/**
+	 * @param $params
+	 * @param $c
+	 */
 	function throwError( $params, $c )
 	{
 		$e                = new Error( $c );
@@ -154,10 +158,10 @@ $app['profiler'] = function ( $c )
 	return new \Src\Profiler( $c, $middlewareArr = [] );
 };
 
-$app['event_manager'] = function ( $app )
-{
-	return new \Src\EventManager( $app );
-};
+// $app['event_manager'] = function ( $app )
+// {
+// 	return new \Src\EventManager( $app );
+// };
 
 $app['base_controller'] = function ( $c )
 {
@@ -166,7 +170,7 @@ $app['base_controller'] = function ( $c )
 
 $app['middleware'] = function ( $app )
 {
-	return new \Src\Middleware\Helper( $app, $middlewareArr = [] );
+	return new \Src\Middleware\Helper( $app );
 };
 
 $app['mailer'] = function ( $c, MailerInterface $mailer )
@@ -201,6 +205,16 @@ $app['hash'] = function ( $c )
 	return new \App\Plugin\Hash;
 };
 
+$app['session'] = function ( $c )
+{
+	return new \Src\Middleware\Session( $c );
+};
+
+$app['template'] = function ( $c )
+{
+	return new \Src\Template( $c );
+};
+
 // $app['html_purify'] = function ($c) {
 // 	require_once VENDOR_PATH . 'ezyang/htmlpurifier/library/HTMLPurifier.auto.php';
 // 	$config = HTMLPurifier_Config::createDefault();
@@ -225,16 +239,6 @@ $app['hash'] = function ( $c )
 // $app['sanitize'] = function ($c) {
 // 	return new \App\Plugin\Sanitize($c);
 // };
-
-$app['session'] = function ( $c )
-{
-	return new \Src\Middleware\Session( $c );
-};
-
-$app['template'] = function ( $c )
-{
-	return new \Src\Template( $c );
-};
 
 // $app['title'] = function ($app) {
 

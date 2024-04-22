@@ -8,19 +8,24 @@ namespace App\Controller {
 		{
 			$page    = $this->route->parameter[1];
 			$version = $this->config->setting( 'software_version' );
+			$url     = $this->router->controller . '/' . $this->router->action . '/';
 
-			$db = $this->model( "Documentation" );
+			$db  = $this->model( "Documentation" );
+			$rec = $db->getDocPage( "Architecture", ucwords( $page ), $version, $version );
 
 			// Save this page to DB if it isn't already
-			if ( empty( $db->getDocPage( "Architecture", ucwords( $page ), $version, $version ) ) )
+			if ( empty( $rec ) || is_null( $rec ) )
 			{
 				$db->addDocPage( "Architecture", ucwords( $page ), $version );
 			}
-			else
-			{
-				// Otherwise update it
-				$db->updateDocPage( "Architecture", ucwords( $page ), $version );
-			}
+			// else
+			// {
+			// 	foreach ( $rec as $r )
+			// 	{
+			// 		// Otherwise update it
+			// 		$db->updateDocPage( id: $r->id, category: "Architecture", subcategory: ucwords( $page ), url: $url, version: $version );
+			// 	}
+			// }
 
 			$this->template->render(
 				'docs/architecture/' . $page . '.html.twig'
@@ -39,11 +44,11 @@ namespace App\Controller {
 			{
 				$db->addDocPage( "Components", ucwords( $page ), $version );
 			}
-			else
-			{
-				// Otherwise update it
-				$db->updateDocPage( "Components", ucwords( $page ), $version );
-			}
+			// else
+			// {
+			// 	// Otherwise update it
+			// 	$db->updateDocPage( "Components", ucwords( $page ), $version );
+			// }
 
 			$this->template->render(
 				'docs/components/' . $page . '.html.twig'
@@ -62,11 +67,11 @@ namespace App\Controller {
 			{
 				$db->addDocPage( "Getting Started", ucwords( $page ), $version );
 			}
-			else
-			{
-				// Otherwise update it
-				$db->updateDocPage( "Getting Started", ucwords( $page ), $version );
-			}
+			// else
+			// {
+			// 	// Otherwise update it
+			// 	$db->updateDocPage( "Getting Started", ucwords( $page ), $version );
+			// }
 
 			$this->template->render(
 				'docs/getting-started/' . $page . '.html.twig'
@@ -93,11 +98,11 @@ namespace App\Controller {
 			{
 				$db->addDocPage( "Middleware", ucwords( $page ), $version );
 			}
-			else
-			{
-				// Otherwise update it
-				$db->updateDocPage( "Middleware", ucwords( $page ), $version );
-			}
+			// else
+			// {
+			// 	// Otherwise update it
+			// 	$db->updateDocPage( "Middleware", ucwords( $page ), $version );
+			// }
 
 			$this->template->render(
 				'docs/middleware/' . $page . '.html.twig'
