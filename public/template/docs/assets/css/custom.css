@@ -313,3 +313,7 @@ blockquote p::after {
       background-position: 91% 100%
   }
 }
+
+.redText {
+  color: red !important;
+}

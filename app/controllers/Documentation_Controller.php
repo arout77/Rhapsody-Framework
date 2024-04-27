@@ -49,10 +49,22 @@ namespace App\Controller {
 			// 	// Otherwise update it
 			// 	$db->updateDocPage( "Components", ucwords( $page ), $version );
 			// }
+			$valid_methods = [];
+			if ( $page == 'validation' )
+			{
+				$valid_methods = get_class_methods( \Src\Middleware\Validation::class );
 
-			$this->template->render(
-				'docs/components/' . $page . '.html.twig'
-			);
+				// Remove internal methods from list of available methods
+				$valid_methods = array_diff( $valid_methods, ['validate_rule'] );
+				$valid_methods = array_diff( $valid_methods, ['validate_value'] );
+				$valid_methods = array_diff( $valid_methods, ['__construct'] );
+				$valid_methods = array_diff( $valid_methods, ['throwError'] );
+				$valid_methods = array_diff( $valid_methods, ['errors'] );
+				$valid_methods = array_diff( $valid_methods, ['rules'] );
+			}
+			$this->template->render( 'docs/components/' . $page . '.html.twig', [
+				'valid_methods' => $valid_methods,
+			] );
 		}
 
 		public function getting_started()
@@ -81,7 +93,7 @@ namespace App\Controller {
 		public function index()
 		{
 			$this->template->render( 'docs/index.html.twig', [
-				'message' => 'Page Not Found',
+				'message'   => 'Page Not Found',
 				'site_name' => 'Rhapsody Framework',
 			] );
 		}

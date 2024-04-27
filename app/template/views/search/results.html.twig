@@ -31,7 +31,16 @@
                     <div class="alert alert-danger">
                     {% for error in errors %}
 
-                        <div>{{ error }}</div>
+                        <div>
+                            <strong>Form field:</strong> {{ error.input }} <strong>You entered:</strong> {{ error.value }}
+                        </div>
+                        <div>
+                            <ul>
+                            {% for message in error.message %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
                     
                     {% endfor %}
                     </div>

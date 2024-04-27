@@ -173,6 +173,7 @@ class Kernel
 		$this->db_info       = $app['database_info'];
 		$this->debug_mode    = $debug_mode;
 		$this->error_reports = $err_reporting;
+		$this->format        = $app['format'];
 		// $this->dispatcher    = $app['dispatcher'];
 		// $this->event_manager = $app['event_manager'];
 		// $this->html_purify   = $app['html_purify'];

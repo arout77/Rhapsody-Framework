@@ -1,0 +1,308 @@
+{% extends 'docs.html.twig' %}
+
+{% block title %}Documentation | Form Validation - Rhapsody Framework{% endblock %}
+
+{% block content %}
+<style>
+.table:not(.table-dark) tr {
+    color: #394654;
+    background-color: darkgray;
+}
+
+td {
+    border: 1px solid #918e8e;
+}
+
+th {
+    text-transform: lowercase !important;
+}
+
+table {
+    font-size: 0.85em !important;
+}
+</style>
+<section id="hero-animation">
+    <div id="landingHero" class="section-py landing-hero position-relative">
+      <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/hero-bg.png" alt="hero background" class="position-absolute top-0 start-50 translate-middle-x object-fit-contain w-100 h-100" data-speed="1">
+      <div class="container">
+        <div class="hero-text-box text-center">
+          <h1 class="text-primary hero-title display-4 fw-bold">Form Validation</h1>
+          <h2 class="hero-sub-title h6 mb-4 pb-1">
+             Validating form submissions in Rhapsody 
+          </h2> 
+          {# <div class="landing-hero-btn d-inline-block position-relative">
+            <span class="hero-btn-item position-absolute d-none d-md-flex text-heading">Use it:
+              <img src="{{ base_url }}public/template/docs/assets/img/backgrounds/Join-community-arrow.png" alt="Join community arrow" class="scaleX-n1-rtl"></span>
+              <a href="#" class="btn btn-primary">$this->model( "Example" )</a>
+          </div> #}
+        </div>
+      </div>
+    </div>
+</section>
+<p><br></p>
+<section id="validation">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Introduction</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <p>
+                    Web developers know the importance of validating user submitted data. User submitted data may contain typos, malformed data or even hacking attempts. The solution is to validate the data, but it is a tedious process. And 
+                    relying on Javascript for validation, while very useful and provides for a nicer user experience, is both unreliable and unsafe. It is a <em>complement to</em>, not a replacement for, backend validation. 
+                </p>
+                <p>
+                    Fortunately, Rhapsody provides a very simple to use, flexible form validation middleware. Below we will discuss how to use it and what functionalities are available to you.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Setting up the validator</h3>
+            <div class="card-subtitle text-muted mb-3">
+                <p>
+                    Like all middleware in Rhapsody Framework, we begin by importing it in our controller class using the built-in class loader:
+                </p>
+                <p>
+                    <code>$validate = $this->load->middleware( 'validation' );</code>
+                </p>
+                <p>
+                    Once we have imported the Validation middleware, we need to tell it what to validate and how. This is done by passing two parameters to the <code>form()</code> method:
+                </p>
+<pre>
+<code class="language-php">
+$validate = $this->load->middleware( 'validation' );
+
+$rules = 
+[
+    'username' => 
+    [
+        'Username' => 'alpha|min_length,4|max_length,20|required',
+    ],
+    'pword' => 
+    [
+        'Password' => 'alphanum|min_length,8|required'
+    ],
+    'confirm_pword' => 
+    [
+        'Confirm Password' => 'required|identical=' . $_POST['pword'],
+    ],
+];
+
+$validate->form( $_POST, $rules );
+</code>    
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="card-subtitle text-muted mb-3">
+            <h4 class="card-title">What type of data can I validate?</h4>
+                <p>
+                    In our example above, the <code>$validate->form()</code> method takes two required parameters:
+                </p>
+                <p>
+                    <ol>
+                        <li>The first parameter contains the data to be validated (typically a $_POST form)</li>
+                        <li>The second parameter are the rules that the data must adhere to</li>
+                    </ol>
+                </p>
+                <p>
+                    The <code>form()</code> method is a shorthand way to validate an entire form, rather than validating each form input one at a time. The data being passed in the first parameter must be an array, or an iterable object (such as database return objects). The second parameter, the rules, must be a multidimensional array, which we will cover next.
+                </p>
+            <h5 class="card-title">How to define rules</h5>
+                <p>
+                    The available rules are listed below in this page. Lets revisit the example from above line by line to understand how rules are defined.
+                </p>
+                <p>
+                    First, we instantiate the rules array: <br>
+                    <code>$rules = [];</code>
+                </p>
+                <p>
+                    Next, we identified the first piece of data being validated, the 'username' input field from our form. Note that this must match the name of the input field (i.e., <strong>&lt;input name="username"></strong>):
+                    <br>
+                    <code>
+                    $rules = [<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;'username' => []<br>
+                    ]
+                    </code>
+                </p>
+                <p>
+                    And finally, we defined the human readable name of the form field and the rules itself:<br>
+                    <code>
+                    $rules = [<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;'username' => <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Username' => 'alpha|min_length,4|max_length,20|required'<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;]<br>
+                    ]
+                    </code>
+                </p>
+                <p>
+                Same as above, with comments:
+<pre>
+<code class="language-php">
+$rules = 
+[
+    // The form input name
+    'username' => 
+    [
+        // The human readable name for the field that we show to the user and the corresponding rules
+        'Username' => 'alpha|min_length,4|max_length,20|required',
+    ]
+]
+</code>
+</pre>
+                </p>
+                <p>
+                    Finally, we repeated the same for each input field:
+                </p>
+<pre>
+<code class="language-php">
+$rules = 
+[
+    // 'username' input field
+    'username' => 
+    [
+        'Username' => 'alpha|min_length,4|max_length,20|required',
+    ],
+
+    // 'pword' input field
+    'pword' => 
+    [
+        'Password' => 'alphanum|min_length,8|required'
+    ],
+
+    // 'confirm_pword' input field
+    'confirm_pword' => 
+    [
+        'Confirm Password' => 'required|identical=' . $_POST['pword'],
+    ],
+];
+</code>    
+</pre>
+            
+            <p>
+                That's all there is to it; we have defined which fields to validate and how to validate each field. There are a couple things to take note of. 
+            </p>
+
+            <p>
+                First, the "human readable" bit. What do we mean by that? <br>
+                When we assign names to our HTML form inputs, often times it can sound a bit like gibberish and wouldn't make much sense to a user on your site. If the validator returns errors, it wouldn't be very helpful to just say <em>'confirm_pword' and 'pword' fields do not match</em>. Instead, it would be much more helpful if we told our visitor that 'Password' and 'Confirm Password' fields do not match.<br>
+                That is what the "human readable" index does for us. It tells the validator that if there is an error in the 'pword' field, call it the "Password" field when you inform the user. Think of it as the &lt;label> element from your form. In fact, it is good practice to use the value from your input labels for this, so that the user can navigate straight to that input.
+            </p>
+
+            <p>
+                Secondly, as you may have already noticed, we can apply multiple rules to a single input, each separated by a pipe character <code>"|"</code>. If an input field fails any one of the specified rules, the form will not be submitted and will return an error. This ensures that the user is sending us exactly the data we are expecting.
+            </p>
+
+            <h4 class="card-title">Displaying Errors</h4>
+                <p>
+                    Displaying any returned errors to users is simple as pie! We just fetch the errors from the validator:<br>
+                    <code>$errors = $validate->errors();</code> 
+                </p>
+                <p>
+                    And then we pass those along to our view file:<br>
+                    <code>$this->template->render( "search/results.html.twig", [ 'errors' => $errors ]);</code>
+                </p>
+
+                <p>
+                    In the view file:<br>
+<pre>
+<code class="language-twig">
+&lcub;% if errors|length > 0 %}
+    &lt;div class="alert alert-danger">
+        &lcub;% for error in errors %}
+            &lt;div>&lcub;&lcub; error }}&lt;/div>
+        &lcub;% endfor %}
+    &lt;/div>
+&lcub;% endif %}
+</code>
+</pre>
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title">Available Rules</h4>
+            <div class="card-subtitle text-muted mb-3">
+               <table class="table table-striped" style="border: 4px solid #918e8e;">
+                  <tr>
+                    <th style="width: 20%"><strong>alpha</strong></th>
+                    <td>Allow only alphabetic letters (case insensitve)</td>
+                  </tr>
+                  <tr>
+                    <th><strong>alphanum</strong></th>
+                    <td>Allow only alphabetic letters (case insensitve) and whole numbers</td>
+                  </tr>
+                  <tr>
+                    <th><strong>date</strong></th>
+                    <td>Ensure that the given string is a valid date or valid date and time. Optionally, you can specify the date format. The date format defaults to "Y-m-d" if not specified. If you wish to specify the date format, use a comma to separate it from the rule name, and enclose it with double quotes.<br><br>
+                    <em>Example: &nbsp; date,"m-d-Y"</em><br><br>
+                    <div class="alert alert-primary"><i class='bx bx-bulb'></i> This function uses the timezone set in your <strong>.env</strong> config file.</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><strong>digits</strong></th>
+                    <td>Allow only whole numbers</td>
+                  </tr>
+                  <tr>
+                    <th><strong>email</strong></th>
+                    <td>Uses PHP's FILTER_VALIDATE_EMAIL to validate the email address</td>
+                  </tr>
+                  <tr>
+                    <th><strong>float</strong></th>
+                    <td>Allow only floating point numbers (a positive or negative whole number with a decimal point)</td>
+                  </tr>
+                  <tr>
+                    <th><strong>identical</strong></th>
+                    <td>Must be identical to the supplied value. Uses strict comparative operator, so value AND data type must match -- 1 and "1" will fail ("1" is a string). 1 and 1 will pass. Use the '=' sign to specify the value:<br>
+                    identical=$foo</td>
+                  </tr>
+                  <tr>
+                    <th><strong>ip</strong></th>
+                    <td>Validates the given value is a valid IP address. Use this if you are unsure of or don't care about whether it is an IPV4 or IPV6 address. To check specifically for IPV4 or IPV6, use one of the corresponding rules below.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>ipv4</strong></th>
+                    <td>Validates the given value is a valid IPV4 address.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>ipv6</strong></th>
+                    <td>Validates the given value is a valid IPV6 address.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>max</strong></th>
+                    <td>Ensures the given number is no greater than the specified value. Used for numbers only. Use <code>max_length</code> for strings.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>max_length</strong></th>
+                    <td>Ensures the given string does not contain more characters than the specified value. Used for strings only. Use <code>max</code> for numbers.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>min</strong></th>
+                    <td>Ensures the given number is no less than the specified value. Used for numbers only. Use <code>min_length</code> for strings.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>min_length</strong></th>
+                    <td>Ensures the given string contains at least X number of characters. Used for strings only. Use <code>min</code> for numbers.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>required</strong></th>
+                    <td>Ensures the given value is not empty or null.</td>
+                  </tr>
+                  <tr>
+                    <th><strong>url</strong></th>
+                    <td>Uses PHP's FILTER_VALIDATE_URL to validate input is a URL.</td>
+                  </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

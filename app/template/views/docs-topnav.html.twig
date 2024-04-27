@@ -10,12 +10,17 @@
 
     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
         <!-- Search -->
-        <form method="post" action="{{ base_url }}search/results" class="d-flex">
+        <form method="post" action="{{ base_url }}search/results/" id="searchbar" class="d-flex">
             <div class="input-group"  id="searchbar">
-              <span class="input-group-text"><i class="tf-icons bx bx-search"></i></span>
-              <input type="text" name="navSearch" class="form-control" placeholder="Search..." >
+              <button type="submit" class="input-group-text"><i class="tf-icons bx bx-search"></i></button>
+              <input type="text" id="navSearch" name="navSearch" value="{{ session.validation.navSearch }}" class="form-control" placeholder="Search..." >
+              <div>
+                {% for message in session.validation.errors %}
+
+                {% endfor %}
+              </div>
             </div>
-          </form>
+        </form>
         <!-- /Search -->
 
         <ul class="navbar-nav flex-row align-items-center ms-auto">
@@ -110,3 +115,27 @@
         </ul>
     </div>
     </nav>
+
+{# <script>
+$(document).ready(function () {
+  $("#searchbar").submit(function (event) {
+    var formData = {
+      navSearch: $("#navSearch").val(),
+      // email: $("#email").val(),
+      // superheroAlias: $("#superheroAlias").val(),
+    };
+
+    $.ajax({
+      type: "POST",
+      url: "{{ base_url }}search/results/",
+      data: formData,
+      dataType: "json",
+      encode: true,
+    }).done(function (data) {
+      console.log(data);
+    });
+
+    event.preventDefault();
+  });
+});
+</script> #}

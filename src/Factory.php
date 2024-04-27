@@ -87,11 +87,11 @@ $app['database'] = function ( $c )
 	if ( is_null( $dbengine_setting ) )
 	{
 		$params = [
-			'type' => 'Enum',
-			'category' => 'Configuration',
-			'triggeredBy' => DBTYPE::class,
-			'object' => 'db_type',
-			'value' => $c['config']->setting( 'db_type' ),
+			'type'          => 'Enum',
+			'category'      => 'Configuration',
+			'triggeredBy'   => DBTYPE::class,
+			'object'        => 'db_type',
+			'value'         => $c['config']->setting( 'db_type' ),
 			'valid_options' => DBTYPE::cases(),
 		];
 
@@ -101,11 +101,11 @@ $app['database'] = function ( $c )
 	if ( is_null( $freeze_setting ) )
 	{
 		$params = [
-			'type' => 'Enum',
-			'category' => 'Configuration',
-			'triggeredBy' => BOOLEAN::class,
-			'object' => 'db_freeze',
-			'value' => $c['config']->setting( 'db_freeze' ),
+			'type'          => 'Enum',
+			'category'      => 'Configuration',
+			'triggeredBy'   => BOOLEAN::class,
+			'object'        => 'db_freeze',
+			'value'         => $c['config']->setting( 'db_freeze' ),
 			'valid_options' => BOOLEAN::cases(),
 		];
 
@@ -188,9 +188,9 @@ $app['pagination'] = function ( $c )
 	return new \Src\Middleware\Pagination( $c );
 };
 
-$app['formatter'] = function ( $c )
+$app['format'] = function ( $c )
 {
-	return new \Src\Middleware\Formatter;
+	return new \Src\Middleware\Format;
 };
 
 // new geo module

@@ -20,6 +20,7 @@ class Validation extends Kernel
 		'alpha'      => 'Must contain letters only',
 		'alphanum'   => 'Must contain only letters and numbers',
 		'date'       => 'Must be a valid date',
+		'datetime'   => 'Must be a valid date and time',
 		'digits'     => 'Must contain numbers only',
 		'email'      => 'Must be a valid email',
 		'float'      => 'Must be a float (decimal) value',
@@ -58,23 +59,13 @@ class Validation extends Kernel
 	 */
 	public function date( $date, $format = 'Y-m-d' ): bool
 	{
-		$dateTime = DateTime::createFromFormat( $format, $date );
-		if ( $dateTime && $dateTime->format( $format ) === $date )
-		{
-			return true;
+		try {
+			$dateTime = date_parse( $date );
+			return $dateTime["warning_count"] == 0 and $dateTime["error_count"] == 0;
 		}
-
-		return false;
-	}
-
-	/**
-	 * @param $datetime
-	 */
-	public function datetime( $datetime ): bool
-	{
-		if ( strtotime( $datetime ) != false )
+		catch ( Exception $e )
 		{
-			return true;
+			$this->log->save( $e->getMessage() );
 		}
 
 		return false;
@@ -108,12 +99,16 @@ class Validation extends Kernel
 		{
 			foreach ( $this->errors as $e )
 			{
-				$errors[] =
-				'Field: ' . $e['field'] .
-				' Value: ' . $e['value'] .
-				' Message: ' . $this->message[$e['rule']];
+				$errors['input'] =
+					[
+					'field'    => $e['field'],
+					'value'    => $e['value'],
+					'rule'     => $e['rule'],
+					'messages' => $e['messages'],
+				];
 			}
 
+			// array_multisort( $errors );
 			return $errors;
 		}
 
@@ -250,6 +245,113 @@ class Validation extends Kernel
 	}
 
 	/**
+	 * @param $rule
+	 * @return mixed
+	 */
+	public function parseRule( $rule )
+	{
+		$meth       = [];
+		$methodName = '';
+		$validate   = explode( "|", $rule );
+
+		foreach ( $validate as $method )
+		{
+			if ( str_contains( $method, "," ) )
+			{
+				// Grab the text preceding the comma
+				$methodName = strtolower( strstr( $method, ',', true ) );
+				if ( $methodName != 'date' )
+				{
+					// Get the numerical value for this rule
+					$num_value = preg_replace( "/[^0-9]/", '', $method );
+
+					$meth['ruleName']   = $methodName;
+					$meth['ruleParams'] = $num_value;
+
+					return $meth;
+				}
+
+				if ( $methodName == 'date' )
+				{
+					// Get the numerical value for this rule
+					$dateFormat = strstr( $method, ',' );
+					$dateFormat = substr( $dateFormat, 1 );
+
+					$meth['ruleName']   = $methodName;
+					$meth['ruleParams'] = $dateFormat ?? '';
+
+					return $meth;
+				}
+
+			}
+			elseif ( str_contains( $method, "=" ) )
+			{
+				$methodName = strtolower( strstr( $method, '=', true ) );
+
+				if ( $methodName == 'identical' )
+				{
+					// Get the value
+					$mustbethesameasthis = strstr( $method, '=' );
+					$mustbethesameasthis = substr( $mustbethesameasthis, 1 );
+
+					$meth['ruleName']   = $methodName;
+					$meth['ruleParams'] = $mustbethesameasthis;
+
+					return $meth;
+				}
+			}
+			else
+			{
+				$methodName         = strtolower( $method );
+				$meth['ruleName']   = $methodName;
+				$meth['ruleParams'] = '';
+
+				return $meth;
+			}
+		}
+	}
+
+	/**
+	 * @param $phoneNumber
+	 * @return mixed
+	 */
+	public function phone( $phoneNumber )
+	{
+		// Strip all non-integers from input
+		$phoneNumber = preg_replace( '/[^0-9]/', '', $phoneNumber );
+
+		if ( strlen( $phoneNumber ) > 10 )
+		{
+			// Prepend country code to phone number
+			$countryCode = substr( $phoneNumber, 0, strlen( $phoneNumber ) - 10 );
+			$areaCode    = substr( $phoneNumber, -10, 3 );
+			$nextThree   = substr( $phoneNumber, -7, 3 );
+			$lastFour    = substr( $phoneNumber, -4, 4 );
+
+			$phoneNumber = '+' . $countryCode . ' (' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
+		}
+		else if ( strlen( $phoneNumber ) == 10 )
+		{
+			// 10 digit phone number (Area code + number)
+			$areaCode  = substr( $phoneNumber, 0, 3 );
+			$nextThree = substr( $phoneNumber, 3, 3 );
+			$lastFour  = substr( $phoneNumber, 6, 4 );
+
+			$phoneNumber = '(' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
+		}
+		else if ( strlen( $phoneNumber ) == 7 )
+		{
+			// 7 digit number
+			$nextThree = substr( $phoneNumber, 0, 3 );
+			$lastFour  = substr( $phoneNumber, 3, 4 );
+
+			$phoneNumber = $nextThree . '-' . $lastFour;
+		}
+
+		return $phoneNumber;
+	}
+
+	/**
 	 * @param $string
 	 */
 	public function required( $string )
@@ -288,118 +390,63 @@ class Validation extends Kernel
 
 							foreach ( $validate as $method )
 							{
+								$method = self::parseRule( $method );
+
+								if ( !method_exists( Validation::class, $method['ruleName'] ) && $method['ruleName'] != false )
+								{
+									self::setErrorMessage( $rule, $field, $method['ruleName'] );
+								}
+
 								// If the rule does not have a comma separated value
 								// Ex. 'min_chars,3'
 								// Or equal sign separaated value
 								// Ex. 'identical="something"'
-								if ( !str_contains( $method, "," ) && !str_contains( $method, "=" ) )
+								if (
+									$method['ruleName'] != 'date' &&
+									$method['ruleName'] != 'min' &&
+									$method['ruleName'] != 'min_length' &&
+									$method['ruleName'] != 'max' &&
+									$method['ruleName'] != 'max_allowed'
+								)
 								{
-									if ( method_exists( Validation::class, "$method" ) )
+									if ( !self::{$method['ruleName']}( $value, $method['ruleParams'] ) )
 									{
-										if ( !self::{$method}( $value ) )
-										{
-											$this->errors[] = [
-												'field' => $label,
-												'value' => $value,
-												'rule'  => $method,
-											];
-										}
-									}
-									else
-									{
-										// Invalid rule; throw error
-										$passedrules = implode( ',', $rules );
-										$message     = <<<EOT
-You passed the following rules on the form input field name '$field':
-"{$passedrules}"
-which contains a validation rule that does not exist:
-$method
-
-To fix this error, go back to your controller where you set the valdiation rules, and assign it
-one of the following valid rules:
-EOT;
-										$valid_methods = get_class_methods( Validation::class );
-
-										// Remove internal methods from list of available methods
-										$valid_methods = array_diff( $valid_methods, ['validate_rule'] );
-										$valid_methods = array_diff( $valid_methods, ['validate_value'] );
-										$valid_methods = array_diff( $valid_methods, ['__construct'] );
-										$valid_methods = array_diff( $valid_methods, ['throwError'] );
-										$valid_methods = array_diff( $valid_methods, ['errors'] );
-										$valid_methods = array_diff( $valid_methods, ['rules'] );
-
-										$params['type']          = "Validation";
-										$params['category']      = "Exception";
-										$params['triggeredBy']   = Validation::class;
-										$params['object']        = $method;
-										$params['value']         = $field;
-										$params['valid_options'] = $valid_methods;
-										$this->throwError( $params, $message );
+										$this->errors[$field] = [
+											'field'    => $field,
+											'value'    => $value,
+											'rule'     => $method['ruleName'],
+											'messages' => $this->message[$method['ruleName']],
+										];
 									}
 								}
-								elseif ( str_contains( $method, "," ) && !str_contains( $method, "=" ) )
+								// Rule containing a numerical option
+								// Ex: 	'max_chars, 10'
+
+								elseif (
+									$method['ruleName'] == 'min' ||
+									$method['ruleName'] == 'min_length' ||
+									$method['ruleName'] == 'max' ||
+									$method['ruleName'] == 'max_allowed'
+								)
 								{
-									// Rule containing a numerical option
-									// Ex: 	'max_chars, 10'
-
-									// Get the numerical value for this rule
-									$num_value = preg_replace( "/[^0-9]/", '', $method );
-									// Grab the text preceding the comma
-									$method = preg_replace( "/[^a-zA-Z_]/", '', $method );
-
-									if ( method_exists( Validation::class, "$method" ) )
+									// Validation check failed for this rule
+									if ( !self::{$method['ruleName']}( $value, $method['ruleParams'] ) )
 									{
-										// Validation check failed for this rule
-										if ( !self::{$method}( $value, $num_value ) )
-										{
-											$this->errors[] = [
-												'field' => $label,
-												'value' => $value,
-												'rule'  => $method,
-											];
-										}
-									}
-									else
-									{
-										// Invalid rule; throw error
-										$passedrules = implode( ',', $rules );
-										$message     = <<<EOT
-You passed the following rules on the form input field name '$field':
-"{$passedrules}"
-which contains a validation rule that does not exist:
-$method
-
-To fix this error, go back to your controller where you set the valdiation rules, and assign it
-one of the following valid rules:
-EOT;
-										$valid_methods = get_class_methods( Validation::class );
-
-										// Remove internal methods from list of available methods
-										$valid_methods = array_diff( $valid_methods, ['validate_rule'] );
-										$valid_methods = array_diff( $valid_methods, ['validate_value'] );
-										$valid_methods = array_diff( $valid_methods, ['__construct'] );
-										$valid_methods = array_diff( $valid_methods, ['throwError'] );
-										$valid_methods = array_diff( $valid_methods, ['errors'] );
-										$valid_methods = array_diff( $valid_methods, ['rules'] );
-
-										$params['type']          = "Validation";
-										$params['category']      = "Exception";
-										$params['triggeredBy']   = Validation::class;
-										$params['object']        = $method;
-										$params['value']         = $field;
-										$params['valid_options'] = $valid_methods;
-										$this->throwError( $params, $message );
+										$this->errors[$field] = [
+											'field'    => $field,
+											'value'    => $value,
+											'rule'     => $method["ruleName"],
+											'messages' => $this->message[$method['ruleName']],
+										];
 									}
 								}
-								elseif ( str_contains( $method, "=" ) && !str_contains( $method, "," ) )
+								elseif ( $method['ruleName'] == 'identical' )
 								{
 									// Rule to ensure given values are identical
 									// Ex: 	'identical="$_POST['password']"'
-									$comparison = explode( "=", $method );
-									// Grab the text preceding the equal sign
-									$method = $comparison[0];
+
 									// Get the comparison value for this rule
-									$comp_value = $comparison[1];
+									$comp_value = $method['ruleParams'];
 									// If the passed array key ($_POST, $_GET, array()) matches the array key in the rules array
 									// Get the value from post/get/array and assign as the base value
 									$base_value = null;
@@ -408,65 +455,123 @@ EOT;
 										$base_value = $value;
 									}
 
-									if ( method_exists( Validation::class, "$method" ) )
+									// Validation check failed for this rule
+									if ( !self::{$method['ruleName']}( $base_value, $comp_value ) )
 									{
-										// Validation check failed for this rule
-										if ( !self::{$method}( $base_value, $comp_value ) )
+										$this->errors[$field] = [
+											'field'    => $field,
+											'value'    => $value,
+											'rule'     => $method["ruleName"],
+											'messages' => $this->message[$method['ruleName']],
+										];
+									}
+								}
+								elseif ( $method['ruleName'] == 'date' )
+								{
+									// Rule to ensure given value is a valid date. Accepts
+									// an optional date format. Format defaults to "Y-m-d"
+									// Format must be separated from rule with a comma, and
+									// the value must be enclosed in double quotes
+									// Ex: 	'date,"m-d-Y"'
+									if ( !empty( $method['ruleParams'] ) && $method['ruleParams'] != '' )
+									{
+										if ( !self::date( $value, $method['ruleParams'] ) )
 										{
-											$this->errors[] = [
-												'field' => $label,
-												'value' => $value,
-												'rule'  => $method,
+											$this->errors[$field] = [
+
+												'field'    => $field,
+												'value'    => $value,
+												'rule'     => 'date',
+												'messages' => $this->message[$method['ruleName']],
 											];
+
 										}
 									}
 									else
 									{
-										// Invalid rule; throw error
-										$passedrules = implode( ',', $rules );
-										$message     = <<<EOT
+										if ( !self::date( $value ) )
+										{
+											$this->errors[$field] = [
+
+												'field'    => $field,
+												'value'    => $value,
+												'rule'     => 'date',
+												'messages' => $this->message[$method['ruleName']],
+											];
+
+										}
+									}
+								}
+							}
+						}
+
+						if ( !empty( $this->errors ) )
+						{
+							$_SESSION['validation']           = $_POST;
+							$_SESSION['validation']['errors'] = self::errors();
+							// var_dump( $_SESSION['validation']['errors'] );exit;
+							header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
+							exit;
+						}
+						else
+						{
+							if ( isset( $_SESSION['validation'] ) )
+							{
+								unset( $_SESSION['validation']['errors'] );
+								unset( $_SESSION['validation'] );
+							}
+						}
+					}
+					else
+					{
+						// No match found for input field name and the
+						// name for the input in the rules array
+						continue;
+					}
+				}
+			}
+		}
+		else
+		{
+			// $string passed was not an array
+		}
+
+	}
+
+	/**
+	 * @param $rule
+	 */
+	public function setErrorMessage( $rules, $field, $method )
+	{
+		// Invalid rule; throw error
+		// $passedrules = implode( ',', $rules );
+		$message = <<<EOT
 You passed the following rules on the form input field name '$field':
-"{$passedrules}"
+"{$rules}"
 which contains a validation rule that does not exist:
 $method
 
 To fix this error, go back to your controller where you set the valdiation rules, and assign it
 one of the following valid rules:
 EOT;
-										$valid_methods = get_class_methods( Validation::class );
+		$valid_methods = get_class_methods( Validation::class );
 
-										// Remove internal methods from list of available methods
-										$valid_methods = array_diff( $valid_methods, ['validate_rule'] );
-										$valid_methods = array_diff( $valid_methods, ['validate_value'] );
-										$valid_methods = array_diff( $valid_methods, ['__construct'] );
-										$valid_methods = array_diff( $valid_methods, ['throwError'] );
-										$valid_methods = array_diff( $valid_methods, ['errors'] );
-										$valid_methods = array_diff( $valid_methods, ['rules'] );
+		// Remove internal methods from list of available methods
+		$valid_methods = array_diff( $valid_methods, ['validate_rule'] );
+		$valid_methods = array_diff( $valid_methods, ['validate_value'] );
+		$valid_methods = array_diff( $valid_methods, ['__construct'] );
+		$valid_methods = array_diff( $valid_methods, ['throwError'] );
+		$valid_methods = array_diff( $valid_methods, ['errors'] );
+		$valid_methods = array_diff( $valid_methods, ['rules'] );
+		$valid_methods = array_diff( $valid_methods, ['setErrorMessage'] );
 
-										$params['type']          = "Validation";
-										$params['category']      = "Exception";
-										$params['triggeredBy']   = Validation::class;
-										$params['object']        = $method;
-										$params['value']         = $field;
-										$params['valid_options'] = $valid_methods;
-										$this->throwError( $params, $message );
-									}
-								}
-							}
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
-			}
-		}
-
-	}
-
-	public function string()
-	{
+		$params['type']          = "Validation";
+		$params['category']      = "Exception";
+		$params['triggeredBy']   = Validation::class;
+		$params['object']        = $method;
+		$params['value']         = $field;
+		$params['valid_options'] = $valid_methods;
+		return $this->throwError( $params, $message );
 	}
 
 	public function url(): bool
@@ -477,13 +582,6 @@ EOT;
 		}
 
 		return false;
-	}
-
-	/**
-	 * @param $string
-	 */
-	public function validate_rule( $string )
-	{
 	}
 
 	/**
