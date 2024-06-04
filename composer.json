@@ -29,7 +29,10 @@
         "symfony/mailer": "^7.0",
         "benmajor/redseed": "^1.0",
         "laminas/laminas-validator": "^2.5",
-        "symfony/console": "^7.0"
+        "symfony/console": "^7.0",
+        "giggsey/libphonenumber-for-php": "^8.13",
+        "geoip2/geoip2": "~2.0",
+        "tronovav/geoip2-update": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -49,7 +52,8 @@
             "App\\Scripts\\": "var/scripts",
             "RedBeanPHP\\": "src/",
             "RedBeanPHP\\Logger\\": "vendor\\gabordemooij\\redbean\\RedBeanPHP\\Logger",
-            "Validate\\Enums\\": "src/enums"
+            "Validate\\Enums\\": "src/enums",
+            "libphonenumber\\": "vendor/giggsey/libphonenumber-for-php/src/"
         }
     }
 }

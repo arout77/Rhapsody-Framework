@@ -10,15 +10,17 @@
 
     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
         <!-- Search -->
-        <form method="post" action="{{ base_url }}search/results/" id="searchbar" class="d-flex">
+        <form method="get" action="{{ base_url }}search/results/" id="searchbar" class="d-flex">
             <div class="input-group"  id="searchbar">
               <button type="submit" class="input-group-text"><i class="tf-icons bx bx-search"></i></button>
               <input type="text" id="navSearch" name="navSearch" value="{{ session.validation.navSearch }}" class="form-control" placeholder="Search..." >
-              <div>
-                {% for message in session.validation.errors %}
-
-                {% endfor %}
-              </div>
+              <span style="margin-left: 16px;">
+                {% if session.validation.errors.input.field == 'navSearch' %}
+                    {% for error in session.validation.errors %}
+                        {{ error.messages }}
+                    {% endfor %}
+                {% endif %}
+              </span>
             </div>
         </form>
         <!-- /Search -->

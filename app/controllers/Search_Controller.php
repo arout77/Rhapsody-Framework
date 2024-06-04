@@ -8,13 +8,19 @@ class Search_Controller extends Base_Controller
 	{
 		// Model was created and stored at: /app/models/SearchModel.php
 		// View was created and stored at: /app/template/views/search/results.html.twig
+
+		$geo = $this->load->middleware( 'geoip' );
+		echo $geo->distance( '29.084545', '31.3463234', '30.563235', '31.3455463' );
+
 		$format = $this->load->middleware( 'format' );
 		$format->age( "Feb 4th 1977" );
+
+		// $e = new PhoneNumberUtil;
 
 		$validate = $this->load->middleware( 'validation' );
 		$validate->form( $_POST, [
 			'fullname' => [
-				'User Name' => 'alpha|min_length,3|max_length,30|required',
+				'User Name' => 'min_length,3|max_length,30|required|word',
 			],
 			'company'  => [
 				'Company Name' => 'alphanum|min_length,3|max_length,30|required',
@@ -41,15 +47,12 @@ class Search_Controller extends Base_Controller
 	{
 		$validate = $this->load->middleware( 'validation' );
 
-		$searchTerm = $_POST['navSearch'];
+		$searchTerm = $_GET['navSearch'];
 
-		$validate->form( $_POST, [
+		$validate->form( $_GET, [
 			'navSearch' => [
-				'Searchbox' => 'alpha|alphanum|date,"m-d-Y"|max_length,10|min_length,3|identical=' . $_POST['somethingcool'],
+				'Searchbox' => 'required|max_length,30|min_length,3',
 			],
-			// 'password'         	=> 'required|max_len,40|min_len,6',
-			// 'confirm_password' 	=> 'required|contains,' . $_POST['password'] . '',
-			// 'email'            	=> 'required|valid_email',
 		] );
 
 		$errors = $validate->errors();

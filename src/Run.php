@@ -43,7 +43,7 @@ function shutDown()
 	 */
 	$error = error_get_last();
 
-	$page500 = '<div style="background-image: url(public/template/errors/img/e500.jpg); background-size: contain; background-repeat: no-repeat; height: 100%"></div>';
+	$page500 = '<div style="background-image: url(' . SITE_URL . 'public/template/errors/img/e500.jpg); background-size: contain; background-repeat: no-repeat; height: 100%"><p><br></p></div>';
 
 	switch ( $error['type'] )
 	{
@@ -51,6 +51,7 @@ function shutDown()
 	case 4:
 	case 16:
 	case 64:
+	case 256:
 		echo $page500;
 		break;
 

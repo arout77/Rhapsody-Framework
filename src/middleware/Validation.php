@@ -34,6 +34,7 @@ class Validation extends Kernel
 		'required'   => 'Required field',
 		'string'     => 'Must be a string',
 		'url'        => 'Must be a valid URL',
+		'word'       => 'Must contain only letters, whole numbers, spaces, dashes or underscores',
 	];
 
 	/**
@@ -595,5 +596,19 @@ EOT;
 		{
 			return self::{$rule}( $string, $value );
 		}
+	}
+
+	/**
+	 * @param $string
+	 */
+	public function word( $string ): bool
+	{
+		// Allows alphanum, underscores, dashes and spaces
+		if ( !preg_match( '/^[a-zA-Z0-9_- ]+$/', $string ) )
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

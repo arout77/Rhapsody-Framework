@@ -25,6 +25,11 @@ class Kernel
 	/**
 	 * @var mixed
 	 */
+	public $geoip;
+
+	/**
+	 * @var mixed
+	 */
 	public $load;
 
 	/**
@@ -174,6 +179,7 @@ class Kernel
 		$this->debug_mode    = $debug_mode;
 		$this->error_reports = $err_reporting;
 		$this->format        = $app['format'];
+		$this->geoip         = $app['geoip'];
 		// $this->dispatcher    = $app['dispatcher'];
 		// $this->event_manager = $app['event_manager'];
 		// $this->html_purify   = $app['html_purify'];

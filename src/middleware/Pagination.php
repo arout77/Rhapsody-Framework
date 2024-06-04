@@ -68,6 +68,13 @@ class Pagination extends System_Model
 	 */
 	public $url;
 
+	// This is used for parsing links; if $_GET is set in url,
+	// then use '&' instead of '?'
+	/**
+	 * @var string
+	 */
+	private $getseperator = '?';
+
 	/**
 	 * @param $sql
 	 * @param $url
@@ -75,9 +82,39 @@ class Pagination extends System_Model
 	 */
 	public function config( $sql, $url, $per_page = 20 ): void
 	{
-		$url               = chop( $url );
-		$url               = chop( $url, "/" );
-		$url               = $url . '/';
+		$url = chop( $url );
+		$url = chop( $url, "/" );
+		$url = $url . '/';
+
+		if ( isset( $_GET ) )
+		{
+			if ( count( $_GET ) === 1 )
+			{
+				foreach ( $_GET as $k => $v )
+				{
+					$params = "?{$k}={$v}";
+				}
+				$url .= $params;
+			}
+
+			if ( count( $_GET ) > 1 )
+			{
+				$firstIndex      = array_key_first( $_GET );
+				$firstIndexValue = urlencode( current( $_GET ) );
+				$params          = "?{$firstIndex}={$firstIndexValue}";
+
+				array_shift( $_GET );
+
+				foreach ( $_GET as $k => $v )
+				{
+					$params .= "&{$k}={$v}";
+				}
+				$url = $url . $params;
+			}
+
+			$this->getseperator = '&';
+		}
+
 		$this->page        = $_GET["page"] ?? 1;
 		$this->offset      = ( $this->page * $this->perpage ) - 1;
 		$this->total_pages = 0;
@@ -99,7 +136,7 @@ class Pagination extends System_Model
 	public function links(): string
 	{
 		$backOnePage = 1;
-		if (  ( $this->page - $this->range - 1 ) > 1 )
+		if ( ( $this->page - $this->range - 1 ) > 1 )
 		{
 			$backOnePage = $this->page - $this->range - 1;
 		}
@@ -111,7 +148,7 @@ class Pagination extends System_Model
 		if ( $backOnePage > 1 )
 		{
 			$links .= '<li class="page-item prev">
-							<a class="page-link" href="' . $this->url . '?page=1">
+							<a class="page-link" href="' . $this->url . $this->getseperator . 'page=1">
 								<i class="tf-icon bx bx-chevrons-left"></i> First
 							</a>
 						</li>';
@@ -120,7 +157,7 @@ class Pagination extends System_Model
 		if ( $this->page > 1 )
 		{
 			$links .= '<li class="page-item prev">
-						<a class="page-link" href="' . $this->url . '?page=' . $backOnePage . '">
+						<a class="page-link" href="' . $this->url . $this->getseperator . 'page=' . $backOnePage . '">
 							<i class="tf-icon bx bx-chevron-left"></i>
 						</a>
 	  				</li>';
@@ -139,18 +176,18 @@ class Pagination extends System_Model
 			}
 
 			// Only display links within the specified range
-			if (  ( $i >= $this->page - $this->range ) && ( $i <= $this->page + $this->range ) && $this->total_pages > 1 )
+			if ( ( $i >= $this->page - $this->range ) && ( $i <= $this->page + $this->range ) && $this->total_pages > 1 )
 			{
 				$links .= '<li class="page-item ' . $active_page_css . '">
-							<a class="page-link" href="' . $this->url . '?page=' . $i . '">' . $i . '</a>
+							<a class="page-link" href="' . $this->url . $this->getseperator . 'page=' . $i . '">' . $i . '</a>
 						</li>';
 			}
 		}
 		// Show last page button
-		if (  ( $this->total_pages > 9 ) )
+		if ( ( $this->total_pages > 9 ) )
 		{
 			$links .= '<li class="page-item">
-						<a class="page-link" href="' . $this->url . '?page=' . $this->total_pages . '">
+						<a class="page-link" href="' . $this->url . $this->getseperator . 'page=' . $this->total_pages . '">
 							<i class="tf-icon bx bx-chevrons-right"></i> Last
 						</a>
 					</li>';
@@ -185,7 +222,7 @@ class Pagination extends System_Model
 
 		for ( $i = 0; $i <= $this->num_records; $i++ )
 		{
-			if (  ( $i >= $start ) && ( $i <= $stop ) )
+			if ( ( $i >= $start ) && ( $i <= $stop ) )
 			{
 				$content[] = $this->dataset[$i];
 			}
@@ -199,7 +236,7 @@ class Pagination extends System_Model
 	 */
 	public function showSelectMenu(): string
 	{
-		$select .= '<select name="pagination_' . $this->elid . '"
+		$select = '<select name="pagination_' . $this->elid . '"
 					class="form-select"
 					id="' . $this->elid . '"
 					onChange="window.document.location.href=this.options[this.selectedIndex].value;">';
@@ -208,7 +245,7 @@ class Pagination extends System_Model
 
 		for ( $i = 1; $i <= $this->total_pages; $i++ )
 		{
-			$select .= '<option value="' . $this->url . '?page=' . $i . '">' . $i . '</option>';
+			$select .= '<option value="' . $this->url . $this->getseperator . 'page=' . $i . '">' . $i . '</option>';
 		}
 
 		$select .= '</select>';

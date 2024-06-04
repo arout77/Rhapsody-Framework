@@ -196,13 +196,12 @@ $app['format'] = function ( $c )
 // new geo module
 $app['geoip'] = function ( $c )
 {
-	$geo_db_file = PLUGINS_PATH . 'GeoLite2-City.mmdb';
-	return new \App\Plugin\Geoip( $geo_db_file, $c['database'] );
+	return new \Src\Middleware\Geoip( $c );
 };
 
 $app['hash'] = function ( $c )
 {
-	return new \App\Plugin\Hash;
+	return new \Src\Middleware\Hash;
 };
 
 $app['session'] = function ( $c )
@@ -225,24 +224,20 @@ $app['template'] = function ( $c )
 // };
 
 // $app['login'] = function ($c) {
-// 	return new \App\Plugin\Login($c);
-// };
-
-// $app['pagination'] = function ($c) {
-// 	return new \App\Plugin\Pagination($c);
+// 	return new \Src\Middleware\Login($c);
 // };
 
 // $app['paypal'] = function ($c) {
-// 	return new \App\Plugin\Paypal($c);
+// 	return new \Src\Middleware\Paypal($c);
 // };
 
 // $app['sanitize'] = function ($c) {
-// 	return new \App\Plugin\Sanitize($c);
+// 	return new \Src\Middleware\Sanitize($c);
 // };
 
 // $app['title'] = function ($app) {
 
-// 	$title = new \App\Plugin\Title($app['toolbox']);
+// 	$title = new \Src\Middleware\Title($app['toolbox']);
 // 	require_once MODULES_PATH . 'Titlesettings.php';
 // 	# Pass the Titlesettings() function from the included file above to $title->set()
 // 	$title->set(Titlesettings($app));
@@ -250,11 +245,11 @@ $app['template'] = function ( $c )
 // };
 
 // $app['validate'] = function ($c) {
-// 	return new \App\Plugin\Validation;
+// 	return new \Src\Middleware\Validation;
 // };
 
 // $app['whitelist'] = function ($app) {
-// 	return new \App\Plugin\Whitelist($app);
+// 	return new \Src\Middleware\Whitelist($app);
 // };
 
 /*
@@ -305,7 +300,7 @@ return new \Src\Codegenerator($c);
 
 #   Toolbox middlewares
 $app['breadcrumbs'] = function ($c) {
-$bc = new \App\Plugin\Breadcrumbs($c['router'], $c['config']);
+$bc = new \Src\Middleware\Breadcrumbs($c['router'], $c['config']);
 $bc->show();
 return $bc;
 };
@@ -315,21 +310,21 @@ return new \Src\Cookie;
 };
 
 $app['friends'] = function ($c) {
-return new \App\Plugin\Friends($c['database'], $c['toolbox'], $c['system_model']);
+return new \Src\Middleware\Friends($c['database'], $c['toolbox'], $c['system_model']);
 };
 
 $app['image'] = function ($c) {
-return new \App\Plugin\Image($c['config'], $c['toolbox']);
+return new \Src\Middleware\Image($c['config'], $c['toolbox']);
 };
 
 $app['input'] = function ($c) {
-return new \App\Plugin\Input($c['sanitize'], $c['validate']);
+return new \Src\Middleware\Input($c['sanitize'], $c['validate']);
 };
 
 $app['memcached'] = function ($c) {
 $host            = $c['config']->setting('memcached_host');
 $port            = $c['config']->setting('memcached_port');
-return $instance = new \App\Plugin\Cache($host, $port);
+return $instance = new \Src\Middleware\Cache($host, $port);
 return $instance->connect($host, $port);
 if (!$connect) {
 $c['log']->save('Could not connect to Memcached');}
@@ -337,11 +332,11 @@ $c['log']->save('Could not connect to Memcached');}
 };
 
 $app['messenger'] = function ($c) {
-return new \App\Plugin\Messenger($c['database'], $c['toolbox']);
+return new \Src\Middleware\Messenger($c['database'], $c['toolbox']);
 };
 
 $app['mysql'] = function ($c) {
-return new \App\Plugin\Mysql($c);
+return new \Src\Middleware\Mysql($c);
 };
 
 $app['opcache'] = function ($c) {
@@ -349,10 +344,10 @@ return new \Src\Opcache;
 };
 
 $app['performance'] = function ($c) {
-return new \App\Plugin\Performance;
+return new \Src\Middleware\Performance;
 };
 
 $app['search'] = function ($c) {
-return new \App\Plugin\Search($c['database']);
+return new \Src\Middleware\Search($c['database']);
 };
  */
