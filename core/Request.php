@@ -109,4 +109,13 @@ class Request
         // Use filter_input for basic security
         return filter_input( INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS ) ?? $default;
     }
+
+    /**
+     * Gets the uploaded files data (from $_FILES).
+     *
+     * @return array
+     */
+    public function getFiles(): array {
+        return $this->files;
+    }
 }

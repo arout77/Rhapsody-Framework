@@ -14,9 +14,9 @@ return [
     'database' => [
         'host'     => 'localhost', // Or '127.0.0.1'
         'port' => 3306,
-        'dbname'   => '', // The name of your database
-        'user' => '',
-        'password' => '',
+        'dbname'   => 'iwf_prospect_mode', // The name of your database
+        'user' => 'root',
+        'password' => 'root',
         'charset'  => 'utf8mb4',
     ],
 ];

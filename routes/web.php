@@ -25,3 +25,9 @@ Router::get( '/posts/{slug}', [PageController::class, 'showPost'] );
 
 Router::get( '/users', [PageController::class, 'showUsers'] );
 Router::get( '/users/{user_id}', [PageController::class, 'viewUser'] );
+
+Router::get( '/register', [UserController::class, 'register'] );
+Router::post( '/register', [UserController::class, 'registerProcess'] );
+
+Router::get( '/upload', [App\Controllers\PageController::class, 'showUploadForm'] );
+Router::post( '/upload', [App\Controllers\PageController::class, 'handleUpload'] );

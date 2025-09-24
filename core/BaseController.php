@@ -31,4 +31,18 @@ abstract class BaseController
         $response->setContent( $output );
         return $response;
     }
+
+    /**
+     * @param array $data
+     * @param int $statusCode
+     * @return mixed
+     */
+    protected function json( array $data, int $statusCode = 200 ): Response
+    {
+        $response = new Response();
+        $response->setStatusCode( $statusCode );
+        $response->setHeader( 'Content-Type', 'application/json' );
+        $response->setContent( json_encode( $data ) );
+        return $response;
+    }
 }

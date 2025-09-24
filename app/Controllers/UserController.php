@@ -4,64 +4,12 @@ namespace App\Controllers;
 
 use App\Models\User;
 use Core\BaseController;
-use Core\FileUploader;
 use Core\Pagination;
 use Core\Request;
 use Core\Response;
 
-class PageController extends BaseController
+class UserController extends BaseController
 {
-    /**
-     * Show the home page.
-     *
-     * @return Response
-     */
-    public function index(): Response
-    {
-        // Data to pass to the template
-        $data = [
-            'name' => 'Gemini',
-        ];
-
-        // Render the 'home.twig' view and pass the data to it
-        return $this->view( 'home/index.twig', $data );
-    }
-
-    /**
-     * Show the about page.
-     *
-     * @return Response
-     */
-    public function about(): Response
-    {
-        // 1. Create a new Response object
-        $response = new Response();
-
-        // 2. Use the correct setContent() method
-        $response->setContent( "<h1>About Us</h1><p>This page is working!</p>" );
-
-        // 3. Return the configured response
-        return $response;
-    }
-
-    /**
-     * Shows a dynamic page based on a URL parameter.
-     *
-     * @param string $slug The value captured from the URL (e.g., 'my-first-post').
-     * @return Response
-     */
-    public function showPost( string $slug ): Response
-    {
-        $response = new Response();
-
-        // Sanitize the output to prevent XSS attacks
-        $safeSlug = htmlspecialchars( $slug, ENT_QUOTES, 'UTF-8' );
-
-        $response->setContent( "<h1>Viewing Post</h1><p>The slug is: <strong>{$safeSlug}</strong></p>" );
-
-        return $response;
-    }
-
     /**
      * @return mixed
      */
@@ -126,39 +74,15 @@ class PageController extends BaseController
     }
 
     /**
-     * THIS METHOD DISPLAYS THE FORM
-     * It corresponds to the Router::get('/contact', ...) route.
-     * This is the method that was missing.
-     */
-    public function contact(): Response
-    {
-        // This just renders the Twig template with the form.
-        return $this->view( 'contact/contact.twig' );
-    }
-
-    /**
-     * THIS METHOD HANDLES THE SUBMISSION
-     * It corresponds to the Router::post('/contact', ...) route.
-     */
-    public function handleContact( Request $request ): Response
-    {
-        // Get the sanitized data from the request body
-        $data = $request->getBody();
-
-        // For now, just display the data back to the user to confirm it worked.
-        $name = htmlspecialchars( $data['name'] ?? 'Guest', ENT_QUOTES, 'UTF-8' );
-
-        $response = new Response();
-        $response->setContent( "<h1>Thank You, {$name}!</h1><p>We received your message.</p>" );
-        return $response;
-    }
-
-    /**
      * @return mixed
      */
     public function showRegisterForm(): Response
     {
-        return $this->view( 'register.twig', ['old' => [], 'errors' => []] );
+        // Show the form for the first time
+        return $this->view( 'register.twig', [
+            'old'    => [],
+            'errors' => [],
+        ] );
     }
 
     /**
@@ -167,10 +91,10 @@ class PageController extends BaseController
      */
     public function register( Request $request ): Response
     {
-        // ... (register method remains the same)
         $postData = $request->getBody();
         $fileData = $request->getFiles();
-        $data     = array_merge( $postData, $fileData );
+        // We combine post and file data to validate them together
+        $data = array_merge( $postData, $fileData );
 
         $validator = new Validator();
         $rules     = [
@@ -185,50 +109,20 @@ class PageController extends BaseController
 
         if ( $validator->validate( $data, $rules ) )
         {
+            // Validation passed!
+            // Here you would hash the password and save the user to the database.
+            // You would also move the uploaded file from the temp directory.
             $response = new Response();
             $response->setContent( "<h1>Registration Successful!</h1><p>Welcome, {$data['username']}!</p>" );
             return $response;
         }
         else
         {
+            // Validation failed, show the form again with errors.
             return $this->view( 'register.twig', [
                 'errors' => $validator->getErrors(),
                 'old'    => $postData,
             ] );
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function showUploadForm(): Response
-    {
-        return $this->view( 'upload.twig' );
-    }
-
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    public function handleUpload( Request $request ): Response
-    {
-        $uploader = new FileUploader();
-        $uploader->setAllowedMimes( ['image/jpeg', 'image/png', 'application/pdf'] )
-                 ->setMaxSize( 5 * 1024 * 1024 ); // 5 MB
-
-        if ( $uploader->handle( 'documents' ) )
-        {
-            return $this->json( [
-                'success' => true,
-                'files'   => $uploader->getUploadedFiles(),
-            ] );
-        }
-        else
-        {
-            return $this->json( [
-                'success' => false,
-                'errors'  => $uploader->getErrors(),
-            ], 400 );
         }
     }
 }
