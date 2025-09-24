@@ -1,0 +1,74 @@
+<?php
+
+namespace Core;
+
+class Route
+{
+    /**
+     * The captured parameters from a matched dynamic route.
+     * @var array
+     */
+    protected array $params = [];
+
+    public function __construct(
+        protected string $method,
+        protected string $path,
+        protected mixed $callback
+    )
+    {
+        }
+
+    /**
+     * Checks if this route matches the given request method and path.
+     * It now supports dynamic segments like /posts/{id}.
+     *
+     * @param string $method The request's method.
+     * @param string $uri The request's URI.
+     *
+     * @return bool True if the route matches, false otherwise.
+     */
+    public function matches( string $method, string $uri ): bool
+    {
+        // First, check if the HTTP method matches.
+        if ( strtolower( $this->method ) !== strtolower( $method ) )
+        {
+            return false;
+        }
+
+        // Convert the route path into a regular expression.
+        // 1. Replace dynamic segments {param} with a regex capture group.
+        $pattern = preg_replace( '/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $this->path );
+
+        // 2. Escape forward slashes and anchor the pattern.
+        $pattern = "~^" . $pattern . "$~";
+
+        // 3. Attempt to match the URI against the pattern.
+        if ( preg_match( $pattern, $uri, $matches ) )
+        {
+            // Remove the full match from the beginning of the array.
+            array_shift( $matches );
+            // Store the captured parameter values.
+            $this->params = $matches;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets the callback action for this route.
+     * @return mixed
+     */
+    public function getCallback(): mixed
+    {
+        return $this->callback;
+    }
+
+    /**
+     * Gets the captured URL parameters.
+     * @return array
+     */
+    public function getParams(): array {
+        return $this->params;
+    }
+}

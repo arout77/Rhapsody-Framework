@@ -1,59 +1,13 @@
 {
-    "name": "rhapsody/framework",
-    "type": "project",
-    "description": "Fully featured PHP 8 compatible framework",
-    "keywords": ["framework","PHP 8"],
-    "homepage": "https://github.com/arout77/Rhapsody-Framework",
-    "version": "1.0.0",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Andrew Rout",
-            "email": "arout@diamondphp.org",
-            "homepage": "https://diamondphp.org",
-            "role": "Developer"
-        }
-    ],
-	"require": {
-        "php": ">=8.3",
-        "ext-ctype": "*",
-        "ext-iconv": "*",
-        "pimple/pimple": "~3.5",
-        "phpdocumentor/reflection-docblock": "^5.3",
-        "phpstan/phpdoc-parser": "^1.24",
-        "gabordemooij/redbean": "dev-master",
-        "symfony/event-dispatcher": "^7.0",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
-        "symfony/asset": "^7.0",
-        "symfony/mailer": "^7.0",
-        "benmajor/redseed": "^1.0",
-        "laminas/laminas-validator": "^2.5",
-        "symfony/console": "^7.0",
-        "giggsey/libphonenumber-for-php": "^8.13",
-        "geoip2/geoip2": "~2.0",
-        "tronovav/geoip2-update": "^2.3"
-    },
+    "name": "arout/rhapsody",
+    "description": "PHP 8.3.0+ framework.",
     "autoload": {
         "psr-4": {
-            "App\\ControllerOverride\\": "app/override/controllers",
-            "Src\\CoreControllerOverride\\": "src/override/controllers",
-            "Src\\": "src/",
-            "Src\\Controller\\": "src/controllers",
-            "App\\Events\\": "app/events",
-            "App\\Listeners\\": "app/listeners",
-            "Src\\Model\\": "src/models",
-            "App\\ModelOverride\\": "app/override/models",
-            "Src\\CoreModelOverride\\": "src/override/models",
-            "Src\\Middleware\\": "src/middleware",
-            "App\\Subscribers\\": "app/subscribers",
-            "App\\Controller\\": "app/controllers",
-            "App\\Model\\": "app/models",
-            "App\\Scripts\\": "var/scripts",
-            "RedBeanPHP\\": "src/",
-            "RedBeanPHP\\Logger\\": "vendor\\gabordemooij\\redbean\\RedBeanPHP\\Logger",
-            "Validate\\Enums\\": "src/enums",
-            "libphonenumber\\": "vendor/giggsey/libphonenumber-for-php/src/"
+            "App\\": "app/",
+            "Core\\": "core/"
         }
+    },
+    "require": {
+        "twig/twig": "^3.21"
     }
 }

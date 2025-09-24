@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default('Rhapsody Framework') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {# --- THIS IS THE CRITICAL FIX --- #}
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // This tells Tailwind to use the 'dark' class on the HTML tag
+        }
+    </script>
+    <style>
+        /* A simple, single class for the active button state is most reliable */
+        .theme-active {
+            background-color: #9CA3AF; /* gray-400 */
+        }
+        .dark .theme-active {
+            background-color: #4B5563; /* gray-600 */
+        }
+    </style>
+    <script>
+        // Block 1: Runs instantly to prevent theme flashing.
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="mb-6">
+            <div class="flex justify-between items-center">
+                <a href="{{ base_url }}/" class="flex items-center space-x-3 group">
+                    <svg class="h-12 w-12 text-blue-800 dark:text-blue-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M30 85C20 75 22.5 57.5 35 50C47.5 42.5 60 50 60 50M60 50L75 25M60 50C60 60 50 72.5 40 75" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M75 25C77.5 22.5 80 25 77.5 27.5L62.5 42.5" stroke="currentColor" class="text-pink-500 dark:text-pink-400" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-4xl font-bold text-blue-800 dark:text-blue-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-300">Rhapsody</span>
+                </a>
+                <div class="flex items-center space-x-1 p-1 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                    <button id="theme-light" title="Light Mode" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg></button>
+                    <button id="theme-dark" title="Dark Mode" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg></button>
+                    <button id="theme-system" title="System Preference" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd" /></svg></button>
+                </div>
+            </div>
+            
+            <nav class="mt-4">
+                <a href="{{ base_url }}/" class="text-blue-500 dark:text-blue-400 hover:underline mr-4">Home</a>
+                <a href="{{ base_url }}/about" class="text-blue-500 dark:text-blue-400 hover:underline mr-4">About</a>
+                <a href="{{ base_url }}/users" class="text-blue-500 dark:text-blue-400 hover:underline mr-4">Users</a>
+                <a href="{{ base_url }}/contact" class="text-blue-500 dark:text-blue-400 hover:underline">Contact</a>
+            </nav>
+            <hr class="mt-4 border-gray-300 dark:border-gray-600">
+        </header>
+
+        <main class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="text-center text-gray-500 dark:text-gray-400 mt-8">
+            <hr class="mb-4 border-gray-300 dark:border-gray-600">
+            <p>&copy; {{ "now"|date("Y") }} Rhapsody Framework, Inc.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const lightBtn = document.getElementById('theme-light');
+            const darkBtn = document.getElementById('theme-dark');
+            const systemBtn = document.getElementById('theme-system');
+            
+            const setActiveButton = (activeBtn) => {
+                [lightBtn, darkBtn, systemBtn].forEach(btn => btn.classList.remove('theme-active'));
+                if (activeBtn) activeBtn.classList.add('theme-active');
+            };
+
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+            
+            const updateUI = () => {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') setActiveButton(lightBtn);
+                else if (savedTheme === 'dark') setActiveButton(darkBtn);
+                else setActiveButton(systemBtn);
+            };
+
+            lightBtn.addEventListener('click', () => {
+                localStorage.setItem('theme', 'light');
+                applyTheme('light');
+                updateUI();
+            });
+
+            darkBtn.addEventListener('click', () => {
+                localStorage.setItem('theme', 'dark');
+                applyTheme('dark');
+                updateUI();
+            });
+
+            systemBtn.addEventListener('click', () => {
+                localStorage.removeItem('theme');
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                applyTheme(systemTheme);
+                updateUI();
+            });
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (!localStorage.getItem('theme')) { // Only if "System" is active
+                    applyTheme(e.matches ? 'dark' : 'light');
+                }
+            });
+
+            updateUI(); // Set initial button state
+        });
+    </script>
+</body>
+</html>
