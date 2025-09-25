@@ -6,6 +6,8 @@ ini_set( 'display_errors', 1 );
 
 // 1. Register the Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable( __DIR__ . '/..' );
+$dotenv->load();
 
 // 2. Use necessary classes
 use Core\Request;
