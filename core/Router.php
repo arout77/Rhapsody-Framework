@@ -2,61 +2,49 @@
 
 namespace Core;
 
+use App\Middleware\AuthMiddleware;
+use App\Middleware\GuestMiddleware;
+use App\Middleware\Middleware;
+
 class Router
 {
-    /**
-     * The collection of registered routes.
-     *
-     * @var Route[]
-     */
     protected static array $routes = [];
 
+    protected static array $middlewareMap = [
+        'auth'  => AuthMiddleware::class,
+        'guest' => GuestMiddleware::class,
+    ];
+
     /**
-     * Registers a GET route.
-     *
-     * @param string $path
-     * @param mixed  $callback
-     *
-     * @return void
+     * Adds a route and returns the Route object for chaining.
      */
-    public static function get( string $path, mixed $callback ): void
+    protected static function add( string $method, string $path, mixed $callback ): Route
     {
-        self::add( 'get', $path, $callback );
+        $route          = new Route( $method, $path, $callback );
+        self::$routes[] = $route;
+        return $route; // <-- This return is essential
     }
 
     /**
-     * Registers a POST route.
-     *
-     * @param string $path
-     * @param mixed  $callback
-     *
-     * @return void
+     * --- THIS IS THE FIX ---
+     * The return type is changed from 'void' to 'Route'.
      */
-    public static function post( string $path, mixed $callback ): void
+    public static function get( string $path, mixed $callback ): Route
     {
-        self::add( 'post', $path, $callback );
+        return self::add( 'get', $path, $callback );
     }
 
     /**
-     * Adds a route to the static routing table.
-     *
-     * @param string $method
-     * @param string $path
-     * @param mixed  $callback
-     *
-     * @return void
+     * --- THIS IS THE FIX ---
+     * The return type is changed from 'void' to 'Route'.
      */
-    protected static function add( string $method, string $path, mixed $callback ): void
+    public static function post( string $path, mixed $callback ): Route
     {
-        self::$routes[] = new Route( $method, $path, $callback );
+        return self::add( 'post', $path, $callback );
     }
 
     /**
-     * Finds the matching route and dispatches it.
-     *
-     * @param Request $request
-     *
-     * @return Response
+     * Dispatches the request, resolving and executing middleware first.
      */
     public static function dispatch( Request $request ): Response
     {
@@ -67,6 +55,18 @@ class Router
         {
             if ( $route->matches( $method, $path ) )
             {
+                $middlewareKey = $route->getMiddleware();
+
+                if ( $middlewareKey )
+                {
+                    $middlewareClass = self::$middlewareMap[$middlewareKey] ?? null;
+                    if ( $middlewareClass && class_exists( $middlewareClass ) )
+                    {
+                        $middleware = new $middlewareClass();
+                        $middleware->handle( $request );
+                    }
+                }
+
                 return self::execute( $route, $request );
             }
         }
@@ -75,11 +75,9 @@ class Router
     }
 
     /**
-     * Executes the callback for a matched route.
-     *
      * @param Route $route
-     *
-     * @return Response
+     * @param Request $request
+     * @return mixed
      */
     protected static function execute( Route $route, Request $request ): Response
     {
@@ -90,8 +88,6 @@ class Router
         {
             $controller = new $callback[0]();
             $action     = $callback[1];
-
-            // Prepend the request object to the list of arguments
             return $controller->{$action}( $request, ...$params );
         }
 
@@ -106,20 +102,13 @@ class Router
     }
 
     /**
-     * Handles the case where no route is found.
-     *
-     * @return Response
+     * @return mixed
      */
     protected static function handleNotFound(): Response
     {
-        // 1. Create a new Response object
         $response = new Response();
-
-        // 2. Configure it with a 404 status and content
         $response->setStatusCode( 404 );
         $response->setContent( "<h1>404 Not Found</h1>" );
-
-        // 3. Return the configured object
         return $response;
     }
 }

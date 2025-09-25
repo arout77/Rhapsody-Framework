@@ -10,13 +10,15 @@ class Route
      */
     protected array $params = [];
 
+    protected ?string $middleware = null;
+
     public function __construct(
         protected string $method,
         protected string $path,
         protected mixed $callback
     )
     {
-        }
+    }
 
     /**
      * Checks if this route matches the given request method and path.
@@ -70,5 +72,25 @@ class Route
      */
     public function getParams(): array {
         return $this->params;
+    }
+
+    /**
+     * Assigns a middleware key to this route.
+     *
+     * @param string $key The middleware key (e.g., 'auth', 'guest').
+     * @return self
+     */
+    public function middleware( string $key ): self
+    {
+        $this->middleware = $key;
+        return $this; // Return self to allow chaining
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMiddleware(): ?string
+    {
+        return $this->middleware;
     }
 }

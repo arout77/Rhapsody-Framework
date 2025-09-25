@@ -53,11 +53,40 @@ class User extends BaseModel
      * @param $uid
      * @return mixed
      */
-    public function getUserById( $uid ): array {
+    public function getUserById( string $uid ): array {
         // Prepare and execute a simple query
         $stmt = $this->db->prepare( "SELECT * FROM users WHERE user_id = :uid" );
         $stmt->bindParam( ':uid', $uid, PDO::PARAM_STR );
         $stmt->execute();
         return $stmt->fetch();
+    }
+
+    /**
+     * @param string $email
+     * @return mixed
+     */
+    public function findByEmail( string $email ): array | false
+    {
+        $stmt = $this->db->prepare( "SELECT * FROM users WHERE email = :email" );
+        $stmt->bindParam( ':email', $email, PDO::PARAM_STR );
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function create( array $data ): bool
+    {
+        $stmt = $this->db->prepare(
+            "INSERT INTO users (user_id, name, email, password) VALUES (:user_id, :name, :email, :password)"
+        );
+        return $stmt->execute( [
+            ':user_id'  => bin2hex( random_bytes( 16 ) ), // Generate a random ID
+            ':name' => $data['name'],
+            ':email'    => $data['email'],
+            ':password' => password_hash( $data['password'], PASSWORD_BCRYPT ), // Hash the password
+        ] );
     }
 }

@@ -17,10 +17,19 @@ abstract class BaseController
      */
     protected function view( string $view, array $args = [] ): Response
     {
-        $config = require __DIR__ . '/../config.php';
-        // ... (twig loader and environment code is the same)
-        $loader = new FilesystemLoader( __DIR__ . '/../views' );
-        $twig   = new Environment( $loader, ['debug' => true] );
+        $config   = require __DIR__ . '/../config.php';
+        $loader   = new FilesystemLoader( __DIR__ . '/../views' );
+        $cacheDir = __DIR__ . '/../storage/cache';
+        if ( !is_dir( $cacheDir ) )
+        {
+            mkdir( $cacheDir, 0755 );
+        }
+
+        $twig = new Environment( $loader, [
+            'cache' => $cacheDir, // Enable the cache
+            'debug' => true,
+        ] );
+
         // Add the base_url from our config as a global variable in Twig.
         // Now, every single Twig template can access it using {{ base_url }}.
         $twig->addGlobal( 'base_url', $config['base_url'] );
@@ -33,16 +42,18 @@ abstract class BaseController
     }
 
     /**
-     * @param array $data
-     * @param int $statusCode
-     * @return mixed
+     * Creates and returns a JSON response.
+     *
+     * @param array $data The data to be encoded as JSON.
+     * @param int $statusCode The HTTP status code for the response (defaults to 200 OK).
+     * @return Response
      */
     protected function json( array $data, int $statusCode = 200 ): Response
     {
         $response = new Response();
         $response->setStatusCode( $statusCode );
         $response->setHeader( 'Content-Type', 'application/json' );
-        $response->setContent( json_encode( $data ) );
+        $response->setContent( json_encode( $data, JSON_PRETTY_PRINT ) ); // JSON_PRETTY_PRINT makes it readable
         return $response;
     }
 }

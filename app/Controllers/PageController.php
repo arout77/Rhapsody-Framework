@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Middleware\AuthMiddleware;
+use App\Middleware\GuestMiddleware;
 use App\Models\User;
 use Core\BaseController;
 use Core\FileUploader;
@@ -18,13 +20,20 @@ class PageController extends BaseController
      */
     public function index(): Response
     {
-        // Data to pass to the template
-        $data = [
-            'name' => 'Gemini',
-        ];
-
         // Render the 'home.twig' view and pass the data to it
-        return $this->view( 'home/index.twig', $data );
+        return $this->view( 'home/index.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function dashboard(): Response
+    {
+        // --- REMOVED THE IF-STATEMENT ---
+        // The AuthMiddleware now handles protection for this route.
+        // The controller's only job is to render the view.
+
+        return $this->view( 'home/dashboard.twig' );
     }
 
     /**
