@@ -10,6 +10,7 @@
     {% endif %}
 
     <form action="{{ base_url }}/login" method="POST" class="max-w-md">
+    	{{ csrf_field() }}
         <div class="mb-4">
             <label for="email" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Email</label>
             <input type="email" name="email" required class="input">

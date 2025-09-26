@@ -7,6 +7,17 @@ use Twig\Loader\FilesystemLoader;
 
 abstract class BaseController
 {
+    // The Twig environment is now a property injected by the container.
+    protected Environment $twig;
+
+    /**
+     * @param Environment $twig
+     */
+    public function __construct( Environment $twig )
+    {
+        $this->twig = $twig;
+    }
+
     /**
      * Renders a view file using Twig.
      *
@@ -17,26 +28,9 @@ abstract class BaseController
      */
     protected function view( string $view, array $args = [] ): Response
     {
-        $config   = require __DIR__ . '/../config.php';
-        $loader   = new FilesystemLoader( __DIR__ . '/../views' );
-        $cacheDir = __DIR__ . '/../storage/cache';
-        if ( !is_dir( $cacheDir ) )
-        {
-            mkdir( $cacheDir, 0755 );
-        }
-
-        $twig = new Environment( $loader, [
-            'cache' => $cacheDir, // Enable the cache
-            'debug' => true,
-        ] );
-
-        // Add the base_url from our config as a global variable in Twig.
-        // Now, every single Twig template can access it using {{ base_url }}.
-        $twig->addGlobal( 'base_url', $config['base_url'] );
-        $output = $twig->render( $view, $args );
+        $output = $this->twig->render( $view, $args );
 
         $response = new Response();
-        // Use the new setContent method
         $response->setContent( $output );
         return $response;
     }

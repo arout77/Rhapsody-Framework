@@ -8,9 +8,25 @@ use Core\Request;
 use Core\Response;
 use Core\Session;
 use Core\Validator;
+use Twig\Environment;
 
 class AuthController extends BaseController
 {
+    // Dependencies are injected via the constructor by the container
+    /**
+     * @param User $userModel
+     * @param Validator $validator
+     * @param Environment $twig
+     */
+    public function __construct(
+        protected User $userModel,
+        protected Validator $validator,
+        Environment $twig // BaseController needs Twig
+    )
+    {
+        parent::__construct( $twig );
+    }
+
     /**
      * @return mixed
      */
@@ -34,12 +50,12 @@ class AuthController extends BaseController
             Session::regenerate();
             Session::set( 'user_id', $user['user_id'] );
             // Redirect to a protected page, like a dashboard
-            header( 'Location: ' . getenv( 'APP_BASE_URL' ) . '/dashboard' );
-            exit();
+            return redirect( '/dashboard' );
         }
 
         // Failed login
-        return $this->view( 'auth/login.twig', ['error' => 'Invalid credentials.'] );
+        // Redirecting with a flash message
+        return redirect( '/login' )->with( 'error', 'Invalid credentials.' );
     }
 
     /**
@@ -76,8 +92,7 @@ class AuthController extends BaseController
             $newUser = $userModel->findByEmail( $data['email'] );
             Session::regenerate();
             Session::set( 'user_id', $newUser['user_id'] );
-            header( 'Location: ' . getenv( 'APP_BASE_URL' ) . '/dashboard' );
-            exit();
+            return redirect( '/dashboard' );
         }
 
         return $this->view( 'auth/register.twig', [
@@ -89,7 +104,6 @@ class AuthController extends BaseController
     public function logout(): void
     {
         Session::destroy();
-        header( 'Location: ' . getenv( 'APP_BASE_URL' ) . '/' );
-        exit();
+        return redirect( '/' );
     }
 }

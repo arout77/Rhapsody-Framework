@@ -7,12 +7,24 @@ use App\Middleware\GuestMiddleware;
 use App\Models\User;
 use Core\BaseController;
 use Core\FileUploader;
+use Core\Mailer;
 use Core\Pagination;
 use Core\Request;
 use Core\Response;
+use Core\Session;
+use Core\Validator;
+use Twig\Environment;
 
 class PageController extends BaseController
 {
+    /**
+     * @param Environment $twig
+     */
+    public function __construct( Environment $twig )
+    {
+        parent::__construct( $twig );
+    }
+
     /**
      * Show the home page.
      *
@@ -20,7 +32,6 @@ class PageController extends BaseController
      */
     public function index(): Response
     {
-        // Render the 'home.twig' view and pass the data to it
         return $this->view( 'home/index.twig' );
     }
 
@@ -29,10 +40,8 @@ class PageController extends BaseController
      */
     public function dashboard(): Response
     {
-        // --- REMOVED THE IF-STATEMENT ---
         // The AuthMiddleware now handles protection for this route.
         // The controller's only job is to render the view.
-
         return $this->view( 'home/dashboard.twig' );
     }
 
@@ -151,15 +160,50 @@ class PageController extends BaseController
      */
     public function handleContact( Request $request ): Response
     {
-        // Get the sanitized data from the request body
-        $data = $request->getBody();
+        $data      = $request->getBody();
+        $validator = new Validator();
+        $rules     = [
+            'name'    => 'required|min:2|max:50',
+            'email'   => 'required|email',
+            'message' => 'required|min:10|max:1000',
+        ];
 
-        // For now, just display the data back to the user to confirm it worked.
-        $name = htmlspecialchars( $data['name'] ?? 'Guest', ENT_QUOTES, 'UTF-8' );
+        if ( $validator->validate( $data, $rules ) )
+        {
+            // Validation Passed
+            $mailer   = new Mailer();
+            $to       = $_ENV['MAIL_FROM_ADDRESS'] ?? 'admin@example.com';
+            $subject  = "New Contact Form Submission from {$data['name']}";
+            $htmlBody = "<p>Name: {$data['name']}</p><p>Email: {$data['email']}</p><p>Message: {$data['message']}</p>";
 
-        $response = new Response();
-        $response->setContent( "<h1>Thank You, {$name}!</h1><p>We received your message.</p>" );
-        return $response;
+            try {
+                $mailer->send( $to, $subject, $htmlBody );
+                Session::flash( 'success', 'Your message has been sent successfully!' );
+            }
+            catch ( \Exception $e )
+            {
+                error_log( $e->getMessage() ); // Log the actual error
+                Session::flash( 'error', 'Sorry, we could not send your message at this time.' );
+            }
+
+            // --- THIS IS THE CRITICAL FIX ---
+            // 1. Force the session data to be written to disk.
+            Session::close();
+
+            // 2. NOW issue the redirect.
+            header( 'Location: ' . ( $_ENV['APP_BASE_URL'] ?? '' ) . '/contact' );
+            exit();
+            // --- END FIX ---
+
+        }
+        else
+        {
+            // Validation Failed
+            return $this->view( 'contact/contact.twig', [
+                'errors' => $validator->getErrors(),
+                'old'    => $data,
+            ] );
+        }
     }
 
     /**

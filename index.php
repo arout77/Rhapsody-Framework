@@ -2,41 +2,67 @@
 
 /**
  * Rhapsody Framework
+ *
  * Front Controller
+ *
+ * This file is the single entry point for all requests. It's responsible for
+ * bootstrapping the application, setting up error handling, the service container,
+ * and handing the request off to the router.
  */
 
 // 1. Register the Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
-// 2. Define the project root path for clarity and reliability.
+// 2. Define the project root path for reliability
 $rootPath = dirname( __FILE__ );
 
-// 3. Load environment variables from the .env file located at the project root.
+// 3. Load environment variables from the .env file
 try {
     $dotenv = Dotenv\Dotenv::createImmutable( $rootPath );
     $dotenv->load();
 }
 catch ( \Dotenv\Exception\InvalidPathException $e )
 {
-    die( 'Could not find .env file. Please ensure it exists in the project root.' );
+    die( 'Could not find .env file. Please ensure it exists in the project root: ' . $rootPath );
 }
 
-// 4. Start the session
+// 4. Register Error Handling (Whoops)
+// This provides beautiful, detailed error pages during development but
+// should be disabled in a production environment for security.
+$config = require_once $rootPath . '/config.php';
+if ( $config['app_env'] === 'development' )
+{
+    $whoops = new \Whoops\Run;
+    $whoops->pushHandler( new \Whoops\Handler\PrettyPageHandler );
+    $whoops->register();
+}
+
+// 5. Start the session
+// This makes the $_SESSION superglobal available for our authentication system.
 \Core\Session::start();
 
-// 5. Use necessary core classes
+// 6. Bootstrap the application and get the service container
+// This is the core of the dependency injection system. The container
+// now knows how to build all our core services.
+$container = require_once $rootPath . '/bootstrap.php';
+
+// 7. Use necessary core classes
 use Core\Request;
 use Core\Router;
 
-// 6. Create the Request object
+// 8. Create the Request object
+// This object encapsulates all information about the incoming HTTP request.
 $request = new Request();
 
-// 7. Load the application routes
-require_once $rootPath . '/routes/api.php';
+// 9. Load the application routes
 require_once $rootPath . '/routes/web.php';
+require_once $rootPath . '/routes/api.php';
 
-// 8. Dispatch the request through the router
-$response = Router::dispatch( $request );
+// 10. Dispatch the request through the router, passing the container
+// The router will execute global middleware (like CSRF), find the matching route,
+// execute its specific middleware (like auth), and finally use the container
+// to build and run the controller.
+$response = Router::dispatch( $request, $container );
 
-// 9. Send the response back to the client
+// 11. Send the response back to the client
 $response->send();

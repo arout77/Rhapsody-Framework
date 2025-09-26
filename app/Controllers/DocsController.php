@@ -4,12 +4,21 @@ namespace App\Controllers;
 
 use Core\BaseController;
 use Core\Response;
+use Twig\Environment;
 
 /**
  * Handles rendering of the framework documentation pages.
  */
 class DocsController extends BaseController
 {
+    /**
+     * @param Environment $twig
+     */
+    public function __construct( Environment $twig )
+    {
+        parent::__construct( $twig );
+    }
+
     /**
      * Shows the main documentation index page.
      */

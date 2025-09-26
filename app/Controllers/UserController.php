@@ -10,6 +10,15 @@ use Core\Response;
 
 class UserController extends BaseController
 {
+    use Twig\Environment;
+    /**
+     * @param Environment $twig
+     */
+    public function __construct( Environment $twig )
+    {
+        parent::__construct( $twig );
+    }
+
     /**
      * @return mixed
      */
@@ -20,10 +29,10 @@ class UserController extends BaseController
         // 1. Create an instance of our User model
         $userModel = new \App\Models\User();
 
+        // --- Pagination configuration
         // 1. Define the allowed options for items per page.
         $allowedLimits = [5, 10, 25, 50];
         $defaultLimit  = 10;
-
         // 2. Get the user's selection from the URL, default to 10.
         $usersPerPage = (int) $request->getQueryParam( 'limit', $defaultLimit );
 

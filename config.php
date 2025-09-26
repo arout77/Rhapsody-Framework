@@ -12,7 +12,7 @@ return [
      * The base URL of your application.
      */
     'base_url' => $_ENV['APP_BASE_URL'] ?? '/rhapsody',
-
+    'app_env'  => $_ENV['APP_ENV'] ?? 'production',
     /**
      * Database connection settings.
      * Using $_ENV is more reliable than getenv()
@@ -24,5 +24,14 @@ return [
         'user'     => $_ENV['DB_USER'] ?? 'root',
         'password' => $_ENV['DB_PASS'] ?? '',
         'charset'  => 'utf8mb4',
+    ],
+    'mailer'   => [
+        'transport'    => $_ENV['MAIL_TRANSPORT'] ?? 'smtp',
+        'host'         => $_ENV['MAIL_HOST'] ?? 'localhost',
+        'port'         => $_ENV['MAIL_PORT'] ?? 2525,
+        'username'     => $_ENV['MAIL_USERNAME'] ?? null,
+        'password'     => $_ENV['MAIL_PASSWORD'] ?? null,
+        'from_address' => $_ENV['MAIL_FROM_ADDRESS'] ?? 'hello@example.com',
+        'from_name'    => $_ENV['MAIL_FROM_NAME'] ?? 'Example',
     ],
 ];
