@@ -122,4 +122,20 @@ class DocsController extends BaseController
     {
         return $this->view( 'docs/file-uploader.twig' );
     }
+
+    /**
+     * @return mixed
+     */
+    public function security(): Response
+    {
+        return $this->view( 'docs/security.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function performance(): Response
+    {
+        return $this->view( 'docs/performance.twig' );
+    }
 }

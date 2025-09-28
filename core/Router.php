@@ -47,6 +47,7 @@ class Router
      */
     protected static function add( string $method, string $path, mixed $callback ): Route
     {
+        // We now create Route objects directly. This is needed for var_export to work.
         $route          = new Route( $method, $path, $callback );
         self::$routes[] = $route;
         return $route;
@@ -157,5 +158,17 @@ class Router
         $response->setStatusCode( 404 );
         $response->setContent( "<h1>404 Not Found</h1>" );
         return $response;
+    }
+
+    public static function getRoutes(): array {
+        return self::$routes;
+    }
+
+    /**
+     * @param array $routes
+     */
+    public static function setRoutes( array $routes ): void
+    {
+        self::$routes = $routes;
     }
 }

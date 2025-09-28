@@ -54,9 +54,18 @@ use Core\Router;
 // This object encapsulates all information about the incoming HTTP request.
 $request = new Request();
 
-// 9. Load the application routes
-require_once $rootPath . '/routes/web.php';
-require_once $rootPath . '/routes/api.php';
+// 9. Load the application routes from cache if available
+$routeCachePath = $rootPath . '/storage/cache/routes/routes.php';
+if ( file_exists( $routeCachePath ) && $config['app_env'] === 'production' )
+{
+    $routes = require_once $routeCachePath;
+    Router::setRoutes( $routes );
+}
+else
+{
+    require_once $rootPath . '/routes/web.php';
+    require_once $rootPath . '/routes/api.php';
+}
 
 // 10. Dispatch the request through the router, passing the container
 // The router will execute global middleware (like CSRF), find the matching route,

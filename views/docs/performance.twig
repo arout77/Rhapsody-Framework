@@ -1,0 +1,46 @@
+{% extends "docs/_layout.twig" %}
+{% block doc_content %}
+    <h1>Performance & Caching</h1>
+    <p>Rhapsody includes several caching layers to ensure your application is fast and responsive, especially in a production environment.</p>
+
+    <h2>Template Caching</h2>
+    <p>
+        Twig's template cache is enabled by default. The first time a <code>.twig</code> file is requested, it's compiled into raw PHP and saved in the <code>storage/cache/</code> directory. On subsequent requests, this compiled file is used directly, which is significantly faster.
+    </p>
+    <p>During development, Twig is smart enough to automatically re-compile a template if you change the file.</p>
+
+    <h2>Route Caching</h2>
+    <p>
+        For production environments, you can compile all of your application's route definitions from <code>routes/web.php</code> and <code>routes/api.php</code> into a single, optimized cache file. This prevents the framework from needing to read and parse multiple files on every request.
+    </p>
+    <p>Use the following Rhapsody Console commands to manage the route cache:</p>
+    <pre><code class="language-bash"># Generate the route cache file
+php rhapsody route:cache
+
+# Remove the route cache file (useful during development)
+php rhapsody route:clear</code></pre>
+    <p><strong>Important:</strong> Remember to run <code>route:clear</code> or <code>route:cache</code> again whenever you add or change a route.</p>
+
+    <h2>Application Cache</h2>
+    <p>
+        The framework provides a simple file-based application cache via the <code>Core\Cache</code> class. This is perfect for storing the results of expensive operations, such as complex database queries or calls to external APIs.
+    </p>
+    <h3>Basic Usage: The `remember` Method</h3>
+    <p>The <code>remember</code> method is the easiest way to use the cache. It checks if an item exists in the cache; if it does, it returns it. If not, it executes the provided closure, saves the result to the cache, and then returns it.</p>
+    <pre><code class="language-php">use Core\Cache;
+use App\Models\Post;
+
+class PostController extends BaseController
+{
+    public function index()
+    {
+        // Cache the list of all posts for 60 minutes
+        $posts = Cache::remember('posts.all', 60, function () {
+            return (new Post())->findAll();
+        });
+
+        return $this->view('posts/index.twig', ['posts' => $posts]);
+    }
+}</code></pre>
+    <p>The console command <code>php rhapsody cache:clear</code> will flush the entire application cache, including items stored with <code>Cache::remember()</code>.</p>
+{% endblock %}

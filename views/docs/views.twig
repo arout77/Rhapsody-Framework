@@ -29,27 +29,27 @@
 &lt;/html&gt;</code></pre>
     <p>A specific page template then extends this layout and provides content only for the <code>content</code> block.</p>
     <pre><code>{# views/home/index.twig #}
-{% extends "layouts/main.twig" %}
+&lcub;% extends "layouts/main.twig" %&rcub;
 
-{% block content %}
+&lcub;% block content %}
     &lt;h1&gt;Welcome to the Home Page!&lt;/h1&gt;
     &lt;p&gt;This is the content for our home page.&lt;/p&gt;
-{% endblock %}</code></pre>
+&lcub;% endblock %&rcub;</code></pre>
 
     <h2>Displaying Data</h2>
-    <p>You can print data passed from your controller using double curly braces: <code>{{ ... }}</code>. Twig automatically escapes this output to prevent XSS attacks, making it secure by default.</p>
+    <p>You can print data passed from your controller using double curly braces: <code>&lcub;{ ... }&rcub;</code>. Twig automatically escapes this output to prevent XSS attacks, making it secure by default.</p>
     <pre><code>// In your controller
 return $this->view('profile.twig', ['username' => 'Alice']);
 
 {# In profile.twig #}
-&lt;h1&gt;Welcome, {{ username }}!&lt;/h1&gt;</code></pre>
+&lt;h1&gt;Welcome, &lcub;{ username }&rcub;!&lt;/h1&gt;</code></pre>
 
     <h2>Global Variables</h2>
     <p>The framework makes a few variables globally available in all Twig templates:</p>
     <ul>
-        <li><code>{{ base_url }}</code>: The base path of your application. Always use this for creating links.</li>
-        <li><code>{{ auth.check }}</code>: A boolean that is <code>true</code> if a user is logged in, <code>false</code> otherwise.</li>
-        <li><code>{{ auth.user }}</code>: An object containing the logged-in user's data (e.g., <code>auth.user.name</code>). It is <code>null</code> if no user is logged in.</li>
+        <li><code>&lcub;{ base_url }&rcub;</code>: The base path of your application. Always use this for creating links.</li>
+        <li><code>&lcub;{ auth.check }&rcub;</code>: A boolean that is <code>true</code> if a user is logged in, <code>false</code> otherwise.</li>
+        <li><code>&lcub;{ auth.user }&rcub;</code>: An object containing the logged-in user's data (e.g., <code>auth.user.name</code>). It is <code>null</code> if no user is logged in.</li>
     </ul>
 
     <h2>Styling with Tailwind CSS</h2>

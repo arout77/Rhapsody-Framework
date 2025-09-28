@@ -3,34 +3,39 @@
 
 /**
  * Rhapsody Framework
- *
  * CLI Application Runner
  */
 
 // 1. Bootstrap the application
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
 $rootPath = __DIR__;
-
-try {
-    $dotenv = Dotenv\Dotenv::createImmutable( $rootPath );
-    $dotenv->load();
-}
-catch ( \Dotenv\Exception\InvalidPathException $e )
-{
-    die( 'Could not find .env file. Please ensure it exists in the project root.' );
-}
-
+// ... (dotenv and container bootstrap)
+$dotenv = Dotenv\Dotenv::createImmutable($rootPath);
+$dotenv->load();
 $container = require_once $rootPath . '/bootstrap.php';
 
 // 2. Create the Console Application
-use App\Commands\MakeControllerCommand;
 use Symfony\Component\Console\Application;
+use App\Commands\MakeControllerCommand;
+use App\Commands\MakeModelCommand;
+use App\Commands\MakeMiddlewareCommand;
+use App\Commands\MakeMigrationCommand;
+use App\Commands\MigrateCommand;
+use App\Commands\RouteCacheCommand;
+use App\Commands\RouteClearCommand;
+use App\Commands\CacheClearCommand;
 
-$application = new Application( 'Rhapsody Framework Console', '1.0.0' );
+$application = new Application('Rhapsody Framework Console', '1.0.0');
 
-// 3. Register all your custom commands here
-$application->add( new MakeControllerCommand() );
-// Add more commands here in the future...
+// 3. Register all the custom commands here
+$application->add(new MakeControllerCommand());
+$application->add(new MakeModelCommand());
+$application->add(new MakeMiddlewareCommand());
+$application->add(new MakeMigrationCommand());
+$application->add(new MigrateCommand());
+$application->add(new RouteCacheCommand());
+$application->add(new RouteClearCommand());
+$application->add(new CacheClearCommand());
 
 // 4. Run the application
 $application->run();
