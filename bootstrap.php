@@ -14,20 +14,24 @@ use Twig\Loader\FilesystemLoader;
 $container = new Container();
 
 // 2. Bind core services into the container.
-// These are the "recipes" for how to build essential objects.
 
-// Database: We bind it as a singleton to ensure only one connection.
-$container->bind( Database::class, fn() => Database::getInstance() );
-
-// Twig Environment: Centralize the setup logic here.
-$container->bind( Environment::class, function ()
-{
+// Twig Environment: This closure now accepts the container as an argument.
+$container->bind( Environment::class, function ( Container $c )
+{ // <-- THE FIX: Accept the container as '$c'
     $config = require __DIR__ . '/config.php';
     $loader = new FilesystemLoader( __DIR__ . '/views' );
     $twig   = new Environment( $loader, [
-        'cache' => __DIR__ . '/storage/cache',
+        // 'cache' => __DIR__ . '/storage/cache',
         'debug' => true,
     ] );
+
+    // Make the current request object available in Twig
+    $twig->addGlobal( 'app', [
+        'request' => $c->resolve( \Core\Request::class ), // <-- THE FIX: Use '$c' instead of '$container'
+    ] );
+
+    // Add APP_URL from the .env file as a global variable
+    $twig->addGlobal( 'app_url', $_ENV['APP_URL'] ?? '' );
 
     $auth = [
         'check' => Session::has( 'user_id' ),
@@ -40,20 +44,19 @@ $container->bind( Environment::class, function ()
         'error'   => Session::getFlash( 'error' ),
     ] );
 
-    // --- ADD CSRF TWIG FUNCTION ---
     $twig->addFunction( new \Twig\TwigFunction( 'csrf_field', function ()
-    {
+{
         $token = \Core\Session::csrfToken();
         return new \Twig\Markup( '<input type="hidden" name="_token" value="' . $token . '">', 'UTF-8' );
-    }, ['is_safe' => ['html']] ) );
-    // --- END ---
+    } ) );
 
     return $twig;
 } );
 
-// Other services can often be resolved automatically, but we can bind them for clarity.
+// Other services can be auto-resolved, but we can bind them for clarity or if they need special setup.
 $container->bind( Mailer::class );
 $container->bind( Validator::class );
+$container->bind( \Core\Request::class, fn() => new \Core\Request() ); // Bind Request as a singleton
 
 // 3. Return the fully configured container.
 return $container;

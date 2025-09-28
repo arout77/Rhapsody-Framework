@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Rhapsody Framework
+ *
+ * CLI Application Runner
+ */
+
+// 1. Bootstrap the application
+require_once __DIR__ . '/vendor/autoload.php';
+$rootPath = __DIR__;
+
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable( $rootPath );
+    $dotenv->load();
+}
+catch ( \Dotenv\Exception\InvalidPathException $e )
+{
+    die( 'Could not find .env file. Please ensure it exists in the project root.' );
+}
+
+$container = require_once $rootPath . '/bootstrap.php';
+
+// 2. Create the Console Application
+use App\Commands\MakeControllerCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application( 'Rhapsody Framework Console', '1.0.0' );
+
+// 3. Register all your custom commands here
+$application->add( new MakeControllerCommand() );
+// Add more commands here in the future...
+
+// 4. Run the application
+$application->run();

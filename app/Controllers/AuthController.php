@@ -72,9 +72,6 @@ class AuthController extends BaseController
      */
     public function register( Request $request ): Response
     {
-        var_dump( getenv( 'DB_PASS' ) );
-        die();
-
         $data      = $request->getBody();
         $validator = new Validator();
         $rules     = [
@@ -101,7 +98,7 @@ class AuthController extends BaseController
         ] );
     }
 
-    public function logout(): void
+    public function logout()
     {
         Session::destroy();
         return redirect( '/' );

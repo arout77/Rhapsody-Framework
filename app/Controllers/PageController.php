@@ -32,7 +32,7 @@ class PageController extends BaseController
      */
     public function index(): Response
     {
-        return $this->view( 'home/index.twig' );
+        return $this->view( 'home/landing_hero.twig' );
     }
 
     /**
@@ -130,17 +130,22 @@ class PageController extends BaseController
     public function viewUser( Request $request, string $user_id ): Response
     {
         $userModel = new User();
+        $uid       = preg_replace( "/[^a-zA-Z0-9]/", "", $user_id );
+        $userData  = $userModel->getUserById( $uid );
 
-        // Sanitize the incoming user_id
-        $uid = preg_replace( "/[^a-zA-Z0-9]/", "", $user_id );
+        if ( !$userData )
+        {
+            // Handle user not found, maybe redirect or show a 404
+            return redirect( '/users' )->with( 'error', 'User not found.' );
+        }
 
-        $userData = $userModel->getUserById( $uid );
+        // --- DEFINE THE SEO META DATA ---
+        $meta = [
+            'title'       => $userData['name'] . ' - User Profile | Rhapsody',
+            'description' => 'View the profile for ' . $userData['name'] . '. Learn more about their contributions on the Rhapsody platform.',
+        ];
 
-        // We need a view for this! Let's create a placeholder for now.
-        // You'll need to create the file: views/users/user.twig
-        return $this->view( 'users/user.twig', [
-            'user' => $userData,
-        ] );
+        return $this->view( 'users/user.twig', ['user' => $userData], $meta );
     }
 
     /**

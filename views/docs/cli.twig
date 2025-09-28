@@ -1,0 +1,28 @@
+{% extends "docs/_layout.twig" %}
+
+{% block doc_content %}
+    <h1>Command-Line Interface (CLI)</h1>
+    <p>Rhapsody includes a powerful command-line interface built on the Symfony Console component. It allows you to automate tasks and generate boilerplate code to speed up your development workflow.</p>
+    <p>The CLI is accessed via the <code>rhapsody</code> executable file in your project root.</p>
+
+    <h2>Listing Commands</h2>
+    <p>To see a list of all available commands, simply run the application without any arguments.</p>
+    <pre><code>php rhapsody</code></pre>
+
+    <h2>Generating Code</h2>
+    <p>The CLI includes generators to quickly create new classes for your application.</p>
+    <h3>Creating a Controller</h3>
+    <p>This command will create a new controller file in the <code>app/Controllers</code> directory, complete with the correct namespace, base class, and constructor.</p>
+    <pre><code>php rhapsody make:controller MusicController</code></pre>
+    <p>This will generate <code>app/Controllers/MusicController.php</code>.</p>
+    
+    <h2>Creating New Commands</h2>
+    <p>You can easily create your own commands.
+    <ol>
+        <li>Create a new command class in the <code>app/Commands</code> directory that extends <code>Symfony\Component\Console\Command\Command</code>.</li>
+        <li>Configure the command's name, description, and arguments in the <code>configure()</code> method.</li>
+        <li>Write your command's logic in the <code>execute()</code> method.</li>
+        <li>Register your new command in the <code>rhapsody</code> file.</li>
+    </ol>
+    </p>
+{% endblock %}

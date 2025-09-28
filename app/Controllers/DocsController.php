@@ -82,4 +82,44 @@ class DocsController extends BaseController
     {
         return $this->view( 'docs/middleware.twig' );
     }
+
+    /**
+     * @return mixed
+     */
+    public function cli(): Response
+    {
+        return $this->view( 'docs/cli.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function mailer(): Response
+    {
+        return $this->view( 'docs/mailer.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function seo(): Response
+    {
+        return $this->view( 'docs/seo.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function pagination(): Response
+    {
+        return $this->view( 'docs/pagination.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function fileUploader(): Response
+    {
+        return $this->view( 'docs/file-uploader.twig' );
+    }
 }

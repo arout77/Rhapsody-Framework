@@ -21,13 +21,20 @@ abstract class BaseController
     /**
      * Renders a view file using Twig.
      *
-     * @param string $view The view file to render (e.g., 'home.twig').
+     * @param string $view The view file to render.
      * @param array  $args Associative array of data to pass to the view.
-     *
+     * @param array  $meta SEO metadata for the page (e.g., ['title' => 'My Title']).
      * @return Response
      */
-    protected function view( string $view, array $args = [] ): Response
+    protected function view( string $view, array $args = [], array $meta = [] ): Response
     {
+        // Add default values for meta tags
+        $defaults = [
+            'title'       => 'Welcome to Rhapsody',
+            'description' => 'An elegant, lightweight PHP framework.',
+        ];
+        $args['meta'] = array_merge( $defaults, $meta );
+
         $output = $this->twig->render( $view, $args );
 
         $response = new Response();

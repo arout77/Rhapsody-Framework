@@ -9,6 +9,7 @@ class Request
     private readonly array $cookies;
     private readonly array $files;
     private readonly array $server;
+    public readonly string $uri;
 
     public function __construct()
     {
@@ -17,6 +18,7 @@ class Request
         $this->cookies    = $_COOKIE;
         $this->files      = $_FILES;
         $this->server     = $_SERVER;
+        $this->uri        = $_SERVER['REQUEST_URI'] ?? '/';
     }
 
     public function getMethod(): string

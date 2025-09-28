@@ -11,7 +11,6 @@ class RedirectResponse extends Response
      */
     public function __construct( string $url )
     {
-        parent::__construct();
         $this->url = $url;
         $this->setStatusCode( 302 ); // 302 Found is a standard redirect code
     }

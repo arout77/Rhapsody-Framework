@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Disallow crawling of vendor directories or sensitive files if they were public
+Disallow: /vendor/
+Disallow: /storage/
+
+Sitemap: http://localhost/rhapsody/sitemap.xml

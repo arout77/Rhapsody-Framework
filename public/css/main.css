@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Your custom imports and styles should go after these */
+
+@import 'colors.css';
+
+.theme-active {
+    background-color: #9CA3AF; /* gray-400 */
+}
+.dark .theme-active {
+    background-color: #4B5563; /* gray-600 */
+}
+
+.bg-blue-500\/30 {
+  background-color: rgb(59 130 246 / 0.3);
+}
+
+.bg-gray-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(195 195 195 / var(--tw-bg-opacity, 1));
+}
+
+.hero-pill {
+  background-color: rgb(59 130 246 / 0);
+  color: #f472b6;
+}
