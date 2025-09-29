@@ -46,8 +46,8 @@
             </a>
 
             {% if update_available %}
-                <a href="#" class="ml-4 inline-block bg-amber-500 text-white text-xs font-bold px-4 py-2 border-2 border-pink-600 rounded-full animate-pulse bg-pink-700">
-                    Update Available ({{ update_available }})
+                <a href="#" id="update-notification-link" data-version="{{ update_available }}" class="ml-4 inline-block bg-amber-500 text-white text-xs font-bold px-4 py-2 border-2 border-pink-600 rounded-full animate-pulse bg-pink-700" title="A new version is available!">
+                        Update Available ({{ update_available }})
                 </a>
             {% endif %}
 
@@ -97,6 +97,32 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <div id="update-modal" class="absolute inset-0 z-50 hidden flex items-center justify-center p-4 bg-black bg-opacity-75" style="background-color: #000000cf;">
+    <div id="update-modal-content" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div class="flex justify-between bg-pink-700 items-center p-4 border-b dark:border-gray-700">
+            <h3 class="text-2xl font-bold text-white">Update Available</h3>
+            <button id="close-update-modal" class="text-gray-200 hover:text-gray-700 dark:hover:text-white text-3xl leading-none">&times;</button>
+        </div>
+        <div class="p-6 overflow-y-auto">
+            <h4 id="update-version-tag" class="text-xl font-bold mb-4"></h4>
+            <div class="prose dark:prose-invert max-w-none">
+                <p>The following updates are available. It is recommended to run the update command from your terminal.</p>
+                <pre class="command-line"><code class="language-bash">php rhapsody app:update</code></pre>
+                <hr><br>
+                <h4>Release Notes:</h4>
+                <div id="update-release-notes" class="text-sm p-4 bg-gray-200 dark:bg-gray-900 dark:text-gray-200 rounded-md">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end items-center p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700">
+            <button id="close-update-modal-footer" class="bg-pink-700  hover:bg-gray-400 text-white font-bold py-2 px-4 rounded">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -150,6 +176,53 @@
             });
 
             updateUI(); // Set initial button state
+
+            const updateLink = document.getElementById('update-notification-link');
+            const updateModal = document.getElementById('update-modal');
+            
+            if (updateLink && updateModal) {
+                const closeButtons = document.querySelectorAll('#close-update-modal, #close-update-modal-footer');
+                const versionTagEl = document.getElementById('update-version-tag');
+                const releaseNotesEl = document.getElementById('update-release-notes');
+
+                updateLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const newVersion = updateLink.dataset.version;
+                    versionTagEl.textContent = `New Version: ${newVersion}`;
+                    releaseNotesEl.innerHTML = '<p>Loading release notes...</p>';
+                    updateModal.classList.remove('hidden');
+
+                    // Fetch release notes from GitHub API
+                    fetch('https://api.github.com/repos/arout/rhapsody/releases/latest')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.body) {
+                                // A real implementation would parse Markdown, but for now we'll use a pre tag
+                                // to preserve basic formatting.
+                                releaseNotesEl.innerHTML = `<pre class="whitespace-pre-wrap text-sm">${data.body}</pre>`;
+                            } else {
+                                releaseNotesEl.textContent = 'No release notes were provided for this version.';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching release notes:', error);
+                            releaseNotesEl.textContent = 'Could not load release notes.';
+                        });
+                });
+
+                const closeModal = () => {
+                    updateModal.classList.add('hidden');
+                };
+
+                closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+                
+                // Also close if the user clicks on the dark overlay
+                updateModal.addEventListener('click', (e) => {
+                    if (e.target === updateModal) {
+                        closeModal();
+                    }
+                });
+            }
         });
     </script>
 </body>
