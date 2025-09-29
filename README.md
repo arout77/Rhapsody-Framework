@@ -25,9 +25,13 @@ Documentation will also be available online at https://rhapsody.org/documentatio
 - SSH access to your server (optional, but recommended)
 
 ### Installation
+
 In your terminal:
-git clone [your-repo-url] rhapsody
+
+git clone https://github.com/arout77/Rhapsody-Framework your-site-name
+
 cd rhapsody
+
 composer install
 
 
