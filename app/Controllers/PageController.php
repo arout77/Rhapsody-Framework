@@ -32,7 +32,7 @@ class PageController extends BaseController
      */
     public function index(): Response
     {
-        return $this->view( 'home/index.twig' );
+        return $this->view( 'home/welcome.twig' );
     }
 
     /**
