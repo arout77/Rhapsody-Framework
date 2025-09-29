@@ -1,46 +1,86 @@
 {% extends "docs/_layout.twig" %}
+
 {% block doc_content %}
     <h1>Performance & Caching</h1>
-    <p>Rhapsody includes several caching layers to ensure your application is fast and responsive, especially in a production environment.</p>
+    <p>
+        Rhapsody includes several caching layers designed to significantly improve your application's speed and responsiveness, especially in a production environment. Understanding and utilizing these features is key to building a high-performance application. Caching is primarily managed through the Rhapsody Console.
+    </p>
+
+    <hr>
 
     <h2>Template Caching</h2>
     <p>
-        Twig's template cache is enabled by default. The first time a <code>.twig</code> file is requested, it's compiled into raw PHP and saved in the <code>storage/cache/</code> directory. On subsequent requests, this compiled file is used directly, which is significantly faster.
+        <strong>Type:</strong> Automatic<br>
+        <strong>Environment:</strong> Production & Development
     </p>
-    <p>During development, Twig is smart enough to automatically re-compile a template if you change the file.</p>
+    <p>
+        By default, the framework's Twig integration is configured to use a template cache. The first time a <code>.twig</code> file is requested, it's compiled into raw, optimized PHP and saved in the <code>storage/cache/</code> directory. On all subsequent requests, this pre-compiled PHP file is used directly, which is dramatically faster than re-parsing the Twig template every time.
+    </p>
+    <p>
+        During development (when <code>APP_ENV=development</code>), Twig is smart enough to automatically check if your <code>.twig</code> file has changed and will re-compile it if necessary. In production, you may want to clear this cache during deployment.
+    </p>
+
+    <hr>
 
     <h2>Route Caching</h2>
     <p>
-        For production environments, you can compile all of your application's route definitions from <code>routes/web.php</code> and <code>routes/api.php</code> into a single, optimized cache file. This prevents the framework from needing to read and parse multiple files on every request.
+        <strong>Type:</strong> Manual (via CLI)<br>
+        <strong>Environment:</strong> Production Recommended
     </p>
-    <p>Use the following Rhapsody Console commands to manage the route cache:</p>
-    <pre><code class="language-bash"># Generate the route cache file
-php rhapsody route:cache
+    <p>
+        For a major performance boost in production, you can compile all of your application's route definitions from <code>routes/web.php</code> and <code>routes/api.php</code> into a single, optimized cache file. This prevents the framework from needing to read and parse multiple files on every single request.
+    </p>
+    <h3>Console Commands for Route Caching</h3>
+    <p>You can manage the route cache using the following Rhapsody Console commands:</p>
+    
+    <h4>Generate the Route Cache</h4>
+    <p>This command serializes all registered routes and saves them to <code>storage/cache/routes/routes.php</code>. This should be a part of your deployment process.</p>
+    <pre class="command-line"><code class="language-bash">php rhapsody route:cache</code></pre>
+    
+    <h4>Clear the Route Cache</h4>
+    <p>This command deletes the route cache file. This is necessary during development any time you add, remove, or change a route definition.</p>
+    <pre class="command-line"><code class="language-bash">php rhapsody route:clear</code></pre>
 
-# Remove the route cache file (useful during development)
-php rhapsody route:clear</code></pre>
-    <p><strong>Important:</strong> Remember to run <code>route:clear</code> or <code>route:cache</code> again whenever you add or change a route.</p>
+    <hr>
 
     <h2>Application Cache</h2>
     <p>
-        The framework provides a simple file-based application cache via the <code>Core\Cache</code> class. This is perfect for storing the results of expensive operations, such as complex database queries or calls to external APIs.
+        <strong>Type:</strong> Manual (in code)<br>
+        <strong>Environment:</strong> Production & Development
     </p>
-    <h3>Basic Usage: The `remember` Method</h3>
-    <p>The <code>remember</code> method is the easiest way to use the cache. It checks if an item exists in the cache; if it does, it returns it. If not, it executes the provided closure, saves the result to the cache, and then returns it.</p>
+    <p>
+        The framework provides a simple file-based application cache via the <code>Core\Cache</code> class. This is perfect for storing the results of expensive or time-consuming operations, such as complex database queries, calculations, or calls to external APIs. The application cache is stored in <code>storage/cache/app/</code>.
+    </p>
+    <h3>Using the `remember` Method</h3>
+    <p>The <code>Cache::remember()</code> method is the primary way to interact with the application cache. It's a "cache-aside" implementation:
+        <ol>
+            <li>It checks if a value exists in the cache for the given key.</li>
+            <li>If it exists and is not expired, it returns the cached value.</li>
+            <li>If it does not exist (or has expired), it executes the provided function, saves its return value to the cache for a specified number of minutes, and then returns the value.</li>
+        </ol>
+    </p>
     <pre><code class="language-php">use Core\Cache;
 use App\Models\Post;
 
 class PostController extends BaseController
 {
+    public function __construct(protected Post $postModel, /*...*/) { /*...*/ }
+    
     public function index()
     {
-        // Cache the list of all posts for 60 minutes
+        // This query will only run if 'posts.all' is not in the cache
+        // or has expired. Otherwise, the result is fetched directly from
+        // a cache file, avoiding a database hit.
         $posts = Cache::remember('posts.all', 60, function () {
-            return (new Post())->findAll();
+            return $this->postModel->findAll();
         });
 
         return $this->view('posts/index.twig', ['posts' => $posts]);
     }
 }</code></pre>
-    <p>The console command <code>php rhapsody cache:clear</code> will flush the entire application cache, including items stored with <code>Cache::remember()</code>.</p>
+
+    <h3>Console Command for Application Cache</h3>
+    <p>You can flush the entire application cache (deleting all files in <code>storage/cache/app/</code>) using the console.</p>
+    <pre class="command-line"><code class="language-bash">php rhapsody cache:clear</code></pre>
+
 {% endblock %}

@@ -25,6 +25,8 @@ Router::get( '/docs/mailer', [DocsController::class, 'mailer'] );
 Router::get( '/docs/seo', [DocsController::class, 'seo'] );
 Router::get( '/docs/pagination', [DocsController::class, 'pagination'] );
 Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
+Router::get( '/docs/performance', [DocsController::class, 'performance'] );
+Router::get( '/docs/security', [DocsController::class, 'security'] );
 
 Router::get( '/', [PageController::class, 'index'] );
 Router::get( '/about', [PageController::class, 'about'] );
