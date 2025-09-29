@@ -2,8 +2,8 @@
 
 // bootstrap.php
 
+use Core\Cache;
 use Core\Container;
-use Core\Database;
 use Core\Mailer;
 use Core\Session;
 use Core\Validator;
@@ -12,27 +12,15 @@ use Twig\Loader\FilesystemLoader;
 
 // 1. Create a new Service Container instance.
 $container = new Container();
+$config    = require __DIR__ . '/config.php';
 
 // 2. Bind core services into the container.
-
-// Twig Environment: This closure now accepts the container as an argument.
-$container->bind( Environment::class, function ( Container $c )
-{ // <-- THE FIX: Accept the container as '$c'
-    $config = require __DIR__ . '/config.php';
+$container->bind( Environment::class, function ( Container $c ) use ( $config )
+{
     $loader = new FilesystemLoader( __DIR__ . '/views' );
-    $twig   = new Environment( $loader, [
-        // 'cache' => __DIR__ . '/storage/cache',
-        'debug' => true,
-    ] );
+    $twig   = new Environment( $loader, ['debug' => true] );
 
-    // Make the current request object available in Twig
-    $twig->addGlobal( 'app', [
-        'request' => $c->resolve( \Core\Request::class ), // <-- THE FIX: Use '$c' instead of '$container'
-    ] );
-
-    // Add APP_URL from the .env file as a global variable
     $twig->addGlobal( 'app_url', $_ENV['APP_URL'] ?? '' );
-
     $auth = [
         'check' => Session::has( 'user_id' ),
         'user'  => Session::has( 'user_id' ) ? ( new \App\Models\User() )->getUserById( Session::get( 'user_id' ) ) : null,
@@ -44,8 +32,11 @@ $container->bind( Environment::class, function ( Container $c )
         'error'   => Session::getFlash( 'error' ),
     ] );
 
+    // Make the update notification available to all Twig templates.
+    $twig->addGlobal( 'update_available', Cache::get( 'update_available' ) );
+
     $twig->addFunction( new \Twig\TwigFunction( 'csrf_field', function ()
-{
+    {
         $token = \Core\Session::csrfToken();
         return new \Twig\Markup( '<input type="hidden" name="_token" value="' . $token . '">', 'UTF-8' );
     } ) );
@@ -53,10 +44,26 @@ $container->bind( Environment::class, function ( Container $c )
     return $twig;
 } );
 
-// Other services can be auto-resolved, but we can bind them for clarity or if they need special setup.
+// Bind other core services
 $container->bind( Mailer::class );
 $container->bind( Validator::class );
-$container->bind( \Core\Request::class, fn() => new \Core\Request() ); // Bind Request as a singleton
+$container->bind( Cache::class );
+$container->bind( \Core\Request::class, fn() => new \Core\Request() );
+
+// Bind commands that have constructor dependencies
+$container->bind( App\Commands\UpdateCommand::class, function () use ( $config )
+{
+    return new App\Commands\UpdateCommand( $config );
+} );
+
+$container->bind( App\Commands\CheckVersionCommand::class, function ( $c ) use ( $config )
+{
+    return new App\Commands\CheckVersionCommand(
+        $config,
+        $c->resolve( Mailer::class ),
+        $c->resolve( Cache::class )
+    );
+} );
 
 // 3. Return the fully configured container.
 return $container;

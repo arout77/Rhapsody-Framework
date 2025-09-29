@@ -1,0 +1,49 @@
+{% extends "docs/_layout.twig" %}
+
+{% block doc_content %}
+    <h1>Updating Rhapsody</h1>
+    <p>
+        Rhapsody includes a powerful command-line tool to make updating your application simple and safe. The <code>app:update</code> command automates the entire process, from enabling maintenance mode to pulling the latest code and applying necessary updates.
+    </p>
+
+    <hr>
+
+    <h2>The Automated Update Command</h2>
+    <p>
+        When you are ready to update your application to the latest version, you can run a single command from your project's root directory.
+    </p>
+    <pre class="command-line"><code class="language-bash">php rhapsody app:update</code></pre>
+    <p>
+        This single command orchestrates the entire update workflow to ensure a smooth and consistent deployment.
+    </p>
+    
+    <h3>Update Workflow</h3>
+    <p>The <code>app:update</code> command performs the following steps in sequence:</p>
+    <ol>
+        <li><strong>Enters Maintenance Mode:</strong> The application is immediately put into maintenance mode, which displays a "Service Unavailable" page to all visitors. This prevents users from accessing the site while files and database schemas are changing.</li>
+        <li><strong>Checks for New Version:</strong> It queries the GitHub API to see if a newer release tag is available compared to the version currently in your <code>config.php</code> file. If no new version is found, the process stops.</li>
+        <li><strong>Updates Version in Config:</strong> The version number in your <code>config.php</code> file is automatically updated to the new release tag.</li>
+        <li><strong>Pulls Latest Code:</strong> It runs <code>git pull</code> to download the latest code from your repository.</li>
+        <li><strong>Updates Dependencies:</strong> It runs <code>composer install</code> to ensure all vendor packages are up to date.</li>
+        <li><strong>Syncs Environment File:</strong> It safely runs the <code>env:sync</code> command to append any new variables from <code>.env.example</code> to your <code>.env</code> file without overwriting your existing settings.</li>
+        <li><strong>Runs Database Migrations:</strong> It executes <code>php rhapsody migrate</code> to apply any pending database schema changes.</li>
+        <li><strong>Clears Caches:</strong> All route and application caches are cleared to ensure the application uses the newest code.</li>
+        <li><strong>Exits Maintenance Mode:</strong> The maintenance mode file is deleted, and your application is live again and fully updated.</li>
+    </ol>
+    
+    <hr>
+    
+    <h2>Important Considerations</h2>
+    <ul>
+        <li>
+            <strong>Permissions:</strong> The system user running the update command needs sufficient permissions to run <code>git</code> and <code>composer</code>, and to write to the project's files (especially <code>config.php</code> and the <code>storage/</code> directory).
+        </li>
+        <li>
+            <strong>Git Authentication:</strong> If your repository is private, the user running the command must have SSH keys configured to pull from your Git remote without needing a password.
+        </li>
+        <li>
+            <strong>Review New Variables:</strong> After an update, the command will notify you if new environment variables were added. Be sure to review your <code>.env</code> file and configure these new settings.
+        </li>
+    </ul>
+
+{% endblock %}

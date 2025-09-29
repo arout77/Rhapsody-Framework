@@ -138,4 +138,12 @@ class DocsController extends BaseController
     {
         return $this->view( 'docs/performance.twig' );
     }
+
+    /**
+     * Shows the updating guide.
+     */
+    public function updating(): Response
+    {
+        return $this->view( 'docs/updating.twig' );
+    }
 }

@@ -25,6 +25,8 @@ class AuthController extends BaseController
     )
     {
         parent::__construct( $twig );
+        // Ensure the users table exists before any action is taken.
+        User::ensureTableExists();
     }
 
     /**

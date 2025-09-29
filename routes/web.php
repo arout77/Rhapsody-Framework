@@ -27,6 +27,7 @@ Router::get( '/docs/pagination', [DocsController::class, 'pagination'] );
 Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
 Router::get( '/docs/performance', [DocsController::class, 'performance'] );
 Router::get( '/docs/security', [DocsController::class, 'security'] );
+Router::get( '/docs/updating', [DocsController::class, 'updating'] );
 
 Router::get( '/', [PageController::class, 'index'] );
 Router::get( '/about', [PageController::class, 'about'] );

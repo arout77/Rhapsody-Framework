@@ -6,36 +6,40 @@
  * CLI Application Runner
  */
 
-// 1. Bootstrap the application
 require_once __DIR__.'/vendor/autoload.php';
+
+// 1. Bootstrap Application
 $rootPath = __DIR__;
-// ... (dotenv and container bootstrap)
 $dotenv = Dotenv\Dotenv::createImmutable($rootPath);
 $dotenv->load();
+$config = require_once $rootPath . '/config.php';
 $container = require_once $rootPath . '/bootstrap.php';
 
 // 2. Create the Console Application
 use Symfony\Component\Console\Application;
-use App\Commands\MakeControllerCommand;
-use App\Commands\MakeModelCommand;
-use App\Commands\MakeMiddlewareCommand;
-use App\Commands\MakeMigrationCommand;
-use App\Commands\MigrateCommand;
-use App\Commands\RouteCacheCommand;
-use App\Commands\RouteClearCommand;
-use App\Commands\CacheClearCommand;
 
-$application = new Application('Rhapsody Framework Console', '1.0.0');
+$application = new Application('Rhapsody Framework Console', $config['app_version']);
 
-// 3. Register all the custom commands here
-$application->add(new MakeControllerCommand());
-$application->add(new MakeModelCommand());
-$application->add(new MakeMiddlewareCommand());
-$application->add(new MakeMigrationCommand());
-$application->add(new MigrateCommand());
-$application->add(new RouteCacheCommand());
-$application->add(new RouteClearCommand());
-$application->add(new CacheClearCommand());
+// 3. Define all application commands
+$commands = [
+    App\Commands\MakeControllerCommand::class,
+    App\Commands\MakeModelCommand::class,
+    App\Commands\MakeMiddlewareCommand::class,
+    App\Commands\MakeMigrationCommand::class,
+    App\Commands\MigrateCommand::class,
+    App\Commands\RouteCacheCommand::class,
+    App\Commands\RouteClearCommand::class,
+    App\Commands\CacheClearCommand::class,
+    App\Commands\EnvSyncCommand::class,
+    App\Commands\UpdateCommand::class,
+    App\Commands\CheckVersionCommand::class,
+];
 
-// 4. Run the application
+// 4. Use the container to resolve and register each command
+foreach ($commands as $commandClass) {
+    // This ensures every command gets its dependencies injected correctly.
+    $application->add($container->resolve($commandClass));
+}
+
+// 5. Run the application
 $application->run();

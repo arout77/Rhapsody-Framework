@@ -18,6 +18,44 @@ class User extends BaseModel
     }
 
     /**
+     * Checks if the users table exists and creates it if it does not.
+     * This is a convenience for first-time setup.
+     */
+    public static function ensureTableExists(): void
+    {
+        $db = ( new self() )->db;
+        try {
+            // Check if table exists by querying it. This is more portable than SHOW TABLES.
+            $db->query( "SELECT 1 FROM users LIMIT 1" );
+        }
+        catch ( \PDOException $e )
+        {
+            // If the query fails, it's likely the table doesn't exist.
+            // SQLSTATE[42S02] is the code for "Base table or view not found".
+            if ( $e->getCode() === '42S02' )
+            {
+                $sql = "
+                CREATE TABLE `users` (
+                  `user_id` varchar(255) NOT NULL,
+                  `name` varchar(255) NOT NULL,
+                  `email` varchar(255) NOT NULL,
+                  `password` varchar(255) NOT NULL,
+                  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`user_id`),
+                  UNIQUE KEY `email` (`email`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                ";
+                $db->exec( $sql );
+            }
+            else
+            {
+                // Re-throw other exceptions
+                throw $e;
+            }
+        }
+    }
+
+    /**
      * Fetches a paginated list of users.
      *
      * @param int $limit The number of users to fetch.

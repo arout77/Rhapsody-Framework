@@ -13,6 +13,16 @@
 // 1. Register the Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
+// --- ADD MAINTENANCE MODE CHECK ---
+$maintenanceFile = __DIR__ . '/../storage/framework/down';
+if ( file_exists( $maintenanceFile ) )
+{
+    http_response_code( 503 );
+    echo "<h1>Be right back.</h1><p>We are currently performing scheduled maintenance. Please check back soon.</p>";
+    exit();
+}
+// --- END MAINTENANCE MODE CHECK ---
+
 // 2. Define the project root path for reliability
 $rootPath = dirname( __FILE__ );
 
