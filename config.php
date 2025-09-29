@@ -13,7 +13,7 @@ return [
      */
     'base_url'    => $_ENV['APP_BASE_URL'] ?? '/rhapsody',
     'app_env'     => $_ENV['APP_ENV'] ?? 'production',
-    'app_version' => 'v0.9.9',
+    'app_version' => 'v1.0.0',
     /**
      * Database connection settings.
      * Using $_ENV is more reliable than getenv()
