@@ -32,6 +32,8 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config )
         'error'   => Session::getFlash( 'error' ),
     ] );
 
+    $twig->addGlobal( 'config', $config );
+
     // Make the update notification available to all Twig templates.
     $twig->addGlobal( 'update_available', Cache::get( 'update_available' ) );
 

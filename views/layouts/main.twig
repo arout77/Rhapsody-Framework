@@ -34,6 +34,44 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
+    <!-- JSON-LD Schema Markup for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Rhapsody Framework",
+      "description": "Rhapsody is a lightweight, modern PHP framework for building elegant and maintainable web applications. It provides a solid foundation with powerful features like a flexible router, a secure authentication system, a robust validation engine, and an efficient templating system powered by Twig.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "softwareVersion": "{{ config.app_version }}",
+      "url": "{{ app_url }}",
+      "author": {
+        "@type": "Person",
+        "name": "Andrew Rout"
+      },
+      "programmingLanguage": {
+        "@type": "ComputerLanguage",
+        "name": "PHP"
+      },
+      "image": "{{ app_url }}/public/img/logo.png",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Service Container & Dependency Injection",
+        "Expressive Routing",
+        "Middleware Pipeline & Authentication",
+        "The Rhapsody Console (CLI)",
+        "Database Migrations",
+        "Robust Validation Engine",
+        "Twig Templating",
+        "Performance Caching (Routes & Application)",
+        "Tailwind CSS Integration"
+      ]
+    }
+    </script>
 </head>
 <body class="bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-700">
     <!-- Header, Main Content, Footer -->
