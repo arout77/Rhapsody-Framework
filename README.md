@@ -30,8 +30,12 @@ In your terminal:
 
 git clone https://github.com/arout77/Rhapsody-Framework your-site-name
 
-cd rhapsody
+1. cd rhapsody
 
 composer install
 
+cd your-site-name
 
+cp .env.example .env
+
+#### Enter your database credentials in the newly created file, and you're done!
