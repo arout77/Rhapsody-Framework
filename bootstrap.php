@@ -50,6 +50,7 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config )
 $container->bind( Mailer::class );
 $container->bind( Validator::class );
 $container->bind( Cache::class );
+$container->bind( \App\Services\NotificationService::class );
 $container->bind( \Core\Request::class, fn() => new \Core\Request() );
 
 // Bind commands that have constructor dependencies

@@ -63,6 +63,17 @@ class Response
     }
 
     /**
+     * --- THIS IS THE NEW METHOD ---
+     * Gets the body content of the response.
+     *
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    /**
      * Assembles and sends the final HTTP response to the client.
      * This is the last thing that should happen in a request.
      */

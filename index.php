@@ -83,5 +83,13 @@ else
 // to build and run the controller.
 $response = Router::dispatch( $request, $container );
 
+// --- NEW: Inject update notifications if available (in development) ---
+if ( $config['app_env'] === 'development' )
+{
+    /** @var \App\Services\NotificationService $notificationService */
+    $notificationService = $container->resolve( \App\Services\NotificationService::class );
+    $response            = $notificationService->injectBanner( $response );
+}
+
 // 11. Send the response back to the client
 $response->send();

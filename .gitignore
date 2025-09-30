@@ -3,7 +3,6 @@
 
 # Composer dependencies
 /vendor
-.htaccess
 composer.lock
 
 /storage/cache
