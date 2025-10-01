@@ -131,14 +131,20 @@ class DocsController extends BaseController
         return $this->view( 'docs/file-uploader.twig' );
     }
 
+    /**
+     * @return mixed
+     */
     public function caching(): Response
     {
-        return $this->view('docs/caching.twig');
+        return $this->view( 'docs/caching.twig' );
     }
 
+    /**
+     * @return mixed
+     */
     public function updating(): Response
     {
-        return $this->view('docs/updating.twig');
+        return $this->view( 'docs/updating.twig' );
     }
 
     /**
@@ -155,13 +161,5 @@ class DocsController extends BaseController
     public function performance(): Response
     {
         return $this->view( 'docs/performance.twig' );
-    }
-
-    /**
-     * Shows the updating guide.
-     */
-    public function updating(): Response
-    {
-        return $this->view( 'docs/updating.twig' );
     }
 }
