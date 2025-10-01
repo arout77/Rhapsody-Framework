@@ -70,24 +70,29 @@ class UpdateCommand extends Command
         touch( $maintenanceFile );
 
         try {
-            // --- THIS IS THE NEW, ROBUST WORKFLOW ---
+            // Stash local changes first
             $this->runProcess( ['git', 'stash'], $output, 'Stashing local changes...' );
 
-            $output->writeln( '<comment>Updating version in config.php...</comment>' );
-            $configFileContent    = file_get_contents( $configPath );
-            $newConfigFileContent = preg_replace( "/'app_version' => '.*?'/", "'app_version' => '{$latestVersion}'", $configFileContent );
-            file_put_contents( $configPath, $newConfigFileContent );
-
+            // Pull all remote files
             $this->runProcess( ['git', 'pull'], $output );
+
+            // Update dependencies
             $this->runProcess( ['composer', 'install', '--no-dev', '--optimize-autoloader'], $output );
 
-            // Pop the stash after composer has run to re-apply local changes
+            // Re-apply any other stashed local changes
             $this->runProcess( ['git', 'stash', 'pop'], $output, 'Re-applying stashed changes...' );
 
+            // Run framework update commands
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'env:sync'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'migrate'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'route:cache'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'cache:clear'], $output );
+
+            // Finally, update the version number in the now-updated config.php
+            $output->writeln( '<comment>Updating version in config.php...</comment>' );
+            $configFileContent    = file_get_contents( $configPath );
+            $newConfigFileContent = preg_replace( "/'app_version' => '.*?'/", "'app_version' => '{$latestVersion}'", $configFileContent );
+            file_put_contents( $configPath, $newConfigFileContent );
 
             $output->writeln( "\n<info>Application successfully updated to version {$latestVersion}!</info>" );
             return Command::SUCCESS;
@@ -157,7 +162,7 @@ class UpdateCommand extends Command
         $output->writeln( "\n<info>" . ( $message ?: "Running: " . $process->getCommandLine() ) . "</info>" );
 
         // Don't show output for stash commands unless there's an error
-        if ( $command[1] === 'stash' ) {
+        if ( isset( $command[1] ) && $command[1] === 'stash' ) {
             $process->run();
         } else {
             $process->run( function ( $type, $buffer ) use ( $output ) {
@@ -167,7 +172,7 @@ class UpdateCommand extends Command
 
         if ( !$process->isSuccessful() ) {
             // "No local changes to save" is not a real error for git stash, so we ignore it.
-            if ( $command[1] === 'stash' && str_contains( $process->getOutput(), 'No local changes to save' ) ) {
+            if ( isset( $command[1] ) && $command[1] === 'stash' && str_contains( $process->getOutput(), 'No local changes to save' ) ) {
                 return;
             }
             throw new \RuntimeException( $process->getErrorOutput() ?: $process->getOutput() );
