@@ -60,6 +60,14 @@ class DocsController extends BaseController
     }
 
     /**
+     * @return mixed
+     */
+    public function doctrine(): Response
+    {
+        return $this->view( 'docs/doctrine.twig' );
+    }
+
+    /**
      * Shows the views and templating documentation.
      */
     public function views(): Response
@@ -121,6 +129,16 @@ class DocsController extends BaseController
     public function fileUploader(): Response
     {
         return $this->view( 'docs/file-uploader.twig' );
+    }
+
+    public function caching(): Response
+    {
+        return $this->view('docs/caching.twig');
+    }
+
+    public function updating(): Response
+    {
+        return $this->view('docs/updating.twig');
     }
 
     /**

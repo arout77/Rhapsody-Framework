@@ -14,9 +14,11 @@ use Core\Router;
 // --- DOCUMENTATION ROUTES ---
 Router::get( '/docs', [DocsController::class, 'index'] );
 Router::get( '/docs/installation', [DocsController::class, 'installation'] );
+Router::get( '/docs/updating', [DocsController::class, 'updating'] );
 Router::get( '/docs/routing', [DocsController::class, 'routing'] );
 Router::get( '/docs/controllers', [DocsController::class, 'controllers'] );
 Router::get( '/docs/models', [DocsController::class, 'models'] );
+Router::get( '/docs/doctrine', [DocsController::class, 'doctrine'] );
 Router::get( '/docs/views', [DocsController::class, 'views'] );
 Router::get( '/docs/validation', [DocsController::class, 'validation'] );
 Router::get( '/docs/middleware', [DocsController::class, 'middleware'] );
@@ -25,8 +27,8 @@ Router::get( '/docs/mailer', [DocsController::class, 'mailer'] );
 Router::get( '/docs/seo', [DocsController::class, 'seo'] );
 Router::get( '/docs/pagination', [DocsController::class, 'pagination'] );
 Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
-Router::get( '/docs/performance', [DocsController::class, 'performance'] );
 Router::get( '/docs/security', [DocsController::class, 'security'] );
+Router::get( '/docs/caching', [DocsController::class, 'caching'] );
 Router::get( '/docs/updating', [DocsController::class, 'updating'] );
 
 Router::get( '/', [PageController::class, 'index'] );
@@ -37,8 +39,7 @@ Router::post( '/contact', [App\Controllers\PageController::class, 'handleContact
 Router::get( '/sitemap.xml', [SitemapController::class, 'generate'] );
 
 // You can also still use closures for simple, one-off routes if you wish.
-Router::get( '/hello', function ()
-{
+Router::get( '/hello', function () {
     return "<h1>Hello, World!</h1>";
 } );
 
