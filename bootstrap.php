@@ -15,11 +15,25 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-// <-- Import the DriverManager
-
 // 1. Create a new Service Container instance.
 $container = new Container();
 $config    = require __DIR__ . '/config.php';
+
+// --- BIND THE CACHE SYSTEM ---
+$container->bind( Cache::class, function () use ( $config ) {
+    if ( $config['cache']['driver'] === 'redis' ) {
+        $redisClient = new RedisClient( [
+            'scheme'   => 'tcp',
+            'host'     => $config['redis']['host'],
+            'port'     => $config['redis']['port'],
+            'password' => $config['redis']['password'] ?: null,
+        ] );
+        $driver = new RedisCacheDriver( $redisClient );
+    } else {
+        $driver = new FileCacheDriver();
+    }
+    return new Cache( $driver );
+} );
 
 // --- DOCTRINE BINDING ---
 $container->bind( EntityManager::class, function () {

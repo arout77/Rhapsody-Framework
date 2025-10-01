@@ -14,11 +14,16 @@ return [
     'base_url'    => $_ENV['APP_BASE_URL'] ?? '/rhapsody',
     'app_env'     => $_ENV['APP_ENV'] ?? 'production',
     'app_version' => 'v1.0.1',
-    /**
-     * Database connection settings.
-     * Using $_ENV is more reliable than getenv()
-     */
-    'database'    => [
+    'cache'       => [
+        'driver' => $_ENV['CACHE_DRIVER'] ?? 'file',
+    ],
+
+    'redis'    => [
+        'host'     => $_ENV['REDIS_HOST'] ?? '127.0.0.1',
+        'port'     => $_ENV['REDIS_PORT'] ?? 6379,
+        'password' => $_ENV['REDIS_PASSWORD'] ?? null,
+    ],
+    'database' => [
         'host'     => $_ENV['DB_HOST'] ?? '127.0.0.1',
         'port'     => $_ENV['DB_PORT'] ?? 3306,
         'dbname'   => $_ENV['DB_NAME'] ?? 'rhapsody_db',
@@ -26,7 +31,7 @@ return [
         'password' => $_ENV['DB_PASS'] ?? '',
         'charset'  => 'utf8mb4',
     ],
-    'mailer'      => [
+    'mailer'   => [
         'transport'    => $_ENV['MAIL_TRANSPORT'] ?? 'smtp',
         'host'         => $_ENV['MAIL_HOST'] ?? 'localhost',
         'port'         => $_ENV['MAIL_PORT'] ?? 2525,
