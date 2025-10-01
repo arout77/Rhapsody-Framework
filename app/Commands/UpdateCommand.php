@@ -43,7 +43,7 @@ class UpdateCommand extends Command
         // --- Step 1: Check for new version BEFORE doing anything ---
         $output->writeln( '<comment>Checking for new releases...</comment>' );
         $currentVersion    = $this->config['app_version'];
-        $latestVersionData = $this->getLatestRelease( 'arout/rhapsody' ); // Replace with your repo
+        $latestVersionData = $this->getLatestRelease( 'arout77/rhapsody' ); // Replace with your repo
 
         if ( !$latestVersionData )
         {

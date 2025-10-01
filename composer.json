@@ -1,5 +1,5 @@
 {
-    "name": "arout/rhapsody",
+    "name": "arout77/rhapsody",
     "description": "PHP 8.3.0+ framework.",
     "autoload": {
         "psr-4": {
