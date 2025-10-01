@@ -27,13 +27,10 @@ class User extends BaseModel
         try {
             // Check if table exists by querying it. This is more portable than SHOW TABLES.
             $db->query( "SELECT 1 FROM users LIMIT 1" );
-        }
-        catch ( \PDOException $e )
-        {
+        } catch ( \PDOException $e ) {
             // If the query fails, it's likely the table doesn't exist.
             // SQLSTATE[42S02] is the code for "Base table or view not found".
-            if ( $e->getCode() === '42S02' )
-            {
+            if ( $e->getCode() === '42S02' ) {
                 $sql = "
                 CREATE TABLE `users` (
                   `user_id` varchar(255) NOT NULL,
@@ -46,9 +43,7 @@ class User extends BaseModel
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
                 ";
                 $db->exec( $sql );
-            }
-            else
-            {
+            } else {
                 // Re-throw other exceptions
                 throw $e;
             }
@@ -62,7 +57,8 @@ class User extends BaseModel
      * @param int $offset The number of users to skip.
      * @return array
      */
-    public function findPaginated( int $limit, int $offset ): array {
+    public function findPaginated( int $limit, int $offset ): array
+    {
         $sql = "SELECT user_id, name, email FROM users ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare( $sql );
@@ -81,7 +77,8 @@ class User extends BaseModel
      *
      * @return array
      */
-    public function findAll(): array {
+    public function findAll(): array
+    {
         // Prepare and execute a simple query
         $stmt = $this->db->query( "SELECT user_id, name, email FROM users ORDER BY name DESC" );
         return $stmt->fetchAll();
@@ -91,7 +88,8 @@ class User extends BaseModel
      * @param $uid
      * @return mixed
      */
-    public function getUserById( string $uid ): array {
+    public function getUserById( string $uid ): array | false
+    {
         // Prepare and execute a simple query
         $stmt = $this->db->prepare( "SELECT * FROM users WHERE user_id = :uid" );
         $stmt->bindParam( ':uid', $uid, PDO::PARAM_STR );

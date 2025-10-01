@@ -2,31 +2,28 @@
 
 namespace App\Controllers;
 
-use App\Models\User;
+use App\Entities\User; // Use the new User Entity
 use Core\BaseController;
 use Core\Request;
 use Core\Response;
 use Core\Session;
 use Core\Validator;
+use Doctrine\ORM\EntityManager; // Import the EntityManager
 use Twig\Environment;
 
 class AuthController extends BaseController
 {
-    // Dependencies are injected via the constructor by the container
     /**
-     * @param User $userModel
+     * @param EntityManager $em
      * @param Validator $validator
      * @param Environment $twig
      */
     public function __construct(
-        protected User $userModel,
+        protected EntityManager $em, // Inject the EntityManager
         protected Validator $validator,
-        Environment $twig // BaseController needs Twig
-    )
-    {
+        Environment $twig
+    ) {
         parent::__construct( $twig );
-        // Ensure the users table exists before any action is taken.
-        User::ensureTableExists();
     }
 
     /**
@@ -39,24 +36,20 @@ class AuthController extends BaseController
 
     /**
      * @param Request $request
-     * @return mixed
      */
     public function login( Request $request ): Response
     {
-        $data      = $request->getBody();
-        $userModel = new User();
-        $user      = $userModel->findByEmail( $data['email'] );
+        $data = $request->getBody();
 
-        if ( $user && password_verify( $data['password'], $user['password'] ) )
-        {
+        // Find the user by email using the EntityManager
+        $user = $this->em->getRepository( User::class )->findOneBy( ['email' => $data['email']] );
+
+        if ( $user && password_verify( $data['password'], $user->getPassword() ) ) {
             Session::regenerate();
-            Session::set( 'user_id', $user['user_id'] );
-            // Redirect to a protected page, like a dashboard
+            Session::set( 'user_id', $user->getUserId() );
             return redirect( '/dashboard' );
         }
 
-        // Failed login
-        // Redirecting with a flash message
         return redirect( '/login' )->with( 'error', 'Invalid credentials.' );
     }
 
@@ -74,28 +67,32 @@ class AuthController extends BaseController
      */
     public function register( Request $request ): Response
     {
-        $data      = $request->getBody();
-        $validator = new Validator();
-        $rules     = [
+        $data  = $request->getBody();
+        $rules = [
             'name'     => 'required|min:2',
             'email'    => 'required|email',
             'password' => 'required|min:8|confirmed',
         ];
 
-        if ( $validator->validate( $data, $rules ) )
-        {
-            $userModel = new User();
-            $userModel->create( $data );
+        if ( $this->validator->validate( $data, $rules ) ) {
+            // Create a new User entity
+            $user = new User();
+            $user->setName( $data['name'] );
+            $user->setEmail( $data['email'] );
+            $user->setPassword( $data['password'] );
+
+            // Tell Doctrine to save the user
+            $this->em->persist( $user );
+            $this->em->flush(); // This executes the INSERT query
 
             // Automatically log the new user in
-            $newUser = $userModel->findByEmail( $data['email'] );
             Session::regenerate();
-            Session::set( 'user_id', $newUser['user_id'] );
+            Session::set( 'user_id', $user->getUserId() );
             return redirect( '/dashboard' );
         }
 
         return $this->view( 'auth/register.twig', [
-            'errors' => $validator->getErrors(),
+            'errors' => $this->validator->getErrors(),
             'old'    => $data,
         ] );
     }
