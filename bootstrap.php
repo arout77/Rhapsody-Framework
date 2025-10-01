@@ -26,11 +26,13 @@ $config    = require __DIR__ . '/config.php';
 
 // --- DOCTRINE ENTITY MANAGER BINDING ---
 $container->bind( EntityManager::class, function () use ( $config ) {
-    $paths          = [__DIR__ . '/app/Entities'];
-    $isDevMode      = ( $config['app_env'] ?? 'production' ) === 'development';
+    $paths     = [__DIR__ . '/app/Entities'];
+    $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
+
     $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
     $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
-    $dbParams       = [
+
+    $dbParams = [
         'driver'   => 'pdo_mysql',
         'host'     => $_ENV['DB_HOST'],
         'user'     => $_ENV['DB_USER'],
@@ -38,6 +40,7 @@ $container->bind( EntityManager::class, function () use ( $config ) {
         'dbname'   => $_ENV['DB_NAME'],
         'charset'  => 'utf8mb4',
     ];
+
     $connection = DriverManager::getConnection( $dbParams, $doctrineConfig );
     return new EntityManager( $connection, $doctrineConfig );
 } );
@@ -97,7 +100,15 @@ $container->bind( App\Commands\UpdateCommand::class, function () use ( $config )
 } );
 
 $container->bind( App\Commands\CheckVersionCommand::class, function ( $c ) use ( $config ) {
-    return new App\Commands\CheckVersionCommand( $config, $c->resolve( Mailer::class ), $c->resolve( Cache::class ) );
+    return new App\Commands\CheckVersionCommand(
+        $config,
+        $c->resolve( Mailer::class ),
+        $c->resolve( Cache::class )
+    );
+} );
+
+$container->bind( App\Commands\CacheClearCommand::class, function ( $c ) {
+    return new App\Commands\CacheClearCommand( $c->resolve( Cache::class ) );
 } );
 
 // 3. Return the fully configured container.

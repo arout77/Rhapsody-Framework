@@ -14,6 +14,15 @@ class CacheClearCommand extends Command
      */
     protected static $defaultName = 'cache:clear';
 
+    // The Cache manager is now injected via the constructor
+    /**
+     * @param Cache $cache
+     */
+    public function __construct( protected Cache $cache )
+    {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this->setName( 'cache:clear' )->setDescription( 'Flush the application cache.' );
@@ -25,7 +34,9 @@ class CacheClearCommand extends Command
      */
     protected function execute( InputInterface $input, OutputInterface $output ): int
     {
-        Cache::flush();
+        // Use the injected cache instance to call the method
+        $this->cache->flush();
+
         $output->writeln( '<info>Application cache cleared!</info>' );
         return Command::SUCCESS;
     }
