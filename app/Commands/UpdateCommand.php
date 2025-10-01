@@ -14,7 +14,6 @@ class UpdateCommand extends Command
      */
     protected static $defaultName = 'app:update';
 
-    // We need the config to know the current version
     /**
      * @param array $config
      */
@@ -43,15 +42,23 @@ class UpdateCommand extends Command
         // --- Step 1: Check for new version BEFORE doing anything ---
         $output->writeln( '<comment>Checking for new releases...</comment>' );
         $currentVersion    = $this->config['app_version'];
-        $latestVersionData = $this->getLatestRelease( 'arout77/rhapsody' ); // Replace with your repo
+        $latestVersionData = $this->getLatestRelease( 'arout77/Rhapsody-Framework', $output );
 
         if ( !$latestVersionData )
         {
-            $output->writeln( '<error>Could not fetch release information from GitHub.</error>' );
+            $output->writeln( '<error>Could not fetch release information from GitHub. Update aborted.</error>' );
             return Command::FAILURE;
         }
 
-        $latestVersion = $latestVersionData['tag_name'];
+        $latestRelease = $latestVersionData[0] ?? null;
+
+        if ( !$latestRelease || !isset( $latestRelease['tag_name'] ) )
+        {
+            $output->writeln( "<error>Could not find any releases in the API response.</error>" );
+            return Command::FAILURE;
+        }
+
+        $latestVersion = $latestRelease['tag_name'];
         $output->writeln( "Current version: <info>{$currentVersion}</info>" );
         $output->writeln( "Latest release: <info>{$latestVersion}</info>" );
 
@@ -63,6 +70,10 @@ class UpdateCommand extends Command
 
         // --- Step 2: Enter Maintenance Mode ---
         $output->writeln( "\n<comment>New version found. Entering maintenance mode...</comment>" );
+        if ( !is_dir( dirname( $maintenanceFile ) ) )
+        {
+            mkdir( dirname( $maintenanceFile ), 0755, true );
+        }
         touch( $maintenanceFile );
 
         try {
@@ -103,14 +114,44 @@ class UpdateCommand extends Command
 
     /**
      * @param string $repository
+     * @param OutputInterface $output
      */
-    private function getLatestRelease( string $repository ): ?array {
-        $apiUrl   = "https://api.github.com/repos/{$repository}/releases/latest";
-        $options  = ['http' => ['header' => "User-Agent: Rhapsody-Framework-Updater\r\n"]];
-        $context  = stream_context_create( $options );
-        $response = @file_get_contents( $apiUrl, false, $context );
+    private function getLatestRelease( string $repository, OutputInterface $output ): ?array {
+        $apiUrl     = "https://api.github.com/repos/{$repository}/releases";
+        $caCertPath = dirname( __DIR__, 2 ) . '/config/cacert.pem';
 
-        return $response ? json_decode( $response, true ) : null;
+        if ( !file_exists( $caCertPath ) )
+        {
+            $output->writeln( "<error>SSL Certificate bundle not found at '{$caCertPath}'.</error>" );
+            return null;
+        }
+
+        $ch = curl_init();
+        curl_setopt( $ch, CURLOPT_URL, $apiUrl );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $ch, CURLOPT_USERAGENT, 'Rhapsody-Framework-Updater' );
+
+        curl_setopt( $ch, CURLOPT_CAINFO, $caCertPath );
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+
+        $response = curl_exec( $ch );
+        $httpCode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+
+        if ( curl_errno( $ch ) )
+        {
+            $output->writeln( "<error>cURL Error: " . curl_error( $ch ) . "</error>" );
+            curl_close( $ch );
+            return null;
+        }
+
+        curl_close( $ch );
+
+        if ( $httpCode !== 200 || $response === false )
+        {
+            return null;
+        }
+
+        return json_decode( $response, true );
     }
 
     /**
@@ -122,7 +163,10 @@ class UpdateCommand extends Command
         $process = new Process( $command );
         $process->setTimeout( 300 );
         $output->writeln( "\n<info>Running: " . $process->getCommandLine() . "</info>" );
-        $process->run( fn( $type, $buffer ) => $output->write( $buffer ) );
+        $process->run( function ( $type, $buffer ) use ( $output )
+        {
+            $output->write( $buffer );
+        } );
         if ( !$process->isSuccessful() )
         {
             throw new \RuntimeException( $process->getErrorOutput() );

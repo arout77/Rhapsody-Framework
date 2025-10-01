@@ -16,7 +16,7 @@ class CheckVersionCommand extends Command
      */
     protected static $defaultName = 'app:check-version';
 
-    // *** Define the default repository ***
+    // The default repository to check.
     private string $defaultRepository = 'arout77/Rhapsody-Framework';
 
     /**
@@ -38,8 +38,7 @@ class CheckVersionCommand extends Command
         $this
             ->setName( 'app:check-version' )
             ->setDescription( 'Checks GitHub for the latest release of a repository.' )
-            // *** FIX: Change argument to be optional ***
-            ->addArgument( 'repository', InputArgument::OPTIONAL, 'Optional: The GitHub repository to check in "owner/repo" format.', $this->defaultRepository );
+            ->addArgument( 'repository', InputArgument::OPTIONAL, 'The GitHub repository to check in "owner/repo" format.', $this->defaultRepository );
     }
 
     /**
@@ -48,30 +47,29 @@ class CheckVersionCommand extends Command
      */
     protected function execute( InputInterface $input, OutputInterface $output ): int
     {
-        // *** FIX: Get the repository from the argument, which now has a default ***
-        $repository = $input->getArgument( 'repository' );
-
+        $repository     = $input->getArgument( 'repository' );
         $currentVersion = $this->config['app_version'];
-        $apiUrl         = "https://api.github.com/repos/{$repository}/releases/latest";
 
         $output->writeln( "<comment>Current version:</comment> {$currentVersion}" );
         $output->writeln( "<comment>Checking for latest release at {$repository}...</comment>" );
 
-        $response = $this->fetchFromApi( $apiUrl );
-        if ( !$response )
+        $data = $this->fetchFromApi( $repository, $output );
+        if ( !$data )
         {
-            $output->writeln( "<error>Failed to fetch data from GitHub API. Check repository name.</error>" );
+            $output->writeln( "<error>Could not fetch release information from GitHub. This could be due to a network issue, firewall, or an outdated SSL certificate on the server.</error>" );
             return Command::FAILURE;
         }
 
-        $data = json_decode( $response, true );
-        if ( !isset( $data['tag_name'] ) )
+        // The first item in the array is always the most recent release.
+        $latestRelease = $data[0] ?? null;
+
+        if ( !$latestRelease || !isset( $latestRelease['tag_name'] ) )
         {
-            $output->writeln( "<error>Could not find release tag in the API response.</error>" );
+            $output->writeln( "<error>Could not find any releases in the API response.</error>" );
             return Command::FAILURE;
         }
 
-        $latestVersion = $data['tag_name'];
+        $latestVersion = $latestRelease['tag_name'];
         $output->writeln( "<comment>Latest release found:</comment> {$latestVersion}" );
 
         if ( version_compare( $latestVersion, $currentVersion, '>' ) )
@@ -93,7 +91,7 @@ class CheckVersionCommand extends Command
                 else
                 {
                     $output->writeln( "Production mode: Attempting to send email notification..." );
-                    $wasSent = $this->sendEmailNotification( $latestVersion, $data['html_url'], $output );
+                    $wasSent = $this->sendEmailNotification( $latestVersion, $latestRelease['html_url'], $output );
                     if ( $wasSent )
                     {
                         $this->cache->put( $notificationCacheKey, true, 43200 );
@@ -111,13 +109,47 @@ class CheckVersionCommand extends Command
     }
 
     /**
-     * @param string $url
+     * @param string $repository
+     * @param OutputInterface $output
      */
-    private function fetchFromApi( string $url ): string | false
-    {
-        $options = ['http' => ['header' => "User-Agent: Rhapsody-Framework-Version-Checker\r\n"]];
-        $context = stream_context_create( $options );
-        return @file_get_contents( $url, false, $context );
+    private function fetchFromApi( string $repository, OutputInterface $output ): ?array {
+        // Use the /releases endpoint to get all releases, including pre-releases
+        $apiUrl     = "https://api.github.com/repos/{$repository}/releases";
+        $caCertPath = dirname( __DIR__, 2 ) . '/config/cacert.pem';
+
+        if ( !file_exists( $caCertPath ) )
+        {
+            $output->writeln( "<error>SSL Certificate bundle not found at '{$caCertPath}'. Please download it from curl.se/docs/caextract.html</error>" );
+            return null;
+        }
+
+        $ch = curl_init();
+        curl_setopt( $ch, CURLOPT_URL, $apiUrl );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $ch, CURLOPT_USERAGENT, 'Rhapsody-Framework-Version-Checker' );
+
+        // Explicitly provide the path to the certificate bundle
+        curl_setopt( $ch, CURLOPT_CAINFO, $caCertPath );
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+
+        $response = curl_exec( $ch );
+        $httpCode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+
+        if ( curl_errno( $ch ) )
+        {
+            $output->writeln( "<error>cURL Error: " . curl_error( $ch ) . "</error>" );
+            curl_close( $ch );
+            return null;
+        }
+
+        curl_close( $ch );
+
+        if ( $httpCode !== 200 || $response === false )
+        {
+            return null;
+        }
+
+        return json_decode( $response, true );
     }
 
     /**
