@@ -39,21 +39,17 @@ class UpdateCommand extends Command
         $maintenanceFile = $rootPath . '/storage/framework/down';
         $configPath      = $rootPath . '/config.php';
 
-        // --- Step 1: Check for new version BEFORE doing anything ---
         $output->writeln( '<comment>Checking for new releases...</comment>' );
         $currentVersion    = $this->config['app_version'];
         $latestVersionData = $this->getLatestRelease( 'arout77/Rhapsody-Framework', $output );
 
-        if ( !$latestVersionData )
-        {
+        if ( !$latestVersionData ) {
             $output->writeln( '<error>Could not fetch release information from GitHub. Update aborted.</error>' );
             return Command::FAILURE;
         }
 
         $latestRelease = $latestVersionData[0] ?? null;
-
-        if ( !$latestRelease || !isset( $latestRelease['tag_name'] ) )
-        {
+        if ( !$latestRelease || !isset( $latestRelease['tag_name'] ) ) {
             $output->writeln( "<error>Could not find any releases in the API response.</error>" );
             return Command::FAILURE;
         }
@@ -62,66 +58,63 @@ class UpdateCommand extends Command
         $output->writeln( "Current version: <info>{$currentVersion}</info>" );
         $output->writeln( "Latest release: <info>{$latestVersion}</info>" );
 
-        if ( version_compare( $latestVersion, $currentVersion, '<=' ) )
-        {
+        if ( version_compare( $latestVersion, $currentVersion, '<=' ) ) {
             $output->writeln( '<info>Application is already up to date.</info>' );
             return Command::SUCCESS;
         }
 
-        // --- Step 2: Enter Maintenance Mode ---
         $output->writeln( "\n<comment>New version found. Entering maintenance mode...</comment>" );
-        if ( !is_dir( dirname( $maintenanceFile ) ) )
-        {
+        if ( !is_dir( dirname( $maintenanceFile ) ) ) {
             mkdir( dirname( $maintenanceFile ), 0755, true );
         }
         touch( $maintenanceFile );
 
         try {
-            // --- Step 3: Update version in config file ---
+            // --- THIS IS THE NEW, ROBUST WORKFLOW ---
+            $this->runProcess( ['git', 'stash'], $output, 'Stashing local changes...' );
+
             $output->writeln( '<comment>Updating version in config.php...</comment>' );
             $configFileContent    = file_get_contents( $configPath );
-            $newConfigFileContent = preg_replace(
-                "/'app_version' => '.*?'/",
-                "'app_version' => '{$latestVersion}'",
-                $configFileContent
-            );
+            $newConfigFileContent = preg_replace( "/'app_version' => '.*?'/", "'app_version' => '{$latestVersion}'", $configFileContent );
             file_put_contents( $configPath, $newConfigFileContent );
 
-            // --- Step 4: Run update commands ---
             $this->runProcess( ['git', 'pull'], $output );
             $this->runProcess( ['composer', 'install', '--no-dev', '--optimize-autoloader'], $output );
+
+            // Pop the stash after composer has run to re-apply local changes
+            $this->runProcess( ['git', 'stash', 'pop'], $output, 'Re-applying stashed changes...' );
+
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'env:sync'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'migrate'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'route:cache'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'cache:clear'], $output );
 
-        }
-        catch ( \Exception $e )
-        {
+            $output->writeln( "\n<info>Application successfully updated to version {$latestVersion}!</info>" );
+            return Command::SUCCESS;
+
+        } catch ( \Exception $e ) {
             $output->writeln( '<error>An error occurred during the update process:</error>' );
             $output->writeln( $e->getMessage() );
-            $output->writeln( '<comment>The application has been left in maintenance mode for manual inspection.</comment>' );
+            $output->writeln( '<error>Update failed! The application has been left in maintenance mode.</error>' );
             return Command::FAILURE;
+        } finally {
+            $output->writeln( '<comment>Exiting maintenance mode...</comment>' );
+            if ( file_exists( $maintenanceFile ) ) {
+                unlink( $maintenanceFile );
+            }
         }
-
-        // --- Step 5: Exit Maintenance Mode ---
-        $output->writeln( '<comment>Exiting maintenance mode...</comment>' );
-        unlink( $maintenanceFile );
-
-        $output->writeln( "\n<info>Application successfully updated to version {$latestVersion}!</info>" );
-        return Command::SUCCESS;
     }
 
     /**
      * @param string $repository
      * @param OutputInterface $output
      */
-    private function getLatestRelease( string $repository, OutputInterface $output ): ?array {
+    private function getLatestRelease( string $repository, OutputInterface $output ): ?array
+    {
         $apiUrl     = "https://api.github.com/repos/{$repository}/releases";
         $caCertPath = dirname( __DIR__, 2 ) . '/config/cacert.pem';
 
-        if ( !file_exists( $caCertPath ) )
-        {
+        if ( !file_exists( $caCertPath ) ) {
             $output->writeln( "<error>SSL Certificate bundle not found at '{$caCertPath}'.</error>" );
             return null;
         }
@@ -130,15 +123,13 @@ class UpdateCommand extends Command
         curl_setopt( $ch, CURLOPT_URL, $apiUrl );
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $ch, CURLOPT_USERAGENT, 'Rhapsody-Framework-Updater' );
-
         curl_setopt( $ch, CURLOPT_CAINFO, $caCertPath );
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
 
         $response = curl_exec( $ch );
         $httpCode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 
-        if ( curl_errno( $ch ) )
-        {
+        if ( curl_errno( $ch ) ) {
             $output->writeln( "<error>cURL Error: " . curl_error( $ch ) . "</error>" );
             curl_close( $ch );
             return null;
@@ -146,8 +137,7 @@ class UpdateCommand extends Command
 
         curl_close( $ch );
 
-        if ( $httpCode !== 200 || $response === false )
-        {
+        if ( $httpCode !== 200 || $response === false ) {
             return null;
         }
 
@@ -157,19 +147,30 @@ class UpdateCommand extends Command
     /**
      * @param array $command
      * @param OutputInterface $output
+     * @param string $message
+     * @return null
      */
-    private function runProcess( array $command, OutputInterface $output ): void
+    private function runProcess( array $command, OutputInterface $output, string $message = null ): void
     {
         $process = new Process( $command );
         $process->setTimeout( 300 );
-        $output->writeln( "\n<info>Running: " . $process->getCommandLine() . "</info>" );
-        $process->run( function ( $type, $buffer ) use ( $output )
-        {
-            $output->write( $buffer );
-        } );
-        if ( !$process->isSuccessful() )
-        {
-            throw new \RuntimeException( $process->getErrorOutput() );
+        $output->writeln( "\n<info>" . ( $message ?: "Running: " . $process->getCommandLine() ) . "</info>" );
+
+        // Don't show output for stash commands unless there's an error
+        if ( $command[1] === 'stash' ) {
+            $process->run();
+        } else {
+            $process->run( function ( $type, $buffer ) use ( $output ) {
+                $output->write( $buffer );
+            } );
+        }
+
+        if ( !$process->isSuccessful() ) {
+            // "No local changes to save" is not a real error for git stash, so we ignore it.
+            if ( $command[1] === 'stash' && str_contains( $process->getOutput(), 'No local changes to save' ) ) {
+                return;
+            }
+            throw new \RuntimeException( $process->getErrorOutput() ?: $process->getOutput() );
         }
     }
 }
