@@ -78,12 +78,12 @@ if ( file_exists( $routeCachePath ) && $config['app_env'] === 'production' ) {
 // execute its specific middleware (like auth), and finally use the container
 // to build and run the controller.
 $response     = Router::dispatch( $request, $container );
-$matchedRoute = Router::getMatchedRoute(); // We'll add this method in the next step
+$matchedRoute = Router::getMatchedRoute();
 
 // --- INJECT DEBUG TOOLBAR ---
 if ( $config['app_env'] === 'development' ) {
     $debug = \Core\Debug::getInstance();
-    $debug->end( $response, $config, $matchedRoute ); // Pass final data to the collector
+    $debug->end( $response, $config, $container, $matchedRoute ); // Pass final data to the collector
     $toolbar     = new \Core\Toolbar( $debug->getData() );
     $toolbarHtml = $toolbar->render();
 

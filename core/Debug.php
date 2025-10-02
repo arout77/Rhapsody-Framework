@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use Doctrine\DBAL\Logging\DebugStack;
+
 /**
  * A simple data collector for the developer toolbar.
  * Uses a singleton pattern to be accessible anywhere during the request.
@@ -37,13 +39,24 @@ class Debug
     /**
      * Gathers final data points at the end of the request.
      */
-    public function end( Response $response, array $config, Route $route = null ): void
+    public function end( Response $response, array $config, Container $container, Route $route = null ): void
     {
         $this->data['execution_time'] = round( ( microtime( true ) - $this->startTime ) * 1000, 2 );
         $this->data['memory_usage']   = round( ( memory_get_peak_usage() - $this->startMemory ) / 1024 / 1024, 2 );
         $this->data['response_code']  = $response->getStatusCode();
         $this->data['app_version']    = $config['app_version'] ?? 'N/A';
         $this->data['session']        = $_SESSION ?? [];
+
+        // Get Doctrine Queries
+        if ( $container->has( DebugStack::class ) ) {
+            $this->data['queries'] = $container->resolve( DebugStack::class )->queries;
+        }
+
+        // Get Log Files
+        $this->data['logs'] = [
+            'php'    => $this->readLogFile( $config['logging']['php_error_log_path'] ?? '' ),
+            'apache' => $this->readLogFile( $config['logging']['apache_error_log_path'] ?? '' ),
+        ];
 
         if ( $route ) {
             $callback = $route->getCallback();
@@ -65,5 +78,21 @@ class Debug
     public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * Reads the last 50 lines of a log file.
+     */
+    private function readLogFile( string $path ): string
+    {
+        if ( empty( $path ) || !file_exists( $path ) || !is_readable( $path ) ) {
+            return "Log file not found or not readable at: " . htmlspecialchars( $path );
+        }
+        // Use a memory-efficient way to read the end of a large file
+        $file = new \SplFileObject( $path, 'r' );
+        $file->seek( PHP_INT_MAX );
+        $last_line = $file->key();
+        $lines     = new \LimitIterator( $file, ( $last_line > 50 ? $last_line - 50 : 0 ), $last_line );
+        return htmlspecialchars( implode( "", iterator_to_array( $lines ) ), ENT_QUOTES, 'UTF-8' );
     }
 }

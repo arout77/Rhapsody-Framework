@@ -12,6 +12,7 @@ use Core\Mailer;
 use Core\Session;
 use Core\Validator;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Predis\Client as RedisClient;
@@ -29,8 +30,16 @@ $container->bind( EntityManager::class, function () use ( $config ) {
     $paths     = [__DIR__ . '/app/Entities'];
     $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
 
+    // Create the SQL logger
+    $sqlLogger = new DebugStack();
+    // Bind it to the container so we can access it later in the Debug class
+    $container->bind( DebugStack::class, fn() => $sqlLogger );
+
     $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
     $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
+
+    // Attach the logger to the configuration
+    $doctrineConfig->setSQLLogger( $sqlLogger );
 
     $dbParams = [
         'driver'   => 'pdo_mysql',

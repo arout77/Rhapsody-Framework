@@ -8,22 +8,31 @@
  */
 
 return [
+    'logging' => [
+        // Leave path empty to disable.
+        // Example for MAMP on Windows: 'C:/MAMP/logs/php_error.log'
+        // Example for MAMP on macOS: '/Applications/MAMP/logs/php_error.log'
+        'php_error_log_path' => 'C:\MAMP\logs\php_error.log',
+
+        // Example for MAMP on Windows: 'C:/MAMP/logs/apache_error.log'
+        // Example for MAMP on macOS: '/Applications/MAMP/logs/apache_error.log'
+        'apache_error_log_path' => 'C:\MAMP\logs\apache_error.log',
+    ],
     /**
      * The base URL of your application.
      */
-    'base_url'    => $_ENV['APP_BASE_URL'] ?? '/rhapweb',
-    'app_env'     => $_ENV['APP_ENV'] ?? 'production',
-    'app_version' => 'v1.2.3',
-    'cache'       => [
+    'base_url'           => $_ENV['APP_BASE_URL'] ?? '/rhapweb',
+    'app_env'            => $_ENV['APP_ENV'] ?? 'production',
+    'app_version'        => 'v1.3.0',
+    'cache'              => [
         'driver' => $_ENV['CACHE_DRIVER'] ?? 'file',
     ],
-
-    'redis'    => [
+    'redis'              => [
         'host'     => $_ENV['REDIS_HOST'] ?? '127.0.0.1',
         'port'     => $_ENV['REDIS_PORT'] ?? 6379,
         'password' => $_ENV['REDIS_PASSWORD'] ?? null,
     ],
-    'database' => [
+    'database'           => [
         'host'     => $_ENV['DB_HOST'] ?? '127.0.0.1',
         'port'     => $_ENV['DB_PORT'] ?? 3306,
         'dbname'   => $_ENV['DB_NAME'] ?? 'rhapsody_db',
@@ -31,7 +40,7 @@ return [
         'password' => $_ENV['DB_PASS'] ?? '',
         'charset'  => 'utf8mb4',
     ],
-    'mailer'   => [
+    'mailer'             => [
         'transport'    => $_ENV['MAIL_TRANSPORT'] ?? 'smtp',
         'host'         => $_ENV['MAIL_HOST'] ?? 'localhost',
         'port'         => $_ENV['MAIL_PORT'] ?? 2525,
