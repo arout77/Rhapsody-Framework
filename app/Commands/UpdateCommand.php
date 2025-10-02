@@ -69,42 +69,43 @@ class UpdateCommand extends Command
         }
         touch( $maintenanceFile );
 
+        $updateSucceeded = false;
         try {
-            // Stash local changes first
-            $this->runProcess( ['git', 'stash'], $output, 'Stashing local changes...' );
+            $output->writeln( '<bg=yellow;options=bold>[WARNING] This will discard any local modifications to tracked files.</>' );
 
-            // Pull all remote files
-            $this->runProcess( ['git', 'pull'], $output );
+            // 1. Fetch the latest changes from the remote repository.
+            $this->runProcess( ['git', 'fetch'], $output, 'Fetching latest repository data...' );
 
-            // Update dependencies
+            // 2. Forcefully reset the local branch to match the remote branch. This prevents all merge conflicts.
+            $this->runProcess( ['git', 'reset', '--hard', 'origin/main'], $output, 'Resetting local branch to match remote...' );
+
+            // 3. Update dependencies based on the new composer.lock file.
             $this->runProcess( ['composer', 'install', '--no-dev', '--optimize-autoloader'], $output );
 
-            // Re-apply any other stashed local changes
-            $this->runProcess( ['git', 'stash', 'pop'], $output, 'Re-applying stashed changes...' );
-
-            // Run framework update commands
+            // 4. Run framework update and caching commands.
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'env:sync'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'migrate'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'route:cache'], $output );
             $this->runProcess( [PHP_BINARY, 'rhapsody', 'cache:clear'], $output );
 
-            // Finally, update the version number in the now-updated config.php
+            // 5. Finally, update the version number in the now-updated config.php
             $output->writeln( '<comment>Updating version in config.php...</comment>' );
             $configFileContent    = file_get_contents( $configPath );
-            $newConfigFileContent = preg_replace( "/'app_version' => '.*?'/", "'app_version' => '{$latestVersion}'", $configFileContent );
+            $newConfigFileContent = preg_replace( "/('app_version'\s*=>\s*)'.*?'/", "$1'{$latestVersion}'", $configFileContent );
             file_put_contents( $configPath, $newConfigFileContent );
 
+            $updateSucceeded = true;
             $output->writeln( "\n<info>Application successfully updated to version {$latestVersion}!</info>" );
             return Command::SUCCESS;
 
         } catch ( \Exception $e ) {
             $output->writeln( '<error>An error occurred during the update process:</error>' );
             $output->writeln( $e->getMessage() );
-            $output->writeln( '<error>Update failed! The application has been left in maintenance mode.</error>' );
+            $output->writeln( '<error>Update failed! The application has been left in maintenance mode for manual inspection.</error>' );
             return Command::FAILURE;
         } finally {
-            $output->writeln( '<comment>Exiting maintenance mode...</comment>' );
-            if ( file_exists( $maintenanceFile ) ) {
+            if ( $updateSucceeded && file_exists( $maintenanceFile ) ) {
+                $output->writeln( '<comment>Exiting maintenance mode...</comment>' );
                 unlink( $maintenanceFile );
             }
         }
@@ -153,7 +154,6 @@ class UpdateCommand extends Command
      * @param array $command
      * @param OutputInterface $output
      * @param string $message
-     * @return null
      */
     private function runProcess( array $command, OutputInterface $output, string $message = null ): void
     {
@@ -161,20 +161,11 @@ class UpdateCommand extends Command
         $process->setTimeout( 300 );
         $output->writeln( "\n<info>" . ( $message ?: "Running: " . $process->getCommandLine() ) . "</info>" );
 
-        // Don't show output for stash commands unless there's an error
-        if ( isset( $command[1] ) && $command[1] === 'stash' ) {
-            $process->run();
-        } else {
-            $process->run( function ( $type, $buffer ) use ( $output ) {
-                $output->write( $buffer );
-            } );
-        }
+        $process->run( function ( $type, $buffer ) use ( $output ) {
+            $output->write( $buffer );
+        } );
 
         if ( !$process->isSuccessful() ) {
-            // "No local changes to save" is not a real error for git stash, so we ignore it.
-            if ( isset( $command[1] ) && $command[1] === 'stash' && str_contains( $process->getOutput(), 'No local changes to save' ) ) {
-                return;
-            }
             throw new \RuntimeException( $process->getErrorOutput() ?: $process->getOutput() );
         }
     }
