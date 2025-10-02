@@ -38,6 +38,12 @@ class Router
     ];
 
     /**
+     * The route that was successfully matched.
+     * @var Route|null
+     */
+    protected static ?Route $matchedRoute = null;
+
+    /**
      * Adds a new route to the collection.
      *
      * @param string $method The HTTP method.
@@ -79,8 +85,7 @@ class Router
      */
     public static function dispatch( Request $request, Container $container ): Response
     {
-        foreach ( self::$globalMiddleware as $middlewareClass )
-        {
+        foreach ( self::$globalMiddleware as $middlewareClass ) {
             $middleware = $container->resolve( $middlewareClass );
             $middleware->handle( $request );
         }
@@ -88,17 +93,15 @@ class Router
         $path   = $request->getPath();
         $method = $request->getMethod();
 
-        foreach ( self::$routes as $route )
-        {
-            if ( $route->matches( $method, $path ) )
-            {
-                // First, resolve and execute any middleware attached to the route.
+        foreach ( self::$routes as $route ) {
+            if ( $route->matches( $method, $path ) ) {
+                self::$matchedRoute = $route;
+
+                // Resolve and execute any middleware attached to the route.
                 $middlewareKey = $route->getMiddleware();
-                if ( $middlewareKey )
-                {
+                if ( $middlewareKey ) {
                     $middlewareClass = self::$middlewareMap[$middlewareKey] ?? null;
-                    if ( $middlewareClass && class_exists( $middlewareClass ) )
-                    {
+                    if ( $middlewareClass && class_exists( $middlewareClass ) ) {
                         $middleware = new $middlewareClass(); // Middleware are simple enough to be new'ed up.
                         $middleware->handle( $request );
                     }
@@ -127,8 +130,7 @@ class Router
         $callback = $route->getCallback();
         $params   = $route->getParams();
 
-        if ( is_array( $callback ) )
-        {
+        if ( is_array( $callback ) ) {
             $controllerClass = $callback[0];
             $action          = $callback[1];
 
@@ -139,8 +141,7 @@ class Router
             return $controller->{$action}( $request, ...$params );
         }
 
-        if ( $callback instanceof \Closure )
-        {
+        if ( $callback instanceof \Closure ) {
             $response = new Response();
             $response->setContent( call_user_func( $callback, $request, ...$params ) );
             return $response;
@@ -160,7 +161,16 @@ class Router
         return $response;
     }
 
-    public static function getRoutes(): array {
+    /**
+     * Returns the last successfully matched route.
+     */
+    public static function getMatchedRoute(): ?Route
+    {
+        return self::$matchedRoute;
+    }
+
+    public static function getRoutes(): array
+    {
         return self::$routes;
     }
 

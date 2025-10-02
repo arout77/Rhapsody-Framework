@@ -13,10 +13,12 @@
 // 1. Register the Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
+// --- START DEBUG COLLECTOR ---
+\Core\Debug::getInstance()->start();
+
 // --- ADD MAINTENANCE MODE CHECK ---
 $maintenanceFile = __DIR__ . '/../storage/framework/down';
-if ( file_exists( $maintenanceFile ) )
-{
+if ( file_exists( $maintenanceFile ) ) {
     http_response_code( 503 );
     echo "<h1>Be right back.</h1><p>We are currently performing scheduled maintenance. Please check back soon.</p>";
     exit();
@@ -30,9 +32,7 @@ $rootPath = dirname( __FILE__ );
 try {
     $dotenv = Dotenv\Dotenv::createImmutable( $rootPath );
     $dotenv->load();
-}
-catch ( \Dotenv\Exception\InvalidPathException $e )
-{
+} catch ( \Dotenv\Exception\InvalidPathException $e ) {
     die( 'Could not find .env file. Please ensure it exists in the project root: ' . $rootPath );
 }
 
@@ -40,8 +40,7 @@ catch ( \Dotenv\Exception\InvalidPathException $e )
 // This provides beautiful, detailed error pages during development but
 // should be disabled in a production environment for security.
 $config = require_once $rootPath . '/config.php';
-if ( $config['app_env'] === 'development' )
-{
+if ( $config['app_env'] === 'development' ) {
     $whoops = new \Whoops\Run;
     $whoops->pushHandler( new \Whoops\Handler\PrettyPageHandler );
     $whoops->register();
@@ -66,13 +65,10 @@ $request = new Request();
 
 // 9. Load the application routes from cache if available
 $routeCachePath = $rootPath . '/storage/cache/routes/routes.php';
-if ( file_exists( $routeCachePath ) && $config['app_env'] === 'production' )
-{
+if ( file_exists( $routeCachePath ) && $config['app_env'] === 'production' ) {
     $routes = require_once $routeCachePath;
     Router::setRoutes( $routes );
-}
-else
-{
+} else {
     require_once $rootPath . '/routes/web.php';
     require_once $rootPath . '/routes/api.php';
 }
@@ -81,11 +77,28 @@ else
 // The router will execute global middleware (like CSRF), find the matching route,
 // execute its specific middleware (like auth), and finally use the container
 // to build and run the controller.
-$response = Router::dispatch( $request, $container );
+$response     = Router::dispatch( $request, $container );
+$matchedRoute = Router::getMatchedRoute(); // We'll add this method in the next step
 
-// --- NEW: Inject update notifications if available (in development) ---
-if ( $config['app_env'] === 'development' )
-{
+// --- INJECT DEBUG TOOLBAR ---
+if ( $config['app_env'] === 'development' ) {
+    $debug = \Core\Debug::getInstance();
+    $debug->end( $response, $config, $matchedRoute ); // Pass final data to the collector
+    $toolbar     = new \Core\Toolbar( $debug->getData() );
+    $toolbarHtml = $toolbar->render();
+
+    $content = $response->getContent();
+    // Inject toolbar before closing body tag, or append if not found
+    $bodyEndPosition = strripos( $content, '</body>' );
+    if ( $bodyEndPosition !== false ) {
+        $content = substr_replace( $content, $toolbarHtml, $bodyEndPosition, 0 );
+    } else {
+        $content .= $toolbarHtml;
+    }
+    $response->setContent( $content );
+
+    // --- Inject update notifications if available (in development) ---
+
     /** @var \App\Services\NotificationService $notificationService */
     $notificationService = $container->resolve( \App\Services\NotificationService::class );
     $response            = $notificationService->injectBanner( $response );

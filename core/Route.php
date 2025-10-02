@@ -16,8 +16,7 @@ class Route
         protected string $method,
         protected string $path,
         protected mixed $callback
-    )
-    {
+    ) {
     }
 
     /**
@@ -32,8 +31,7 @@ class Route
     public function matches( string $method, string $uri ): bool
     {
         // First, check if the HTTP method matches.
-        if ( strtolower( $this->method ) !== strtolower( $method ) )
-        {
+        if ( strtolower( $this->method ) !== strtolower( $method ) ) {
             return false;
         }
 
@@ -45,8 +43,7 @@ class Route
         $pattern = "~^" . $pattern . "$~";
 
         // 3. Attempt to match the URI against the pattern.
-        if ( preg_match( $pattern, $uri, $matches ) )
-        {
+        if ( preg_match( $pattern, $uri, $matches ) ) {
             // Remove the full match from the beginning of the array.
             array_shift( $matches );
             // Store the captured parameter values.
@@ -55,6 +52,22 @@ class Route
         }
 
         return false;
+    }
+
+    /**
+     * Gets the HTTP method for this route.
+     */
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    /**
+     * Gets the path for this route.
+     */
+    public function getPath(): string
+    {
+        return $this->path;
     }
 
     /**
@@ -70,7 +83,8 @@ class Route
      * Gets the captured URL parameters.
      * @return array
      */
-    public function getParams(): array {
+    public function getParams(): array
+    {
         return $this->params;
     }
 

@@ -74,6 +74,16 @@ class Response
     }
 
     /**
+     * Gets the HTTP status code of the response.
+     *
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+    /**
      * Assembles and sends the final HTTP response to the client.
      * This is the last thing that should happen in a request.
      */
@@ -83,8 +93,7 @@ class Response
         http_response_code( $this->statusCode );
 
         // 2. Send all registered headers
-        foreach ( $this->headers as $name => $value )
-        {
+        foreach ( $this->headers as $name => $value ) {
             header( "{$name}: {$value}" );
         }
 
