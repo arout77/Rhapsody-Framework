@@ -72,23 +72,39 @@
       ]
     }
     </script>
+    <style>
+        #theme-switcher-options {
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+        #theme-switcher-container.active #theme-switcher-options {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+    </style>
 </head>
 <body class="bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-700">
     <!-- Header, Main Content, Footer -->
     <header class="mb-6 px-8 py-4">
-        <div class="flex justify-between items-center">
-             <a href="{{ base_url }}/" class="flex items-center space-x-3 group">
-                <svg class="h-12 w-12 text-blue-800 dark:text-blue-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M30 85C20 75 22.5 57.5 35 50C47.5 42.5 60 50 60 50M60 50L75 25M60 50C60 60 50 72.5 40 75" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M75 25C77.5 22.5 80 25 77.5 27.5L62.5 42.5" stroke="currentColor" class="text-pink-500 dark:text-pink-400" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-4xl font-bold text-blue-800 dark:text-blue-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-300">Rhapsody</span>
-                {# <img src="{{ base_url }}/public/img/logo2.png"> #}
-            </a>
-
-            <div class="flex items-center space-x-1 p-1 bg-gray-300 dark:bg-gray-700 rounded-lg">
-                <button id="theme-light" title="Light Mode" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style="color: orange;"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg></button>
-                <button id="theme-dark" title="Dark Mode" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style="color: yellow;"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg></button>
-                <button id="theme-system" title="System Preference" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd" /></svg></button>
+        <div id="theme-switcher-container" class="relative">
+                <button id="theme-switcher-toggle" class="p-2 rounded-lg bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">
+                    <!-- Icon will be dynamically inserted by JS -->
+                </button>
+                <div id="theme-switcher-options" class="absolute top-full right-0 mt-2 w-max bg-gray-300 dark:bg-gray-700 rounded-lg shadow-lg p-1 flex flex-col space-y-1 opacity-0 transform -translate-y-2 pointer-events-none">
+                    <button id="theme-light" title="Light Mode" class="w-full flex items-center space-x-2 p-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style="color: orange;"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg>
+                        <span>Light</span>
+                    </button>
+                    <button id="theme-dark" title="Dark Mode" class="w-full flex items-center space-x-2 p-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style="color: yellow;"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
+                        <span>Dark</span>
+                    </button>
+                    <button id="theme-system" title="System Preference" class="w-full flex items-center space-x-2 p-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd" /></svg>
+                        <span>System</span>
+                    </button>
+                </div>
             </div>
-        </div>
         
         {# <nav class="mt-4 flex justify-between items-center">
             <div>
@@ -158,56 +174,71 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const themeSwitcherContainer = document.getElementById('theme-switcher-container');
+            const toggleBtn = document.getElementById('theme-switcher-toggle');
             const lightBtn = document.getElementById('theme-light');
             const darkBtn = document.getElementById('theme-dark');
             const systemBtn = document.getElementById('theme-system');
-            
-            const setActiveButton = (activeBtn) => {
-                [lightBtn, darkBtn, systemBtn].forEach(btn => btn.classList.remove('theme-active'));
+            const buttons = { light: lightBtn, dark: darkBtn, system: systemBtn };
+
+            const updateActiveIcon = () => {
+                const savedTheme = localStorage.getItem('theme');
+                let activeBtn;
+                if (savedTheme === 'light') activeBtn = lightBtn;
+                else if (savedTheme === 'dark') activeBtn = darkBtn;
+                else activeBtn = systemBtn;
+
+                // Update the main toggle button's icon
+                if (activeBtn) {
+                    toggleBtn.innerHTML = activeBtn.querySelector('svg').outerHTML;
+                }
+                
+                // Highlight the active button in the dropdown
+                Object.values(buttons).forEach(btn => btn.classList.remove('theme-active'));
                 if (activeBtn) activeBtn.classList.add('theme-active');
             };
 
             const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-            
-            const updateUI = () => {
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'light') setActiveButton(lightBtn);
-                else if (savedTheme === 'dark') setActiveButton(darkBtn);
-                else setActiveButton(systemBtn);
+                if (theme === 'dark') document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+                updateActiveIcon();
             };
 
+            // Toggle dropdown visibility
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                themeSwitcherContainer.classList.toggle('active');
+            });
+
+            // Close dropdown if clicking outside
+            document.addEventListener('click', () => {
+                themeSwitcherContainer.classList.remove('active');
+            });
+            
+            // Individual theme button actions
             lightBtn.addEventListener('click', () => {
                 localStorage.setItem('theme', 'light');
                 applyTheme('light');
-                updateUI();
             });
-
             darkBtn.addEventListener('click', () => {
                 localStorage.setItem('theme', 'dark');
                 applyTheme('dark');
-                updateUI();
             });
-
             systemBtn.addEventListener('click', () => {
                 localStorage.removeItem('theme');
                 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                 applyTheme(systemTheme);
-                updateUI();
             });
 
+            // Listen for OS theme changes
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                if (!localStorage.getItem('theme')) { // Only if "System" is active
+                if (!localStorage.getItem('theme')) {
                     applyTheme(e.matches ? 'dark' : 'light');
                 }
             });
 
-            updateUI(); // Set initial button state
+            // Initial state setup
+            updateActiveIcon();
 
             const updateLink = document.getElementById('update-notification-link');
             const updateModal = document.getElementById('update-modal');
