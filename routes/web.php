@@ -13,22 +13,23 @@ use Core\Router;
 // --- The routes below can be viewed by visitors and logged in users
 // --- DOCUMENTATION ROUTES ---
 Router::get( '/docs', [DocsController::class, 'index'] );
-Router::get( '/docs/installation', [DocsController::class, 'installation'] );
-Router::get( '/docs/routing', [DocsController::class, 'routing'] );
-Router::get( '/docs/controllers', [DocsController::class, 'controllers'] );
-Router::get( '/docs/models', [DocsController::class, 'models'] );
-Router::get( '/docs/views', [DocsController::class, 'views'] );
-Router::get( '/docs/validation', [DocsController::class, 'validation'] );
-Router::get( '/docs/middleware', [DocsController::class, 'middleware'] );
-Router::get( '/docs/cli', [DocsController::class, 'cli'] );
-Router::get( '/docs/mailer', [DocsController::class, 'mailer'] );
-Router::get( '/docs/seo', [DocsController::class, 'seo'] );
-Router::get( '/docs/doctrine', [DocsController::class, 'doctrine'] );
-Router::get( '/docs/pagination', [DocsController::class, 'pagination'] );
-Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
 Router::get( '/docs/caching', [DocsController::class, 'performance'] );
+Router::get( '/docs/cli', [DocsController::class, 'cli'] );
+Router::get( '/docs/controllers', [DocsController::class, 'controllers'] );
+Router::get( '/docs/doctrine', [DocsController::class, 'doctrine'] );
+Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
+Router::get( '/docs/installation', [DocsController::class, 'installation'] );
+Router::get( '/docs/logging', [DocsController::class, 'logging'] );
+Router::get( '/docs/mailer', [DocsController::class, 'mailer'] );
+Router::get( '/docs/middleware', [DocsController::class, 'middleware'] );
+Router::get( '/docs/models', [DocsController::class, 'models'] );
+Router::get( '/docs/pagination', [DocsController::class, 'pagination'] );
+Router::get( '/docs/routing', [DocsController::class, 'routing'] );
 Router::get( '/docs/security', [DocsController::class, 'security'] );
+Router::get( '/docs/seo', [DocsController::class, 'seo'] );
 Router::get( '/docs/updating', [DocsController::class, 'updating'] );
+Router::get( '/docs/validation', [DocsController::class, 'validation'] );
+Router::get( '/docs/views', [DocsController::class, 'views'] );
 
 Router::get( '/', [PageController::class, 'index'] );
 Router::get( '/about', [PageController::class, 'about'] );

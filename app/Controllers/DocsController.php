@@ -162,4 +162,12 @@ class DocsController extends BaseController
     {
         return $this->view( 'docs/performance.twig' );
     }
+
+    /**
+     * @return mixed
+     */
+    public function logging(): Response
+    {
+        return $this->view( 'docs/logging.twig' );
+    }
 }
