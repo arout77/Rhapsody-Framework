@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\QueryLogger;
 use Doctrine\DBAL\Logging\DebugStack;
 
 /**
@@ -47,15 +48,26 @@ class Debug
         $this->data['app_version']    = $config['app_version'] ?? 'N/A';
         $this->data['session']        = $_SESSION ?? [];
 
+        $doctrineQueries = [];
+        if ( $container->has( QueryLogger::class ) ) { // <-- Use QueryLogger
+            $doctrineQueries = $container->resolve( QueryLogger::class )->queries;
+        }
+
+        $pdoQueries            = TraceablePDO::getQueryLog();
+        $this->data['queries'] = array_merge( $doctrineQueries, $pdoQueries );
+
         // Get Doctrine Queries
         if ( $container->has( DebugStack::class ) ) {
             $this->data['queries'] = $container->resolve( DebugStack::class )->queries;
         }
 
-        // Get Log Files
+        // Use the new Logger class to read the logs
+        $phpLogger    = new Logger( $config['logging']['php_error_log_path'] ?? '' );
+        $apacheLogger = new Logger( $config['logging']['apache_error_log_path'] ?? '' );
+
         $this->data['logs'] = [
-            'php'    => $this->readLogFile( $config['logging']['php_error_log_path'] ?? '' ),
-            'apache' => $this->readLogFile( $config['logging']['apache_error_log_path'] ?? '' ),
+            'php'    => $phpLogger->read( 50 ),
+            'apache' => $apacheLogger->read( 50 ),
         ];
 
         if ( $route ) {

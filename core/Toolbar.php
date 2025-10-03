@@ -25,16 +25,20 @@ class Toolbar
         $queriesHtml = '';
         if ( $queryCount > 0 ) {
             foreach ( $this->data['queries'] as $query ) {
-                $sql    = htmlspecialchars( $query['sql'], ENT_QUOTES, 'UTF-8' );
-                $params = htmlspecialchars( json_encode( $query['params'] ), ENT_QUOTES, 'UTF-8' );
-                $time   = round( $query['executionMS'] * 1000, 2 );
+                $sql        = htmlspecialchars( $query['sql'], ENT_QUOTES, 'UTF-8' );
+                $params     = htmlspecialchars( json_encode( $query['params'] ), ENT_QUOTES, 'UTF-8' );
+                $time       = round( $query['executionMS'] * 1000, 2 );
+                $callerFile = $query['caller']['file'] ?? 'N/A';
+                $callerLine = $query['caller']['line'] ?? '-';
+
                 $queriesHtml .= "<div class='query-item'>
-                    <div class='query-sql'>{$sql}</div>
-                    <div class='query-meta'>
-                        <span>Params: {$params}</span>
-                        <span>Time: {$time}ms</span>
-                    </div>
-                </div>";
+                <div class='query-sql'>{$sql}</div>
+                <div class='query-meta'>
+                    <span>Params: {$params}</span>
+                    <span>Time: {$time}ms</span>
+                    <span style='margin-left: auto;'>{$callerFile}:{$callerLine}</span>
+                </div>
+            </div>";
             }
         } else {
             $queriesHtml = '<p>No queries were executed for this request.</p>';

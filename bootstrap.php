@@ -9,6 +9,7 @@ use Core\Cache\FileCacheDriver;
 use Core\Cache\RedisCacheDriver;
 use Core\Container;
 use Core\Mailer;
+use Core\QueryLogger;
 use Core\Session;
 use Core\Validator;
 use Doctrine\DBAL\DriverManager;
@@ -31,14 +32,12 @@ $container->bind( EntityManager::class, function () use ( $config ) {
     $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
 
     // Create the SQL logger
-    $sqlLogger = new DebugStack();
-    // Bind it to the container so we can access it later in the Debug class
-    $container->bind( DebugStack::class, fn() => $sqlLogger );
+    $sqlLogger = new QueryLogger();
+    $container->bind( QueryLogger::class, fn() => $sqlLogger );
 
     $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
     $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
 
-    // Attach the logger to the configuration
     $doctrineConfig->setSQLLogger( $sqlLogger );
 
     $dbParams = [
