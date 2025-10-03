@@ -44,6 +44,22 @@ class DocsController extends BaseController
     }
 
     /**
+     * @return mixed
+     */
+    public function request(): Response
+    {
+        return $this->view( 'docs/request.twig' );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function response(): Response
+    {
+        return $this->view( 'docs/response.twig' );
+    }
+
+    /**
      * Shows the controllers documentation.
      */
     public function controllers(): Response

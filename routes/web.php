@@ -24,6 +24,8 @@ Router::get( '/docs/mailer', [DocsController::class, 'mailer'] );
 Router::get( '/docs/middleware', [DocsController::class, 'middleware'] );
 Router::get( '/docs/models', [DocsController::class, 'models'] );
 Router::get( '/docs/pagination', [DocsController::class, 'pagination'] );
+Router::get( '/docs/request', [DocsController::class, 'request'] );
+Router::get( '/docs/response', [DocsController::class, 'response'] );
 Router::get( '/docs/routing', [DocsController::class, 'routing'] );
 Router::get( '/docs/security', [DocsController::class, 'security'] );
 Router::get( '/docs/seo', [DocsController::class, 'seo'] );
