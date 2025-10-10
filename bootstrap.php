@@ -2,12 +2,14 @@
 
 // bootstrap.php
 
+use App\Providers\EventServiceProvider;
 use App\Services\NotificationService;
 use Core\Cache;
 use Core\Cache\CacheInterface;
 use Core\Cache\FileCacheDriver;
 use Core\Cache\RedisCacheDriver;
 use Core\Container;
+use Core\Events\EventDispatcher;
 use Core\Mailer;
 use Core\QueryLogger;
 use Core\Session;
@@ -25,6 +27,12 @@ use Twig\Loader\FilesystemLoader;
 // 1. Create a new Service Container instance.
 $container = new Container();
 $config    = require __DIR__ . '/config.php';
+
+// --- EVENT DISPATCHER BINDING ---
+$container->bind( EventDispatcher::class, function ( Container $c ) {
+    $eventServiceProvider = new EventServiceProvider();
+    return new EventDispatcher( $c, $eventServiceProvider->getListeners() );
+} );
 
 // --- DOCTRINE ENTITY MANAGER BINDING ---
 // Uncomment to enable Doctrine
@@ -91,7 +99,7 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config ) 
         'user'  => Session::has( 'user_id' ) ? ( new \App\Models\User() )->getUserById( Session::get( 'user_id' ) ) : null,
     ];
     $twig->addGlobal( 'auth', $auth );
-    $twig->addGlobal( 'base_url', 'http://localhost/rhapsody' );
+    $twig->addGlobal( 'base_url', $_ENV['APP_URL'] );
     // --- LAZY-LOADED FLASH MESSAGES ---
     // This object defers calling getFlash() until the template actually accesses the property (e.g., {{ flash.success }})
     $flash = new class {

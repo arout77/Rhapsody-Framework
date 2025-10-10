@@ -33,6 +33,8 @@ $commands = [
     App\Commands\EnvSyncCommand::class,
     App\Commands\UpdateCommand::class,
     App\Commands\CheckVersionCommand::class,
+    App\Commands\MakeEventCommand::class,
+    App\Commands\MakeListenerCommand::class,
 ];
 
 // 4. Use the container to resolve and register each command

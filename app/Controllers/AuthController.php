@@ -3,7 +3,9 @@
 namespace App\Controllers;
 
 use App\Entities\User; // Use the new User Entity
+use App\Events\UserRegistered;
 use Core\BaseController;
+use Core\Events\EventDispatcher;
 use Core\Request;
 use Core\Response;
 use Core\Session;
@@ -17,10 +19,12 @@ class AuthController extends BaseController
      * @param EntityManager $em
      * @param Validator $validator
      * @param Environment $twig
+     * @param EventDispatcher $dispatcher
      */
     public function __construct(
         protected EntityManager $em, // Inject the EntityManager
         protected Validator $validator,
+        protected EventDispatcher $dispatcher,
         Environment $twig
     ) {
         parent::__construct( $twig );
@@ -84,6 +88,12 @@ class AuthController extends BaseController
             // Tell Doctrine to save the user
             $this->em->persist( $user );
             $this->em->flush(); // This executes the INSERT query
+
+            // --- DISPATCH THE EVENT ---
+            // The controller's job is done. It just announces that a user
+            // has registered. It doesn't know or care about what happens next
+            // (e.g., sending emails, updating stats, etc.).
+            $this->dispatcher->dispatch( new UserRegistered( $user ) );
 
             // Automatically log the new user in
             Session::regenerate();
