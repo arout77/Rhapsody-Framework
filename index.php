@@ -17,7 +17,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 \Core\Debug::getInstance()->start();
 
 // --- ADD MAINTENANCE MODE CHECK ---
-$maintenanceFile = __DIR__ . '/../storage/framework/down';
+$maintenanceFile = __DIR__ . '/storage/framework/down';
 if ( file_exists( $maintenanceFile ) ) {
     http_response_code( 503 );
     echo "<h1>Be right back.</h1><p>We are currently performing scheduled maintenance. Please check back soon.</p>";

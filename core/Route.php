@@ -20,6 +20,20 @@ class Route
     }
 
     /**
+     * A "magic" method used by var_export() for route caching.
+     * It allows PHP to reconstruct the Route object from the cache file.
+     *
+     * @param array $properties An array of properties to set on the new object.
+     * @return self A new instance of the Route class.
+     */
+    public static function __set_state( array $properties ): self
+    {
+        $route             = new self( $properties['method'], $properties['path'], $properties['callback'] );
+        $route->middleware = $properties['middleware'] ?? null;
+        return $route;
+    }
+
+    /**
      * Checks if this route matches the given request method and path.
      * It now supports dynamic segments like /posts/{id}.
      *

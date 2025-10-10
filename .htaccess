@@ -1,15 +1,24 @@
-# Enable the URL rewriting engine
-RewriteEngine On
+# --- Enable the URL rewriting engine
+# RewriteEngine On
 
 # --- This rule is helpful for SEO and consistency ---
-# Redirect Trailing Slashes If Not a Folder...
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)/$ /$1 [L,R=301]
+# --- Redirect Trailing Slashes If Not a Folder...
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)/$ /$1 [L,R=301]
 
-# --- These are the most important rules ---
-# If the requested file or directory doesn't physically exist on the server...
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# --- If the requested file or directory doesn't physically exist on the server...
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
 
-# ...then reroute the request to be handled by index.php
-RewriteRule ^ index.php [L]
+# --- ...then reroute the request to be handled by index.php
+# RewriteRule ^ index.php [L]
+
+# --- The below should work for Apache Server 2.2.16 and later. 
+# --- If your site is installed in a subdirectory, make sure to 
+# --- include the subdirectory name:
+#
+# --- FallbackResource /subdir_name/index.php
+#
+# --- If you experience issues with routing or mod_rewrite, 
+# --- comment this out and uncomment the rules above.
+FallbackResource /rhapsody/index.php

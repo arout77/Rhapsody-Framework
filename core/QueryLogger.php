@@ -4,57 +4,50 @@ namespace Core;
 
 use Doctrine\DBAL\Logging\SQLLogger;
 
+/**
+ * A simple SQL logger that counts and times queries.
+ * This is used by the Debug Toolbar.
+ */
 class QueryLogger implements SQLLogger
 {
-    public array $queries = [];
-    private ?float $startTime = null;
+    public array $queries     = [];
+    private float $start_time = 0;
 
-    public function startQuery($sql, ?array $params = null, ?array $types = null): void
+    /**
+     * @param $sql
+     * @param array $params
+     * @param array $types
+     */
+    public function startQuery( $sql, ?array $params = null, ?array $types = null )
     {
-        $this->startTime = microtime(true);
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        $caller = null;
-        $projectRoot = dirname(__DIR__, 2);
-
-        foreach ($trace as $entry) {
-            if (!isset($entry['file'])) {
-                continue;
-            }
-            
-            $file = str_replace('\\', '/', $entry['file']);
-
-            // If the file is outside our project root, skip it
-            if (strpos($file, str_replace('\\', '/', $projectRoot)) === false) {
-                continue;
-            }
-
-            // Skip any file inside the 'vendor' or 'core' directory
-            $isVendorFile = strpos($file, '/vendor/') !== false;
-            $isCoreFile = strpos($file, '/core/') !== false;
-
-            if (!$isVendorFile && !$isCoreFile) {
-                $caller = [
-                    'file' => str_replace(str_replace('\\', '/', $projectRoot) . '/', '', $file),
-                    'line' => $entry['line'],
-                ];
-                break; 
-            }
-        }
-        
-        $this->queries[] = [
-            'sql' => $sql,
-            'params' => $params,
-            'types' => $types,
-            'executionMS' => 0,
-            'caller' => $caller,
+        $this->start_time = microtime( true );
+        $this->queries[]  = [
+            'sql'            => $sql,
+            'params'         => $params,
+            'types'          => $types,
+            'execution_time' => 0,
         ];
     }
 
-    public function stopQuery(): void
+    public function stopQuery()
     {
-        $lastQueryKey = array_key_last($this->queries);
-        if ($lastQueryKey !== null) {
-            $this.queries[$lastQueryKey]['executionMS'] = microtime(true) - $this->startTime;
+        $last_query_key = array_key_last( $this->queries );
+        if ( $last_query_key !== null ) {
+            $this->queries[$last_query_key]['execution_time'] = microtime( true ) - $this->start_time;
+        }
+    }
+
+    public function __destruct()
+    {
+        // This is a failsafe. If a query is started but never stopped
+        // (e.g., due to an exception), we'll mark its time as 'unfinished'.
+        $last_query_key = array_key_last( $this->queries );
+
+        if ( $last_query_key !== null ) {
+            // Use a direct isset() check to avoid the "temporary expression" error.
+            if ( isset( $this->queries[$last_query_key]['execution_time'] ) && $this->queries[$last_query_key]['execution_time'] === 0 ) {
+                $this->queries[$last_query_key]['execution_time'] = 'unfinished';
+            }
         }
     }
 }

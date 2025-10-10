@@ -4,8 +4,7 @@
     <h1>Routing</h1>
     <p>
         The router is the heart of the Rhapsody framework. It maps incoming browser requests to specific controller methods,
-        allowing you to create clean, human-readable URLs. All routes for your web application are defined in the
-        <code>routes/web.php</code> file.
+        allowing you to create clean, human-readable URLs. All routes for your web application are defined in the <code>/routes/web.php</code> and <code>/routes/api.php</code> files.
     </p>
 
     <h2>Basic Routing</h2>
@@ -45,9 +44,9 @@ public function viewUser(Request $request, string $user_id)
     <p><strong>Important:</strong> The router always passes the <code>Core\Request</code> object as the first argument to your controller method, followed by any dynamic route parameters in the order they appear in the URI.</p>
 
     <h2>Route Naming and URL Generation</h2>
-    <p>Currently, Rhapsody does not have named routes. URLs should be generated in your views using the global <code>base_url</code> variable to ensure they work correctly, especially in a subdirectory setup.</p>
+    <p>Currently, Rhapsody does not have named routes. URLs should be generated in your views using the global <code>base_url</code> Twig variable to ensure they work correctly, especially in a subdirectory setup.</p>
     <pre><code class="language-twig">&lt;!-- In a Twig template --&gt;
-&lt;a href="{{ base_url }}/users"&gt;View All Users&lt;/a&gt;
-&lt;a href="{{ base_url }}/users/{{ user.user_id }}"&gt;View Profile&lt;/a&gt;</code></pre>
+&lt;a href="&lcub;&lcub; base_url }}/users"&gt;View All Users&lt;/a&gt;
+&lt;a href="&lcub;&lcub; base_url }}/users/{{ user.user_id }}"&gt;View Profile&lt;/a&gt;</code></pre>
 
 {% endblock %}

@@ -23,8 +23,13 @@
     <meta property="twitter:title" content="{{ meta.title }}">
     <meta property="twitter:description" content="{{ meta.description|e('html_attr') }}">
     <meta property="twitter:image" content="{{ base_url }}/public/img/logo.png">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="{{ base_url }}/public/css/style.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script>
         // This script runs before the rest of the page to prevent "flashing"
         // It sets the theme based on the user's saved preference or OS setting.
@@ -75,12 +80,13 @@
 </head>
 <body class="bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-700">
     <!-- Header, Main Content, Footer -->
-    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40">
+    <header class="glass shadow-md sticky top-0 z-40">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex-shrink-0">
-                    <a href="{{ base_url }}/" class="flex items-center space-x-3 group logo">
-                        <img src="{{ base_url }}/public/img/rhap.png">
+                    <a href="{{ base_url }}/" class="flex items-center space-x-3 group text-2xl logo">
+                        {# <img src="{{ base_url }}/public/img/rhap.png"> #}
+                        Rhapsody
                     </a>
                 </div>
 

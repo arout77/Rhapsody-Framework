@@ -84,6 +84,16 @@ class Response
     }
 
     /**
+     * Gets all headers set for the response.
+     *
+     * @return array
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
      * Assembles and sends the final HTTP response to the client.
      * This is the last thing that should happen in a request.
      */

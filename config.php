@@ -23,7 +23,7 @@ return [
      */
     'base_url'           => $_ENV['APP_BASE_URL'] ?? '/rhapsody',
     'app_env'            => $_ENV['APP_ENV'] ?? 'production',
-    'app_version'        => 'v1.3.0',
+    'app_version'        => 'v1.3.1',
     'cache'              => [
         'driver' => $_ENV['CACHE_DRIVER'] ?? 'file',
     ],

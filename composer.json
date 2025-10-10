@@ -21,6 +21,7 @@
         "doctrine/orm": "^2.17",
         "doctrine/dbal": "^3.7",
         "symfony/cache": "^7.0",
-        "predis/predis": "^2.2"
+        "predis/predis": "^2.2",
+        "intervention/image": "^3.11"
     }
 }

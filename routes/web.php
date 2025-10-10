@@ -18,6 +18,7 @@ Router::get( '/docs/cli', [DocsController::class, 'cli'] );
 Router::get( '/docs/controllers', [DocsController::class, 'controllers'] );
 Router::get( '/docs/doctrine', [DocsController::class, 'doctrine'] );
 Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
+Router::get( '/docs/image-processing', [DocsController::class, 'imageProcessing'] );
 Router::get( '/docs/installation', [DocsController::class, 'installation'] );
 Router::get( '/docs/logging', [DocsController::class, 'logging'] );
 Router::get( '/docs/mailer', [DocsController::class, 'mailer'] );
@@ -39,11 +40,6 @@ Router::get( '/contact', [App\Controllers\PageController::class, 'contact'] );
 Router::post( '/contact', [App\Controllers\PageController::class, 'handleContact'] );
 
 Router::get( '/sitemap.xml', [SitemapController::class, 'generate'] );
-
-// You can also still use closures for simple, one-off routes if you wish.
-Router::get( '/hello', function () {
-    return "<h1>Hello, World!</h1>";
-} );
 
 Router::get( '/logout', [AuthController::class, 'logout'] );
 

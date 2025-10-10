@@ -186,4 +186,12 @@ class DocsController extends BaseController
     {
         return $this->view( 'docs/logging.twig' );
     }
+
+    /**
+     * @return mixed
+     */
+    public function imageProcessing()
+    {
+        return $this->view( 'docs/image-processing.twig' );
+    }
 }

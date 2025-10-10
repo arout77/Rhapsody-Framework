@@ -32,7 +32,7 @@ class PageController extends BaseController
      */
     public function index(): Response
     {
-        return $this->view( 'home/welcome.twig' );
+        return $this->view( 'home/landing.twig' );
     }
 
     /**
@@ -98,8 +98,7 @@ class PageController extends BaseController
         $usersPerPage = (int) $request->getQueryParam( 'limit', $defaultLimit );
 
         // 3. Ensure the selected limit is a valid one.
-        if ( !in_array( $usersPerPage, $allowedLimits ) )
-        {
+        if ( !in_array( $usersPerPage, $allowedLimits ) ) {
             $usersPerPage = $defaultLimit;
         }
 
@@ -133,8 +132,7 @@ class PageController extends BaseController
         $uid       = preg_replace( "/[^a-zA-Z0-9]/", "", $user_id );
         $userData  = $userModel->getUserById( $uid );
 
-        if ( !$userData )
-        {
+        if ( !$userData ) {
             // Handle user not found, maybe redirect or show a 404
             return redirect( '/users' )->with( 'error', 'User not found.' );
         }
@@ -173,8 +171,7 @@ class PageController extends BaseController
             'message' => 'required|min:10|max:1000',
         ];
 
-        if ( $validator->validate( $data, $rules ) )
-        {
+        if ( $validator->validate( $data, $rules ) ) {
             // Validation Passed
             $mailer   = new Mailer();
             $to       = $_ENV['MAIL_FROM_ADDRESS'] ?? 'admin@example.com';
@@ -184,9 +181,7 @@ class PageController extends BaseController
             try {
                 $mailer->send( $to, $subject, $htmlBody );
                 Session::flash( 'success', 'Your message has been sent successfully!' );
-            }
-            catch ( \Exception $e )
-            {
+            } catch ( \Exception $e ) {
                 error_log( $e->getMessage() ); // Log the actual error
                 Session::flash( 'error', 'Sorry, we could not send your message at this time.' );
             }
@@ -200,9 +195,7 @@ class PageController extends BaseController
             exit();
             // --- END FIX ---
 
-        }
-        else
-        {
+        } else {
             // Validation Failed
             return $this->view( 'contact/contact.twig', [
                 'errors' => $validator->getErrors(),
@@ -241,14 +234,11 @@ class PageController extends BaseController
             'avatar'     => 'required|image|mimes:jpeg,png',
         ];
 
-        if ( $validator->validate( $data, $rules ) )
-        {
+        if ( $validator->validate( $data, $rules ) ) {
             $response = new Response();
             $response->setContent( "<h1>Registration Successful!</h1><p>Welcome, {$data['username']}!</p>" );
             return $response;
-        }
-        else
-        {
+        } else {
             return $this->view( 'register.twig', [
                 'errors' => $validator->getErrors(),
                 'old'    => $postData,
@@ -274,15 +264,12 @@ class PageController extends BaseController
         $uploader->setAllowedMimes( ['image/jpeg', 'image/png', 'application/pdf'] )
                  ->setMaxSize( 5 * 1024 * 1024 ); // 5 MB
 
-        if ( $uploader->handle( 'documents' ) )
-        {
+        if ( $uploader->handle( 'documents' ) ) {
             return $this->json( [
                 'success' => true,
                 'files'   => $uploader->getUploadedFiles(),
             ] );
-        }
-        else
-        {
+        } else {
             return $this->json( [
                 'success' => false,
                 'errors'  => $uploader->getErrors(),

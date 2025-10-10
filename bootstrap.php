@@ -27,31 +27,32 @@ $container = new Container();
 $config    = require __DIR__ . '/config.php';
 
 // --- DOCTRINE ENTITY MANAGER BINDING ---
-$container->bind( EntityManager::class, function () use ( $config ) {
-    $paths     = [__DIR__ . '/app/Entities'];
-    $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
+// Uncomment to enable Doctrine
+// $container->bind( EntityManager::class, function () use ( $config ) {
+//     $paths     = [__DIR__ . '/app/Entities'];
+//     $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
 
-    // Create the SQL logger
-    $sqlLogger = new QueryLogger();
-    $container->bind( QueryLogger::class, fn() => $sqlLogger );
+//     // Create the SQL logger
+//     $sqlLogger = new QueryLogger();
+//     $container->bind( QueryLogger::class, fn() => $sqlLogger );
 
-    $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
-    $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
+//     $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
+//     $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
 
-    $doctrineConfig->setSQLLogger( $sqlLogger );
+//     $doctrineConfig->setSQLLogger( $sqlLogger );
 
-    $dbParams = [
-        'driver'   => 'pdo_mysql',
-        'host'     => $_ENV['DB_HOST'],
-        'user'     => $_ENV['DB_USER'],
-        'password' => $_ENV['DB_PASS'],
-        'dbname'   => $_ENV['DB_NAME'],
-        'charset'  => 'utf8mb4',
-    ];
+//     $dbParams = [
+//         'driver'   => 'pdo_mysql',
+//         'host'     => $_ENV['DB_HOST'],
+//         'user'     => $_ENV['DB_USER'],
+//         'password' => $_ENV['DB_PASS'],
+//         'dbname'   => $_ENV['DB_NAME'],
+//         'charset'  => 'utf8mb4',
+//     ];
 
-    $connection = DriverManager::getConnection( $dbParams, $doctrineConfig );
-    return new EntityManager( $connection, $doctrineConfig );
-} );
+//     $connection = DriverManager::getConnection( $dbParams, $doctrineConfig );
+//     return new EntityManager( $connection, $doctrineConfig );
+// } );
 
 // --- CACHE SYSTEM BINDING ---
 $container->bind( CacheInterface::class, function () use ( $config ) {
@@ -74,15 +75,46 @@ $container->bind( Cache::class, function ( Container $c ) {
 // --- TWIG BINDING ---
 $container->bind( Environment::class, function ( Container $c ) use ( $config ) {
     $loader = new FilesystemLoader( __DIR__ . '/views' );
-    $twig   = new Environment( $loader, ['debug' => true] );
+    // --- TWIG CACHING ENABLED ---
+    $isDevelopment = ( $config['app_env'] === 'development' );
+    $twigOptions   = [
+        'debug' => $isDevelopment,
+        'cache' => __DIR__ . '/storage/cache/twig', // The path to the cache directory
+        'auto_reload' => $isDevelopment, // In dev, automatically recompile templates if they change
+    ];
+
+    $twig = new Environment( $loader, $twigOptions );
     $twig->addGlobal( 'app_url', $_ENV['APP_URL'] ?? '' );
+    $twig->addGlobal( 'app_env', $_ENV['APP_ENV'] ?? 'production' );
     $auth = [
         'check' => Session::has( 'user_id' ),
         'user'  => Session::has( 'user_id' ) ? ( new \App\Models\User() )->getUserById( Session::get( 'user_id' ) ) : null,
     ];
     $twig->addGlobal( 'auth', $auth );
-    $twig->addGlobal( 'base_url', $config['base_url'] );
-    $twig->addGlobal( 'flash', ['success' => Session::getFlash( 'success' ), 'error' => Session::getFlash( 'error' )] );
+    $twig->addGlobal( 'base_url', 'http://localhost/rhapsody' );
+    // --- LAZY-LOADED FLASH MESSAGES ---
+    // This object defers calling getFlash() until the template actually accesses the property (e.g., {{ flash.success }})
+    $flash = new class {
+        /**
+         * @param $name
+         */
+        public function __get( $name )
+        {
+            // This magic method is called on first access in Twig, e.g., {{ flash.success }}
+            // It retrieves and simultaneously removes the message from the session.
+            return \Core\Session::getFlash( $name );
+        }
+        /**
+         * @param $name
+         */
+        public function __isset( $name )
+        {
+            // This magic method is called for checks like {% if flash.success %}
+            // It checks for the message without removing it.
+            return \Core\Session::hasFlash( $name );
+        }
+    };
+    $twig->addGlobal( 'flash', $flash );
 
     $cache = $c->resolve( Cache::class );
     $twig->addGlobal( 'update_available', $cache->get( 'update_available' ) );
@@ -95,6 +127,7 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config ) 
 } );
 
 // --- OTHER CORE SERVICES ---
+$container->bind( \App\Services\CareerService::class );
 $container->bind( Mailer::class );
 $container->bind( Validator::class );
 $container->bind( \Core\Request::class, fn() => new \Core\Request() );

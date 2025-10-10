@@ -30,8 +30,8 @@ abstract class BaseController
     {
         // Add default values for meta tags
         $defaults = [
-            'title'       => 'Welcome to Rhapsody',
-            'description' => 'An elegant, lightweight PHP framework.',
+            'title'       => 'Step into the ring with IWF - The Ultimate Online Wrestling Simulator',
+            'description' => 'Create dream matches, play through a career mode, and book your own shows with a roster of wrestling legends.',
         ];
         $args['meta'] = array_merge( $defaults, $meta );
 
