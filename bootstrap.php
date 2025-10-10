@@ -91,7 +91,7 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config ) 
         'user'  => Session::has( 'user_id' ) ? ( new \App\Models\User() )->getUserById( Session::get( 'user_id' ) ) : null,
     ];
     $twig->addGlobal( 'auth', $auth );
-    $twig->addGlobal( 'base_url', 'http://localhost/rhapsody' );
+    $twig->addGlobal( 'base_url', '' );
     // --- LAZY-LOADED FLASH MESSAGES ---
     // This object defers calling getFlash() until the template actually accesses the property (e.g., {{ flash.success }})
     $flash = new class {
