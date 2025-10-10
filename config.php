@@ -21,7 +21,7 @@ return [
     /**
      * The base URL of your application.
      */
-    'base_url'           => $_ENV['APP_BASE_URL'] ?? '/rhapsody',
+    'base_url'           => $_ENV['APP_BASE_URL'] ?? '/',
     'app_env'            => $_ENV['APP_ENV'] ?? 'production',
     'app_version'        => 'v1.3.1',
     'cache'              => [
