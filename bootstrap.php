@@ -35,32 +35,31 @@ $container->bind( EventDispatcher::class, function ( Container $c ) {
 } );
 
 // --- DOCTRINE ENTITY MANAGER BINDING ---
-// Uncomment to enable Doctrine
-// $container->bind( EntityManager::class, function () use ( $config ) {
-//     $paths     = [__DIR__ . '/app/Entities'];
-//     $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
+$container->bind( EntityManager::class, function ( $container ) use ( $config ) {
+    $paths     = [__DIR__ . '/app/Entities'];
+    $isDevMode = ( $config['app_env'] ?? 'production' ) === 'development';
 
-//     // Create the SQL logger
-//     $sqlLogger = new QueryLogger();
-//     $container->bind( QueryLogger::class, fn() => $sqlLogger );
+    // Create the SQL logger
+    $sqlLogger = new QueryLogger();
+    $container->bind( QueryLogger::class, fn() => $sqlLogger );
 
-//     $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
-//     $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
+    $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter( '', 0, __DIR__ . '/storage/cache/doctrine' );
+    $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration( $paths, $isDevMode, null, $cache );
 
-//     $doctrineConfig->setSQLLogger( $sqlLogger );
+    $doctrineConfig->setSQLLogger( $sqlLogger );
 
-//     $dbParams = [
-//         'driver'   => 'pdo_mysql',
-//         'host'     => $_ENV['DB_HOST'],
-//         'user'     => $_ENV['DB_USER'],
-//         'password' => $_ENV['DB_PASS'],
-//         'dbname'   => $_ENV['DB_NAME'],
-//         'charset'  => 'utf8mb4',
-//     ];
+    $dbParams = [
+        'driver'   => 'pdo_mysql',
+        'host'     => $_ENV['DB_HOST'],
+        'user'     => $_ENV['DB_USER'],
+        'password' => $_ENV['DB_PASS'],
+        'dbname'   => $_ENV['DB_NAME'],
+        'charset'  => 'utf8mb4',
+    ];
 
-//     $connection = DriverManager::getConnection( $dbParams, $doctrineConfig );
-//     return new EntityManager( $connection, $doctrineConfig );
-// } );
+    $connection = DriverManager::getConnection( $dbParams, $doctrineConfig );
+    return new EntityManager( $connection, $doctrineConfig );
+} );
 
 // --- CACHE SYSTEM BINDING ---
 $container->bind( CacheInterface::class, function () use ( $config ) {
