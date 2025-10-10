@@ -5,7 +5,7 @@
 
 @import './colormap.css';
 
-.logo, h1, h2, h3, h4, h5, h6 { font-family: Montserrat; }
+.logo, h1, h2, h3, h4, h5, h6 { font-family: Montserrat, Poppins; }
 .logo img { height: 40px !important; width: auto; }
 
 .nav-link {
@@ -276,3 +276,291 @@
     background-position: 0 0;
   }
 }
+
+/* Glassmorphism effect */
+.glass {
+  background-color: rgb(53 0 76 / 23%);
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border: 1px solid var(--roster-border); /* Subtle light border */
+  box-shadow: inset -3px 9px 32px 20px rgba(0, 0, 0, 0.37); /* Shadow for depth */
+  width: -webkit-fill-available;
+}
+
+/* Animated Background Elements */
+.animated-blob {
+  position: absolute;
+  background: radial-gradient(circle, var(--color-start), var(--color-end));
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.3;
+  animation: float-and-fade var(--duration) ease-in-out infinite alternate var(--delay);
+  z-index: -100;
+  pointer-events: none;
+}
+
+/* Rainbow glow - STARTS */
+.rainbowGlow::before,
+.rainbowGlow::after {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  background: linear-gradient(45deg, #ff0000, #ff8700, #ffff00, #25ff00, #00ffe9, #0032ff, #9800ff, #f200ff, #ff0000, #ff8700, #ffff00, #25ff00, #00ffe9, #0032ff);
+  background-size: 400%;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  z-index: -1;
+  animation: animateBorder 3s linear infinite;
+}
+
+@keyframes animateBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 89% 50%;
+  }
+}
+.rainbowGlow::before {
+  box-shadow: 0 0 5px black;
+}
+
+.rainbowGlow::after {
+  filter: blur(40px);
+  z-index: -2;
+  /*   opacity: 0.5; */
+}
+
+/* Rainbow glow - ENDS */
+/* White glow - STARTS */
+:root {
+  --white08: rgba(255, 255, 255, 0.8);
+  --white05: rgba(255, 255, 255, 0.5);
+  --white009: rgba(255, 255, 255, 0.09);
+  --white001: rgba(255, 255, 255, 0.01);
+  --borderSize: 10px;
+}
+
+.whiteGlow {
+  border: black 1px solid;
+  box-shadow: 0 0 0 calc(var(--borderSize) / 2) rgba(255, 255, 255, 0.05);
+}
+
+.whiteGlow::before,
+.whiteGlow::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--borderSize) / 2 * -1);
+  top: calc(var(--borderSize) / 2 * -1);
+  background: linear-gradient(45deg, var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white009), var(--white05), var(--white08), var(--white05), var(--white009), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001), var(--white001));
+  background-size: 300%;
+  width: calc(100% + var(--borderSize));
+  height: calc(100% + var(--borderSize));
+  animation: whitePulsatingBorder 1.7s ease-in-out infinite;
+}
+
+.whiteGlow::before {
+  z-index: -1;
+  box-shadow: 0 0 0 1 black;
+}
+
+.whiteGlow::after {
+  filter: blur(40px);
+  z-index: -2;
+  /*   opacity: 0.5; */
+}
+
+@keyframes whitePulsatingBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 150% 50%;
+  }
+}
+/* White glow - ENDS */
+/* Conical Pulse - STARTS */
+.conicalPulse {
+  overflow: hidden;
+  background: transparent;
+  border: rgba(255, 255, 255, 0.09) 1px solid;
+}
+
+.conicalPulse::before,
+.conicalPulse::after {
+  z-index: -1;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 600%;
+  height: 600%;
+  transform: translate(-50%, -50%);
+}
+
+.conicalPulse::before {
+  animation: rotate 2s linear forwards infinite;
+  background: conic-gradient(transparent, #fff 70deg, transparent 71deg);
+}
+
+.conicalPulse::after {
+  background: linear-gradient(0deg, #000, #333);
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  border: rgba(255, 255, 255, 0.01) 1px solid;
+}
+
+@keyframes rotate {
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+/* Conical Pulse - ENDS */
+/* Conical Rainbow - STARTS */
+.conicalRainbow {
+  overflow: hidden;
+}
+
+.conicalRainbow::before {
+  content: "";
+  position: absolute;
+  height: 500%;
+  width: 500%;
+  background: conic-gradient(#fd004c, #fe9000, #fff020, #3edf4b, #3363ff, #b102b7, #fd004c);
+  left: -200%;
+  top: -200%;
+  animation: rainbowRotate 1.5s linear forwards infinite;
+}
+
+@keyframes rainbowRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.conicalRainbow::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: linear-gradient(0deg, rgb(31, 15, 89), rgb(19, 0, 56));
+}
+
+/* Conical Rainbow - ENDS */
+/* Conical Rainbow Pulse - STARTS */
+.conicalRainbowPulse {
+  overflow: hidden;
+}
+
+.conicalRainbowPulse::before {
+  content: "";
+  position: absolute;
+  height: 500%;
+  width: 500%;
+  background: conic-gradient(transparent, #fd004c 51deg, #fd004c 52deg, transparent 52deg, #fe9000 102deg, #fe9000 103deg, transparent 103deg, #fff020 153deg, #fff020 154deg, transparent 154deg, #3edf4b 204deg, #3edf4b 205deg, transparent 205deg, #7192ff 255deg, #3363ff 256deg, transparent 256deg, #b102b7 306deg, #85048a 307deg, transparent 307deg, #bb0707 359deg, #bb0707 360deg, transparent 360deg);
+  left: -200%;
+  top: -200%;
+  animation: rainbowRotate 4s linear forwards infinite;
+}
+
+@keyframes rainbowRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.conicalRainbowPulse::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: linear-gradient(0deg, #000, #333);
+}
+
+/* Conical Rainbow Pulse - ENDS */
+/* Conical Repeating Pulse - STARTS */
+.conicalRepeatingPulse {
+  background: repeating-conic-gradient(from var(--angle), rgb(255, 0, 0) 0%, rgb(255, 0, 0) 5%, transparent 5%, transparent 40%, rgb(255, 0, 0) 50%);
+  animation: neonLightsRotate 4s linear forwards infinite;
+  border: 1px solid #171717;
+}
+
+.conicalRepeatingPulse::before,
+.conicalRepeatingPulse::after,
+.cardContent {
+  position: absolute;
+}
+
+.conicalRepeatingPulse::before,
+.conicalRepeatingPulse::after {
+  content: "";
+}
+
+.conicalRepeatingPulse::before {
+  width: 100%;
+  height: 100%;
+  background: repeating-conic-gradient(from var(--angle), rgb(0, 0, 255) 0%, rgb(0, 0, 255) 5%, transparent 5%, transparent 40%, rgb(0, 0, 255) 50%);
+  animation: neonLightsRotate 4s linear forwards infinite;
+  /*   filter: drop-shadow(0 0 15px rgb(0, 0, 255)); */
+  animation-delay: -1s;
+}
+
+.conicalRepeatingPulse::after {
+  inset: 4px;
+  background: linear-gradient(0deg, #000, #333);
+}
+
+.conicalRepeatingPulse::after,
+.cardContent {
+  inset: 4px;
+}
+
+.cardContent {
+  z-index: 1;
+  border: #171717 1px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes neonLightsRotate {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
+/* Conical Repeating Pulse - ENDS */
+/* Conical Glass - STARTS */
+/* Reference: https://codepen.io/michellebarker/pen/gOMBPQj */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 90deg;
+  inherits: true;
+}
+:root {
+  --angle: 90deg;
+  --c1: rgba(255, 255, 255, 0.75);
+  --c2: rgba(0, 0, 0, 0.75);
+}
+
+.conicalRepeatingPulse small,
+.conicalGlass small {
+  color: #888;
+  font-size: x-small;
+  letter-spacing: 2px;
+}
+
+.conicalGlass {
+  flex-direction: column;
+  border: 2px solid;
+  border-image: conic-gradient(from var(--angle), var(--c2), var(--c1) 0.1turn, var(--c1) 0.15turn, var(--c2) 0.25turn) 30;
+  animation: borderRotate 2.5s linear infinite forwards;
+  box-shadow: inset 0 0 0 1px black;
+}
+
+@keyframes borderRotate {
+  100% {
+    --angle: 420deg;
+  }
+}
+/* Conical Glass - ENDS */

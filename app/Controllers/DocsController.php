@@ -194,4 +194,12 @@ class DocsController extends BaseController
     {
         return $this->view( 'docs/image-processing.twig' );
     }
+
+    /**
+     * Shows the events documentation.
+     */
+    public function events(): Response
+    {
+        return $this->view( 'docs/events.twig' );
+    }
 }

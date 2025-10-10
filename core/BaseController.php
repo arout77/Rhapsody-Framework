@@ -30,8 +30,8 @@ abstract class BaseController
     {
         // Add default values for meta tags
         $defaults = [
-            'title'       => 'Step into the ring with IWF - The Ultimate Online Wrestling Simulator',
-            'description' => 'Create dream matches, play through a career mode, and book your own shows with a roster of wrestling legends.',
+            'title'       => 'Rhapsody - Compose your masterpiece',
+            'description' => 'Rhapsody is a modern PHP framework for developers who find full-stack frameworks like Laravel too heavy for their needs, but find micro-frameworks like Slim too bare-bones. It gives you the modern tooling you love—like a powerful CLI, dependency injection, and an ORM—in a simple, performant, and elegant package. It\'s the perfect choice for building fast, maintainable web applications and APIs without the overhead.',
         ];
         $args['meta'] = array_merge( $defaults, $meta );
 

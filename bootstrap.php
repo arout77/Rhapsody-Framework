@@ -81,7 +81,32 @@ $container->bind( Cache::class, function ( Container $c ) {
 
 // --- TWIG BINDING ---
 $container->bind( Environment::class, function ( Container $c ) use ( $config ) {
-    $loader = new FilesystemLoader( __DIR__ . '/views' );
+    $activeTheme = $config['theme'] ?? 'default';
+    $paths       = [];
+
+    // The active theme path is always the first priority.
+    $activeThemePath = __DIR__ . '/views/themes/' . $activeTheme;
+    if ( is_dir( $activeThemePath ) ) {
+        $paths[] = $activeThemePath;
+    }
+
+    // If the active theme is not the default, add the default theme as a fallback.
+    $defaultThemePath = __DIR__ . '/views/themes/default';
+    if ( $activeTheme !== 'default' && is_dir( $defaultThemePath ) ) {
+        $paths[] = $defaultThemePath;
+    }
+
+    // If for some reason no paths were added (e.g., bad config), fallback to default.
+    if ( empty( $paths ) && is_dir( $defaultThemePath ) ) {
+        $paths[] = $defaultThemePath;
+    }
+
+    if ( empty( $paths ) ) {
+        throw new \Exception( "No valid theme directory found. Please check your configuration." );
+    }
+
+    $loader = new FilesystemLoader( $paths );
+
     // --- TWIG CACHING ENABLED ---
     $isDevelopment = ( $config['app_env'] === 'development' );
     $twigOptions   = [
@@ -98,7 +123,7 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config ) 
         'user'  => Session::has( 'user_id' ) ? ( new \App\Models\User() )->getUserById( Session::get( 'user_id' ) ) : null,
     ];
     $twig->addGlobal( 'auth', $auth );
-    $twig->addGlobal( 'base_url', $_ENV['APP_URL'] );
+    $twig->addGlobal( 'base_url', $_ENV['APP_URL'] . $_ENV['APP_BASE_URL'] );
     // --- LAZY-LOADED FLASH MESSAGES ---
     // This object defers calling getFlash() until the template actually accesses the property (e.g., {{ flash.success }})
     $flash = new class {

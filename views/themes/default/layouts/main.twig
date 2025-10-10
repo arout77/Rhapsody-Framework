@@ -80,7 +80,7 @@
 </head>
 <body class="bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-700">
     <!-- Header, Main Content, Footer -->
-    <header class="glass shadow-md sticky top-0 z-40">
+    <header class="glass text-white shadow-md sticky top-0 z-40">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex-shrink-0">
@@ -91,9 +91,11 @@
                 </div>
 
                 <nav class="hidden md:flex md:items-center md:space-x-8">
-                    <a href="{{ base_url }}/" class="nav-link">Home</a>
+                    <a href="{{ base_url }}/" class="nav-link text-white">Home</a>
+                    <a href="{{ base_url }}/docs" class="nav-link text-white">Documentation</a>
+                    {# <a href="{{ base_url }}/contact" class="nav-link">Contact</a> #}
                     
-                    <div class="relative group">
+                    {# <div class="relative group">
                         <a href="{{ base_url }}/docs" class="nav-link flex items-center">
                             <span>Docs</span>
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -136,13 +138,13 @@
                                 <a href="{{ base_url }}/docs/logging" class="dropdown-link">Logging</a>
                             </div>
                         </div>
-                    </div>
+                    </div> #}
 
-                    <a href="{{ base_url }}/contact" class="nav-link">Contact</a>
+                    
                 </nav>
 
                 <div class="flex items-center space-x-4">
-                    <div class="hidden md:flex items-center space-x-4">
+                    {# <div class="hidden md:flex items-center space-x-4">
                         {% if auth.check %}
                              <a href="{{ base_url }}/dashboard" class="nav-link">Dashboard</a>
                              <a href="{{ base_url }}/logout" class="nav-link">Logout</a>
@@ -150,7 +152,7 @@
                              <a href="{{ base_url }}/login" class="nav-link">Login</a>
                              <a href="{{ base_url }}/register" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors">Register</a>
                         {% endif %}
-                    </div>
+                    </div> #}
                     <div id="theme-switcher" class="bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
                         <button id="theme-btn" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600">
                             </button>
@@ -185,6 +187,7 @@
                 <a href="{{ base_url }}/docs/caching" class="mobile-nav-link pl-4">Performance & Caching</a>
                 <a href="{{ base_url }}/docs/middleware" class="mobile-nav-link pl-4">Middleware & Auth</a>
                 <a href="{{ base_url }}/docs/security" class="mobile-nav-link pl-4">Security (CSRF)</a>
+                <a href="{{ base_url }}/docs/events" class="dropdown-link">Events & Listeners</a>
                 <a href="{{ base_url }}/docs/file-uploader" class="mobile-nav-link pl-4">File Uploader</a>
                 <a href="{{ base_url }}/docs/pagination" class="mobile-nav-link pl-4">Pagination</a>
                 <a href="{{ base_url }}/docs/mailer" class="mobile-nav-link pl-4">Sending Mail</a>

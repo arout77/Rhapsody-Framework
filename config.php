@@ -24,6 +24,7 @@ return [
     'base_url'           => $_ENV['APP_BASE_URL'] ?? '/',
     'app_env'            => $_ENV['APP_ENV'] ?? 'production',
     'app_version'        => 'v1.3.1',
+    'theme'              => $_ENV['APP_THEME'] ?? 'default',
     'cache'              => [
         'driver' => $_ENV['CACHE_DRIVER'] ?? 'file',
     ],

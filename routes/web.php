@@ -17,6 +17,7 @@ Router::get( '/docs/caching', [DocsController::class, 'performance'] );
 Router::get( '/docs/cli', [DocsController::class, 'cli'] );
 Router::get( '/docs/controllers', [DocsController::class, 'controllers'] );
 Router::get( '/docs/doctrine', [DocsController::class, 'doctrine'] );
+Router::get( '/docs/events', [DocsController::class, 'events'] );
 Router::get( '/docs/file-uploader', [DocsController::class, 'fileUploader'] );
 Router::get( '/docs/image-processing', [DocsController::class, 'imageProcessing'] );
 Router::get( '/docs/installation', [DocsController::class, 'installation'] );
