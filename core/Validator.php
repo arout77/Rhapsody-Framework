@@ -2,9 +2,52 @@
 
 namespace Core;
 
+use Doctrine\ORM\EntityManager;
+
 class Validator
 {
     protected array $errors = [];
+    protected EntityManager $em;
+
+    /**
+     * UPDATED: Inject the EntityManager
+     */
+    public function __construct( EntityManager $em )
+    {
+        $this->em = $em;
+    }
+
+    /**
+     * NEW: Check if a value is unique in a database table.
+     * @param string $field The field name (e.g., 'email')
+     * @param $value The value to check (e.g., 'test@example.com')
+     * @param ?string $param The Entity name (e.g., 'User')
+     * @param array $data
+     */
+    protected function validateUnique( string $field, $value, ?string $param, array $data ): void
+    {
+        if ( empty( $value ) || empty( $param ) ) {
+            return;
+        }
+
+        // Assumes $param is the simple class name, e.g., "User"
+        // and all entities are in the App\Entities namespace.
+        $entityClass = "App\\Entities\\" . $param;
+
+        try {
+            $repository = $this->em->getRepository( $entityClass );
+            $result     = $repository->findOneBy( [$field => $value] );
+
+            if ( $result ) {
+                $this->errors[$field][] = "The {$field} is already associated with another account.";
+            }
+        } catch ( \Exception $e ) {
+            // This catches errors like the Entity not being found.
+            // Log this for debugging.
+            error_log( "Validator Error: " . $e->getMessage() );
+            $this->errors[$field][] = "There was an error checking if the {$field} is unique.";
+        }
+    }
 
     /**
      * @param array $data
@@ -14,24 +57,20 @@ class Validator
     {
         $this->errors = [];
 
-        foreach ( $rules as $field => $ruleString )
-        {
+        foreach ( $rules as $field => $ruleString ) {
             $rulesArray = explode( '|', $ruleString );
             $value      = $data[$field] ?? null;
 
-            foreach ( $rulesArray as $rule )
-            {
+            foreach ( $rulesArray as $rule ) {
                 $ruleName  = $rule;
                 $ruleParam = null;
 
-                if ( str_contains( $rule, ':' ) )
-                {
+                if ( str_contains( $rule, ':' ) ) {
                     [$ruleName, $ruleParam] = explode( ':', $rule, 2 );
                 }
 
                 $methodName = 'validate' . ucfirst( $ruleName );
-                if ( method_exists( $this, $methodName ) )
-                {
+                if ( method_exists( $this, $methodName ) ) {
                     // Pass the full data array to allow for rules like 'confirmed'
                     $this->$methodName( $field, $value, $ruleParam, $data );
                 }
@@ -44,7 +83,8 @@ class Validator
     /**
      * @return mixed
      */
-    public function getErrors(): array {
+    public function getErrors(): array
+    {
         return $this->errors;
     }
 
@@ -56,8 +96,7 @@ class Validator
      */
     protected function validateRequired( string $field, $value ): void
     {
-        if ( empty( $value ) || ( is_array( $value ) && empty( $value['tmp_name'] ) ) )
-        {
+        if ( empty( $value ) || ( is_array( $value ) && empty( $value['tmp_name'] ) ) ) {
             $this->errors[$field][] = "The {$field} field is required.";
         }
     }
@@ -68,8 +107,7 @@ class Validator
      */
     protected function validateEmail( string $field, $value ): void
     {
-        if ( !empty( $value ) && !filter_var( $value, FILTER_VALIDATE_EMAIL ) )
-        {
+        if ( !empty( $value ) && !filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
             $this->errors[$field][] = "The {$field} must be a valid email address.";
         }
     }
@@ -81,10 +119,26 @@ class Validator
      */
     protected function validateMin( string $field, $value, ?string $param ): void
     {
-        if ( !empty( $value ) && strlen( trim( $value ) ) < (int) $param )
-        {
-            $this->errors[$field][] = "The {$field} must be at least {$param} characters.";
+        if ( empty( $value ) || empty( $param ) ) {
+            return;
         }
+
+        $paramValue = (int) $param;
+
+        // --- START FIX ---
+        // Check if the value is numeric and the rule is for a number
+        if ( is_numeric( $value ) ) {
+            // It's a number, so compare its value
+            if ( (float) $value < $paramValue ) {
+                $this->errors[$field][] = "The {$field} must be at least {$param}.";
+            }
+        } else {
+            // It's a string, so compare its length
+            if ( strlen( trim( $value ) ) < $paramValue ) {
+                $this->errors[$field][] = "The {$field} must be at least {$param} characters.";
+            }
+        }
+        // --- END FIX ---
     }
 
     /**
@@ -94,10 +148,26 @@ class Validator
      */
     protected function validateMax( string $field, $value, ?string $param ): void
     {
-        if ( !empty( $value ) && strlen( trim( $value ) ) > (int) $param )
-        {
-            $this->errors[$field][] = "The {$field} must not exceed {$param} characters.";
+        if ( empty( $value ) || empty( $param ) ) {
+            return;
         }
+
+        $paramValue = (int) $param;
+
+        // --- START FIX ---
+        // Check if the value is numeric and the rule is for a number
+        if ( is_numeric( $value ) ) {
+            // It's a number, so compare its value
+            if ( (float) $value > $paramValue ) {
+                $this->errors[$field][] = "The {$field} must not be greater than {$param}.";
+            }
+        } else {
+            // It's a string, so compare its length
+            if ( strlen( trim( $value ) ) > $paramValue ) {
+                $this->errors[$field][] = "The {$field} must not exceed {$param} characters.";
+            }
+        }
+        // --- END FIX ---
     }
 
     // --- NEW VALIDATION RULES ---
@@ -108,8 +178,7 @@ class Validator
      */
     protected function validateUrl( string $field, $value ): void
     {
-        if ( !empty( $value ) && !filter_var( $value, FILTER_VALIDATE_URL ) )
-        {
+        if ( !empty( $value ) && !filter_var( $value, FILTER_VALIDATE_URL ) ) {
             $this->errors[$field][] = "The {$field} must be a valid URL.";
         }
     }
@@ -122,14 +191,12 @@ class Validator
      */
     protected function validateDateFormat( string $field, $value, ?string $param ): void
     {
-        if ( empty( $param ) )
-        {
+        if ( empty( $param ) ) {
             return;
         }
 
         $date = \DateTime::createFromFormat( $param, $value );
-        if ( $date === false || $date->format( $param ) !== $value )
-        {
+        if ( $date === false || $date->format( $param ) !== $value ) {
             $this->errors[$field][] = "The {$field} must be a valid date with the format: {$param}.";
         }
     }
@@ -140,8 +207,7 @@ class Validator
      */
     protected function validateNumeric( string $field, $value ): void
     {
-        if ( !empty( $value ) && !is_numeric( $value ) )
-        {
+        if ( !empty( $value ) && !is_numeric( $value ) ) {
             $this->errors[$field][] = "The {$field} must only contain numbers.";
         }
     }
@@ -152,8 +218,7 @@ class Validator
      */
     protected function validateAlpha( string $field, $value ): void
     {
-        if ( !empty( $value ) && !ctype_alpha( $value ) )
-        {
+        if ( !empty( $value ) && !ctype_alpha( $value ) ) {
             $this->errors[$field][] = "The {$field} must only contain letters.";
         }
     }
@@ -164,8 +229,7 @@ class Validator
      */
     protected function validateAlphaNum( string $field, $value ): void
     {
-        if ( !empty( $value ) && !ctype_alnum( $value ) )
-        {
+        if ( !empty( $value ) && !ctype_alnum( $value ) ) {
             $this->errors[$field][] = "The {$field} must only contain letters and numbers.";
         }
     }
@@ -179,8 +243,7 @@ class Validator
     protected function validateConfirmed( string $field, $value, ?string $param, array $data ): void
     {
         $confirmationField = $field . '_confirmation';
-        if ( $value !== ( $data[$confirmationField] ?? null ) )
-        {
+        if ( $value !== ( $data[$confirmationField] ?? null ) ) {
             $this->errors[$field][] = "The {$field} confirmation does not match.";
         }
     }
@@ -193,14 +256,12 @@ class Validator
      */
     protected function validateIn( string $field, $value, ?string $param ): void
     {
-        if ( empty( $param ) )
-        {
+        if ( empty( $param ) ) {
             return;
         }
 
         $allowedValues = explode( ',', $param );
-        if ( !empty( $value ) && !in_array( $value, $allowedValues ) )
-        {
+        if ( !empty( $value ) && !in_array( $value, $allowedValues ) ) {
             $this->errors[$field][] = "The selected {$field} is invalid. Allowed values are: " . implode( ', ', $allowedValues ) . ".";
         }
     }
@@ -213,14 +274,12 @@ class Validator
      */
     protected function validateNotIn( string $field, $value, ?string $param ): void
     {
-        if ( empty( $param ) )
-        {
+        if ( empty( $param ) ) {
             return;
         }
 
         $disallowedValues = explode( ',', $param );
-        if ( !empty( $value ) && in_array( $value, $disallowedValues ) )
-        {
+        if ( !empty( $value ) && in_array( $value, $disallowedValues ) ) {
             $this->errors[$field][] = "The value for {$field} is not allowed.";
         }
     }
@@ -231,10 +290,8 @@ class Validator
      */
     protected function validateImage( string $field, $value ): void
     {
-        if ( !empty( $value ) && is_array( $value ) && !empty( $value['tmp_name'] ) )
-        {
-            if ( $value['error'] !== UPLOAD_ERR_OK || !getimagesize( $value['tmp_name'] ) )
-            {
+        if ( !empty( $value ) && is_array( $value ) && !empty( $value['tmp_name'] ) ) {
+            if ( $value['error'] !== UPLOAD_ERR_OK || !getimagesize( $value['tmp_name'] ) ) {
                 $this->errors[$field][] = "The {$field} must be a valid image file.";
             }
         }
@@ -248,8 +305,7 @@ class Validator
      */
     protected function validateMimes( string $field, $value, ?string $param ): void
     {
-        if ( empty( $param ) || !is_array( $value ) || empty( $value['tmp_name'] ) )
-        {
+        if ( empty( $param ) || !is_array( $value ) || empty( $value['tmp_name'] ) ) {
             return;
         }
 
@@ -257,10 +313,8 @@ class Validator
         $fileMimeType = mime_content_type( $value['tmp_name'] );
 
         $allowedMimeTypes = [];
-        foreach ( $allowedMimes as $ext )
-        {
-            $allowedMimeTypes[] = match ( strtolower( trim( $ext ) ) )
-            {
+        foreach ( $allowedMimes as $ext ) {
+            $allowedMimeTypes[] = match ( strtolower( trim( $ext ) ) ) {
                 'jpg', 'jpeg' => 'image/jpeg',
                 'png'   => 'image/png',
                 'gif'   => 'image/gif',
@@ -272,8 +326,7 @@ class Validator
             };
         }
 
-        if ( !in_array( $fileMimeType, $allowedMimeTypes ) )
-            {
+        if ( !in_array( $fileMimeType, $allowedMimeTypes ) ) {
             $this->errors[$field][] = "The file type for {$field} is invalid. Allowed types are: {$param}.";
         }
     }

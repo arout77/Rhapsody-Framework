@@ -22,10 +22,11 @@ class QueryLogger implements SQLLogger
     {
         $this->start_time = microtime( true );
         $this->queries[]  = [
-            'sql'            => $sql,
-            'params'         => $params,
-            'types'          => $types,
-            'execution_time' => 0,
+            'sql'         => $sql,
+            'params'      => $params,
+            'types'       => $types,
+            'executionMS' => 0, // <-- RENAMED from execution_time
+            'caller' => $this->findQueryCaller(), // <-- ADDED this line
         ];
     }
 
@@ -33,8 +34,49 @@ class QueryLogger implements SQLLogger
     {
         $last_query_key = array_key_last( $this->queries );
         if ( $last_query_key !== null ) {
-            $this->queries[$last_query_key]['execution_time'] = microtime( true ) - $this->start_time;
+            $this->queries[$last_query_key]['executionMS'] = microtime( true ) - $this->start_time; // <-- RENAMED from execution_time
         }
+    }
+
+    /**
+     * Finds the file and line that initiated the query.
+     * Copied from TraceablePDO to ensure consistent logging.
+     */
+    private function findQueryCaller(): ?array
+    {
+        $trace       = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+        $projectRoot = dirname( __DIR__, 2 );
+
+        foreach ( $trace as $entry ) {
+            if ( !isset( $entry['file'] ) ) {
+                continue;
+            }
+
+            $file = str_replace( '\\', '/', $entry['file'] );
+
+            // If the file is outside our project root, skip it
+            if ( strpos( $file, str_replace( '\\', '/', $projectRoot ) ) === false ) {
+                continue;
+            }
+
+            // If the file is one of our core DB/Logger classes, skip it
+            $filename = basename( $file );
+            if ( $filename === 'QueryLogger.php' || $filename === 'TraceablePDO.php' || $filename === 'Database.php' ) {
+                continue;
+            }
+
+            // Also skip if it's from within the Doctrine vendor directory
+            if ( strpos( $file, '/vendor/doctrine/' ) !== false ) {
+                continue;
+            }
+
+            // The first file that is not a core class is our caller
+            return [
+                'file' => str_replace( str_replace( '\\', '/', $projectRoot ) . '/', '', $file ),
+                'line' => $entry['line'],
+            ];
+        }
+        return null;
     }
 
     public function __destruct()
@@ -45,8 +87,8 @@ class QueryLogger implements SQLLogger
 
         if ( $last_query_key !== null ) {
             // Use a direct isset() check to avoid the "temporary expression" error.
-            if ( isset( $this->queries[$last_query_key]['execution_time'] ) && $this->queries[$last_query_key]['execution_time'] === 0 ) {
-                $this->queries[$last_query_key]['execution_time'] = 'unfinished';
+            if ( isset( $this->queries[$last_query_key]['executionMS'] ) && $this->queries[$last_query_key]['executionMS'] === 0 ) {
+                $this->queries[$last_query_key]['executionMS'] = 'unfinished';
             }
         }
     }

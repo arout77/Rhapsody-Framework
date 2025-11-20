@@ -161,7 +161,9 @@ $container->bind( Environment::class, function ( Container $c ) use ( $config ) 
 // --- OTHER CORE SERVICES ---
 $container->bind( \App\Services\CareerService::class );
 $container->bind( Mailer::class );
-$container->bind( Validator::class );
+$container->bind( Validator::class, function ( Container $c ) {
+    return new Validator( $c->resolve( EntityManager::class ) );
+} );
 $container->bind( \Core\Request::class, fn() => new \Core\Request() );
 $container->bind( NotificationService::class, function ( Container $c ) {
     return new NotificationService( $c->resolve( Cache::class ) );

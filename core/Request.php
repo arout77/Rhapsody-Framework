@@ -26,21 +26,29 @@ class Request
         return strtolower( $this->server['REQUEST_METHOD'] ?? 'get' );
     }
 
+    /**
+     * UPDATED: This method now correctly uses the APP_BASE_URL from .env
+     * to determine the clean application path for the router.
+     */
     public function getPath(): string
     {
         $path     = $this->server['REQUEST_URI'] ?? '/';
         $position = strpos( $path, '?' );
-        if ( $position !== false )
-        {
+        if ( $position !== false ) {
             $path = substr( $path, 0, $position );
         }
-        $scriptPath = dirname( $this->server['SCRIPT_NAME'] );
-        if ( $scriptPath !== '/' && str_starts_with( $path, $scriptPath ) )
-        {
-            $path = substr( $path, strlen( $scriptPath ) );
+
+        // --- START OF FIX ---
+        // Get the base URL from the environment config
+        $baseUrl = $_ENV['APP_BASE_URL'] ?? '';
+
+        // Check if the path starts with the base URL and remove it
+        if ( !empty( $baseUrl ) && $baseUrl !== '/' && str_starts_with( $path, $baseUrl ) ) {
+            $path = substr( $path, strlen( $baseUrl ) );
         }
-        if ( strlen( $path ) > 1 )
-        {
+        // --- END OF FIX ---
+
+        if ( strlen( $path ) > 1 ) {
             $path = rtrim( $path, '/' );
         }
         return empty( $path ) ? '/' : $path;
@@ -54,26 +62,39 @@ class Request
      *
      * @return array
      */
-    public function getBody(): array {
-        if ( $this->getMethod() !== 'post' )
-        {
+    public function getBody(): array
+    {
+        if ( $this->getMethod() !== 'post' ) {
             return [];
         }
 
-        // Check content type for JSON
-        if ( isset( $this->server['CONTENT_TYPE'] ) && str_contains( strtolower( $this->server['CONTENT_TYPE'] ), 'application/json' ) )
-        {
+        // 1. Check for a JSON content-type header first.
+        if ( isset( $this->server['CONTENT_TYPE'] ) && str_contains( strtolower( $this->server['CONTENT_TYPE'] ), 'application/json' ) ) {
             $json = file_get_contents( 'php://input' );
             return json_decode( $json, true ) ?? [];
         }
 
-        // Fallback to standard POST data for forms
-        $body = [];
-        foreach ( $_POST as $key => $value )
-        {
-            $body[$key] = filter_input( INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS );
+        // 2. If no JSON header, check standard $_POST data (for forms).
+        if ( !empty( $this->postParams ) ) {
+            $body = [];
+            foreach ( $this->postParams as $key => $value ) {
+                $body[$key] = filter_input( INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS );
+            }
+            return $body;
         }
-        return $body;
+
+        // 3. FALLBACK: If $_POST is empty, it might be JSON sent without
+        // the correct header. Try to parse it anyway.
+        $json = file_get_contents( 'php://input' );
+        if ( !empty( $json ) ) {
+            $data = json_decode( $json, true );
+            if ( is_array( $data ) ) {
+                return $data;
+            }
+        }
+
+        // 4. If all else fails, return an empty array.
+        return [];
     }
 
     /**
@@ -108,7 +129,8 @@ class Request
     /**
      * @return mixed
      */
-    public function getFiles(): array {
+    public function getFiles(): array
+    {
         return $this->files;
     }
 }

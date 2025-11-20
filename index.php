@@ -82,26 +82,35 @@ $matchedRoute = Router::getMatchedRoute();
 
 // --- INJECT DEBUG TOOLBAR ---
 if ( $config['app_env'] === 'development' ) {
-    $debug = \Core\Debug::getInstance();
-    $debug->end( $response, $config, $container, $matchedRoute ); // Pass final data to the collector
-    $toolbar     = new \Core\Toolbar( $debug->getData() );
-    $toolbarHtml = $toolbar->render();
+    // Get the headers from the response
+    $headers = $response->getHeaders();
+    // Default to 'text/html' if no content type is set
+    $contentType = $headers['Content-Type'] ?? 'text/html';
 
-    $content = $response->getContent();
-    // Inject toolbar before closing body tag, or append if not found
-    $bodyEndPosition = strripos( $content, '</body>' );
-    if ( $bodyEndPosition !== false ) {
-        $content = substr_replace( $content, $toolbarHtml, $bodyEndPosition, 0 );
-    } else {
-        $content .= $toolbarHtml;
+    // ONLY inject the toolbar if this is an HTML response.
+    // This prevents breaking our JSON API responses.
+    if ( str_contains( $contentType, 'text/html' ) ) {
+        $debug = \Core\Debug::getInstance();
+        $debug->end( $response, $config, $container, $matchedRoute ); // Pass final data to the collector
+        $toolbar     = new \Core\Toolbar( $debug->getData() );
+        $toolbarHtml = $toolbar->render();
+
+        $content = $response->getContent();
+        // Inject toolbar before closing body tag, or append if not found
+        $bodyEndPosition = strripos( $content, '</body>' );
+        if ( $bodyEndPosition !== false ) {
+            $content = substr_replace( $content, $toolbarHtml, $bodyEndPosition, 0 );
+        } else {
+            $content .= $toolbarHtml;
+        }
+        $response->setContent( $content );
+
+        // --- Inject update notifications if available (in development) ---
+
+        /** @var \App\Services\NotificationService $notificationService */
+        $notificationService = $container->resolve( \App\Services\NotificationService::class );
+        $response            = $notificationService->injectBanner( $response );
     }
-    $response->setContent( $content );
-
-    // --- Inject update notifications if available (in development) ---
-
-    /** @var \App\Services\NotificationService $notificationService */
-    $notificationService = $container->resolve( \App\Services\NotificationService::class );
-    $response            = $notificationService->injectBanner( $response );
 }
 
 // 11. Send the response back to the client
