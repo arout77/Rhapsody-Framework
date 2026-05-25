@@ -76,18 +76,31 @@ class Container
 
     /**
      * Resolves the dependencies for a given set of reflection parameters.
+     * Handles class-typed params via the container, and falls back to default
+     * values for primitive/untyped params rather than silently dropping them.
      *
      * @param ReflectionParameter[] $parameters
      * @return array
+     * @throws \Exception
      */
     protected function resolveDependencies( array $parameters ): array
     {
         $dependencies = [];
         foreach ( $parameters as $parameter ) {
-            $dependencyType = $parameter->getType();
-            if ( $dependencyType && !$dependencyType->isBuiltin() ) {
-                // It's a class, so we recursively resolve it from the container.
-                $dependencies[] = $this->resolve( $dependencyType->getName() );
+            $type = $parameter->getType();
+
+            if ( $type && !$type->isBuiltin() ) {
+                // It's a class type — recursively resolve it from the container.
+                $dependencies[] = $this->resolve( $type->getName() );
+            } elseif ( $parameter->isDefaultValueAvailable() ) {
+                // It's a primitive or untyped param with a default — use it.
+                $dependencies[] = $parameter->getDefaultValue();
+            } else {
+                // No type hint and no default — we cannot resolve this.
+                throw new \Exception(
+                    "Cannot resolve parameter \${$parameter->getName()} in {$parameter->getDeclaringClass()?->getName()}. " .
+                    "Bind it explicitly in the container or provide a default value."
+                );
             }
         }
         return $dependencies;

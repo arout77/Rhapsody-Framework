@@ -27,8 +27,8 @@ class Request
     }
 
     /**
-     * UPDATED: This method now correctly uses the APP_BASE_URL from .env
-     * to determine the clean application path for the router.
+     * Strips the APP_BASE_URL prefix and query string from the URI
+     * to produce a clean path for the router.
      */
     public function getPath(): string
     {
@@ -38,15 +38,11 @@ class Request
             $path = substr( $path, 0, $position );
         }
 
-        // --- START OF FIX ---
-        // Get the base URL from the environment config
         $baseUrl = $_ENV['APP_BASE_URL'] ?? '';
 
-        // Check if the path starts with the base URL and remove it
         if ( !empty( $baseUrl ) && $baseUrl !== '/' && str_starts_with( $path, $baseUrl ) ) {
             $path = substr( $path, strlen( $baseUrl ) );
         }
-        // --- END OF FIX ---
 
         if ( strlen( $path ) > 1 ) {
             $path = rtrim( $path, '/' );
@@ -55,10 +51,9 @@ class Request
     }
 
     /**
-     * --- As of v1.0.1 ---
-     * Fixes issue with JSON payloads not being included in $_POST
-     * Gets the request body, supporting both traditional form data
-     * and JSON payloads.
+     * Gets the request body, supporting both traditional form data and JSON payloads.
+     * Returns raw values — sanitization is the responsibility of the Validator or controller.
+     * Behaviour is now consistent regardless of how the client sends data.
      *
      * @return array
      */
@@ -74,13 +69,10 @@ class Request
             return json_decode( $json, true ) ?? [];
         }
 
-        // 2. If no JSON header, check standard $_POST data (for forms).
+        // 2. If no JSON header, return standard $_POST data (for forms) raw.
+        // Sanitization belongs in the Validator or at point of use, not here.
         if ( !empty( $this->postParams ) ) {
-            $body = [];
-            foreach ( $this->postParams as $key => $value ) {
-                $body[$key] = filter_input( INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS );
-            }
-            return $body;
+            return $this->postParams;
         }
 
         // 3. FALLBACK: If $_POST is empty, it might be JSON sent without
@@ -93,7 +85,6 @@ class Request
             }
         }
 
-        // 4. If all else fails, return an empty array.
         return [];
     }
 

@@ -7,10 +7,10 @@ use Core\BaseController;
 use Core\Pagination;
 use Core\Request;
 use Core\Response;
+use Twig\Environment;
 
 class UserController extends BaseController
 {
-    use Twig\Environment;
     /**
      * @param Environment $twig
      */

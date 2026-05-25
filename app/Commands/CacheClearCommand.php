@@ -34,10 +34,31 @@ class CacheClearCommand extends Command
      */
     protected function execute( InputInterface $input, OutputInterface $output ): int
     {
-        // Use the injected cache instance to call the method
+        // 1. Flush the application key-value cache (storage/cache/app/)
         $this->cache->flush();
+        $output->writeln( '<info>Application cache cleared.</info>' );
 
-        $output->writeln( '<info>Application cache cleared!</info>' );
+        // 2. Clear the Twig compiled template cache (storage/cache/twig/)
+        // Without this, stale compiled templates are served after a git pull,
+        // even if the source .twig files have changed.
+        $twigCachePath = dirname( __DIR__, 2 ) . '/storage/cache/twig';
+        if ( is_dir( $twigCachePath ) ) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator( $twigCachePath, \FilesystemIterator::SKIP_DOTS ),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ( $files as $file ) {
+                $file->isDir() ? rmdir( $file->getRealPath() ) : unlink( $file->getRealPath() );
+            }
+            $output->writeln( '<info>Twig template cache cleared.</info>' );
+        }
+
+        // 3. Invalidate OPcache if available so updated PHP files are picked up immediately.
+        if ( function_exists( 'opcache_reset' ) ) {
+            opcache_reset();
+            $output->writeln( '<info>OPcache reset.</info>' );
+        }
+
         return Command::SUCCESS;
     }
 }

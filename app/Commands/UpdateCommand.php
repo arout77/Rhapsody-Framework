@@ -91,8 +91,19 @@ class UpdateCommand extends Command
             // 5. Finally, update the version number in the now-updated config.php
             $output->writeln( '<comment>Updating version in config.php...</comment>' );
             $configFileContent    = file_get_contents( $configPath );
-            $newConfigFileContent = preg_replace( "/('app_version'\s*=>\s*)'.*?'/", "$1'{$latestVersion}'", $configFileContent );
+            $newConfigFileContent = preg_replace( "/('app_version'\s*=>\s*)'[^']*'/", "$1'{$latestVersion}'", $configFileContent );
+
+            if ( $newConfigFileContent === null ) {
+                throw new \RuntimeException( 'preg_replace failed while updating app_version in config.php.' );
+            }
+
             file_put_contents( $configPath, $newConfigFileContent );
+
+            // Invalidate OPcache for config.php so the next request picks up the
+            // new version immediately, rather than serving the old compiled bytecode.
+            if ( function_exists( 'opcache_invalidate' ) ) {
+                opcache_invalidate( $configPath, true );
+            }
 
             $updateSucceeded = true;
             $output->writeln( "\n<info>Application successfully updated to version {$latestVersion}!</info>" );

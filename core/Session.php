@@ -5,14 +5,13 @@ namespace Core;
 /**
  * A secure, static wrapper for handling PHP sessions.
  *
- * This class provides a consistent and safe interface for managing session data,
+ * Provides a consistent and safe interface for managing session data,
  * including user authentication state, flash messages, and CSRF tokens.
  */
 class Session
 {
     /**
      * Starts the session if it has not already been started.
-     * This should be called once at the beginning of every request.
      */
     public static function start(): void
     {
@@ -24,9 +23,6 @@ class Session
 
     /**
      * Sets a value in the session.
-     *
-     * @param string $key The key to store the value under.
-     * @param mixed $value The value to be stored.
      */
     public static function set( string $key, $value ): void
     {
@@ -35,10 +31,6 @@ class Session
 
     /**
      * Retrieves a value from the session by its key.
-     *
-     * @param string $key The key of the item to retrieve.
-     * @param mixed|null $default A default value to return if the key is not found.
-     * @return mixed
      */
     public static function get( string $key, $default = null )
     {
@@ -62,16 +54,36 @@ class Session
     }
 
     /**
-     * Destroys the entire session, logging the user out.
+     * Fully destroys the session: clears session data, expires the cookie,
+     * and calls session_destroy(). Without all three steps the client retains
+     * a valid cookie and $_SESSION remains populated for the rest of the request.
      */
     public static function destroy(): void
     {
+        // 1. Clear the server-side session data immediately.
+        $_SESSION = [];
+
+        // 2. Expire the session cookie in the browser.
+        if ( ini_get( 'session.use_cookies' ) ) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
+
+        // 3. Destroy the session on the server.
         session_destroy();
     }
 
     /**
      * Regenerates the session ID to prevent session fixation attacks.
-     * This should be called immediately after a user logs in.
+     * Call immediately after a user logs in.
      */
     public static function regenerate(): void
     {
@@ -80,7 +92,7 @@ class Session
 
     /**
      * Writes session data to disk and closes the session.
-     * This is crucial to call before any redirects to ensure data is saved.
+     * Call before any redirects to ensure data is saved.
      */
     public static function close(): void
     {

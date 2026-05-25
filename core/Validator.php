@@ -191,7 +191,7 @@ class Validator
      */
     protected function validateDateFormat( string $field, $value, ?string $param ): void
     {
-        if ( empty( $param ) ) {
+        if ( empty( $param ) || empty( $value ) ) {
             return;
         }
 

@@ -6,11 +6,34 @@ use Core\Cache\CacheInterface;
 
 class Cache
 {
+    private static ?self $instance = null;
+
     /**
      * @param CacheInterface $driver
      */
     public function __construct( protected CacheInterface $driver )
     {}
+
+    /**
+     * Stores the resolved Cache instance for static access.
+     * Called once during bootstrapping.
+     */
+    public static function setInstance( self $cache ): void
+    {
+        self::$instance = $cache;
+    }
+
+    /**
+     * Returns the shared Cache instance.
+     * Mirrors the Database::getInstance() pattern.
+     */
+    public static function getInstance(): self
+    {
+        if ( self::$instance === null ) {
+            throw new \RuntimeException( 'Cache has not been initialised. Call Cache::setInstance() during bootstrapping.' );
+        }
+        return self::$instance;
+    }
     /**
      * @param string $key
      * @param $default

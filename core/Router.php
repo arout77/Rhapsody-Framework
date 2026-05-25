@@ -10,7 +10,7 @@ use App\Middleware\VerifyCsrfTokenMiddleware;
 /**
  * The Rhapsody Router.
  *
- * This class is responsible for matching incoming requests to controller actions,
+ * Responsible for matching incoming requests to controller actions,
  * executing middleware, and using the service container to resolve controllers
  * and their dependencies.
  */
@@ -24,7 +24,6 @@ class Router
 
     /**
      * A map of middleware keys to their fully qualified class names.
-     * This allows for using short, memorable keys in route definitions.
      * @var array
      */
     protected static array $middlewareMap = [
@@ -32,7 +31,11 @@ class Router
         'guest' => GuestMiddleware::class,
     ];
 
-    // --- ADD GLOBAL MIDDLEWARE ---
+    /**
+     * Global middleware runs on every matched request.
+     * Moved to post-match so unmatched routes don't trigger CSRF checks etc.
+     * @var array
+     */
     protected static array $globalMiddleware = [
         VerifyCsrfTokenMiddleware::class,
     ];
@@ -45,15 +48,9 @@ class Router
 
     /**
      * Adds a new route to the collection.
-     *
-     * @param string $method The HTTP method.
-     * @param string $path The URI path.
-     * @param mixed $callback The controller action or closure.
-     * @return Route The newly created route object, to allow for method chaining.
      */
     protected static function add( string $method, string $path, mixed $callback ): Route
     {
-        // We now create Route objects directly. This is needed for var_export to work.
         $route          = new Route( $method, $path, $callback );
         self::$routes[] = $route;
         return $route;
@@ -76,8 +73,10 @@ class Router
     }
 
     /**
-     * Finds the matching route, executes its middleware, and dispatches it.
-     * This is the main entry point for the router.
+     * Finds the matching route, executes middleware, and dispatches it.
+     *
+     * Global middleware now runs only after a route is matched, so 404
+     * requests don't trigger CSRF checks or auth redirects unnecessarily.
      *
      * @param Request $request The incoming request object.
      * @param Container $container The application's service container.
@@ -85,11 +84,6 @@ class Router
      */
     public static function dispatch( Request $request, Container $container ): Response
     {
-        foreach ( self::$globalMiddleware as $middlewareClass ) {
-            $middleware = $container->resolve( $middlewareClass );
-            $middleware->handle( $request );
-        }
-
         $path   = $request->getPath();
         $method = $request->getMethod();
 
@@ -97,17 +91,22 @@ class Router
             if ( $route->matches( $method, $path ) ) {
                 self::$matchedRoute = $route;
 
+                // Run global middleware now that we have a matched route.
+                foreach ( self::$globalMiddleware as $middlewareClass ) {
+                    $middleware = $container->resolve( $middlewareClass );
+                    $middleware->handle( $request );
+                }
+
                 // Resolve and execute any middleware attached to the route.
                 $middlewareKey = $route->getMiddleware();
                 if ( $middlewareKey ) {
                     $middlewareClass = self::$middlewareMap[$middlewareKey] ?? null;
                     if ( $middlewareClass && class_exists( $middlewareClass ) ) {
-                        $middleware = new $middlewareClass(); // Middleware are simple enough to be new'ed up.
+                        $middleware = new $middlewareClass();
                         $middleware->handle( $request );
                     }
                 }
 
-                // If middleware didn't exit, execute the main controller action.
                 return self::execute( $route, $request, $container );
             }
         }
@@ -117,8 +116,6 @@ class Router
 
     /**
      * Executes the controller action for a matched route.
-     * This method uses the service container to build the controller,
-     * which automatically injects all dependencies.
      *
      * @param Route $route The matched route object.
      * @param Request $request The incoming request object.
@@ -134,10 +131,8 @@ class Router
             $controllerClass = $callback[0];
             $action          = $callback[1];
 
-            // Use the container to build the controller. This is the core of DI.
             $controller = $container->resolve( $controllerClass );
 
-            // Call the action, passing the request and any URL parameters.
             return $controller->{$action}( $request, ...$params );
         }
 
@@ -174,9 +169,6 @@ class Router
         return self::$routes;
     }
 
-    /**
-     * @param array $routes
-     */
     public static function setRoutes( array $routes ): void
     {
         self::$routes = $routes;

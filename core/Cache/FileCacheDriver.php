@@ -44,12 +44,24 @@ class FileCacheDriver implements CacheInterface
     }
 
     /**
+     * Checks for key existence and expiry directly, without calling get().
+     * Fixes false negatives for legitimately cached falsy values (null, 0, false, '').
+     *
      * @param string $key
-     * @return mixed
+     * @return bool
      */
     public function has( string $key ): bool
     {
-        return $this->get( $key ) !== null;
+        $path = $this->cachePath . md5( $key );
+        if ( !file_exists( $path ) ) {
+            return false;
+        }
+        $data = unserialize( file_get_contents( $path ) );
+        if ( time() > $data['expires'] ) {
+            unlink( $path );
+            return false;
+        }
+        return true;
     }
 
     /**

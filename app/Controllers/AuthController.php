@@ -22,7 +22,7 @@ class AuthController extends BaseController
      * @param EventDispatcher $dispatcher
      */
     public function __construct(
-        protected EntityManager $em, // Inject the EntityManager
+        protected EntityManager $em,
         protected Validator $validator,
         protected EventDispatcher $dispatcher,
         Environment $twig
