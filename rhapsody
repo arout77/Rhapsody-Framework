@@ -8,6 +8,11 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
+// Turn off warnings in production env
+if ($_ENV['APP_ENV'] === 'production') {
+    error_reporting(E_ALL & ~E_WARNING & ~E_DEPRECATED & ~E_NOTICE);
+}
+
 // 1. Bootstrap Application
 $rootPath = __DIR__;
 $dotenv = Dotenv\Dotenv::createImmutable($rootPath);

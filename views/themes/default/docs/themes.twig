@@ -1,0 +1,98 @@
+{# /views/docs/themes.twig #}
+{% extends "docs/_layout.twig" %}
+
+{% block doc_content %}
+    <h1>Theme Customization & Architecture</h1>
+    <p>
+        Discover how to seamlessly customize layouts, preserve core system updates, or implement entirely custom design systems using Rhapsody's extensible layout inheritance architecture.
+    </p>
+
+    <hr>
+
+    <h2>The Golden Rule: Inheritance vs. Overriding</h2>
+    <p>
+        Historically, customizing web application layouts meant copy-pasting the framework's main layout file directly into a custom folder and modifying it. 
+        <strong>This approach is a critical anti-pattern.</strong> When you duplicate the entire main layout file, your custom theme forks away from the core codebase. If a future framework update introduces a mandatory security wrapper, critical metadata structures, or new diagnostic UI features, your layout remains blind to them, breaking layout consistency or core functionality during an update.
+    </p>
+    <p>
+        Instead, Rhapsody leverages <strong>Twig Template Inheritance</strong>. By establishing protected, granular blocks inside the base architecture, you can target, append to, or rewrite individual elements (like page titles, unique body styles, scripts, or stylesheets) while ensuring that baseline layouts, analytic payloads, and functional framework states remain updated globally.
+    </p>
+
+    <hr>
+
+    <h2>Core Layout Architecture (`main.twig`)</h2>
+    <p>
+        The standard structural shell is located at <code>/views/theme/default/layouts/main.twig</code>. It isolates the underlying document into distinct, targetable structural blocks:
+    </p>
+    
+    <ul>
+        <li><code>&#123;&#37; block title &#37;&#125;</code>: Updates the browser page title. Defaults smoothly to system metadata arrays.</li>
+        <li><code>&#123;&#37; block description &#37;&#125;</code>: Safely populates and HTML-escapes search engine indexing tags.</li>
+        <li><code>&#123;&#37; block styles &#37;&#125;</code>: Contains core framework stylesheets (Tailwind CSS and Montserrat). Overridable to eject default fonts and weights.</li>
+        <li><code>&#123;&#37; block head_extensions &#37;&#125;</code>: Appends custom conditional headers, third-party CDNs, or unique styling rules early in document parsing.</li>
+        <li><code>&#123;&#37; block body_class &#37;&#125;</code>: Injects structural or state utility classes (e.g., <code>is-dashboard</code>) straight to the <code>&lt;body&gt;</code> element.</li>
+        <li><code>&#123;&#37; block content &#37;&#125;</code>: Primary application rendering slot. Accepts unique page views inside custom elements.</li>
+        <li><code>&#123;&#37; block scripts &#37;&#125;</code>: Fires script tags at the very base of the page, directly following framework modal engines and light/dark theme managers.</li>
+    </ul>
+
+    <hr>
+
+    <h2>Step-by-Step Extension Example</h2>
+    <p>
+        To build custom page templates, create a file within your theme workspace and utilize the <code>&#123;&#37; extends &#37;&#125;</code> tag pointing to your core system skeleton. Here is a clean, structural example:
+    </p>
+
+    <pre><code class="language-twig"><em>// File: /views/theme/custom/profile.twig</em>
+&#123;&#37; extends 'layouts/main.twig' &#37;&#125;
+
+&#123;&#37; block title &#37;&#125;User Profile - &#123;&#123; profile.name &#125;&#125;&#123;&#37; endblock &#37;&#125;
+
+&#123;&#37; block body_class &#37;&#125;profile-dashboard-layout custom-bg-pattern&#123;&#37; endblock &#37;&#125;
+
+&#123;&#37; block content &#37;&#125;
+    &lt;div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow"&gt;
+        &lt;h1 class="text-2xl font-bold"&gt;Welcome back, &#123;&#123; profile.name &#125;&#125;!&lt;/h1&gt;
+        &lt;p class="text-sm mt-1"&gt;Manage your account parameters below.&lt;/p&gt;
+    &lt;/div&gt;
+&#123;&#37; endblock &#37;&#125;
+
+&#123;&#37; block scripts &#37;&#125;
+    &lt;script src="&#123;&#123; base_url &#125;&#125;/public/js/profile-validator.js"&gt;&lt;/script&gt;
+&#123;&#37; endblock &#37;&#125;</code></pre>
+
+    <hr>
+
+    <h2>Opting Out of Framework Styles</h2>
+    <p>
+        Rhapsody values design flexibility and remains completely unopinionated about your front-end utility choice. If you wish to build custom styles that reject utility frameworks entirely (such as using Bootstrap, custom Sass layers, or clean vanilla CSS structures), you don't need to change any core framework source files.
+    </p>
+    <p>
+        Simply declare an empty or custom-mapped <code>&#123;&#37; block styles &#37;&#125;</code> container inside your child template file. This intercepts the asset compilation stage, stripping out Tailwind CSS and Google Fonts, allowing you to establish a fresh stylesheet context from scratch:
+    </p>
+
+    <pre><code class="language-twig">// File: /views/theme/custom/bootstrap-view.twig
+&#123;&#37; extends 'layouts/main.twig' &#37;&#125;
+
+--- BYPASS DEFAULT TAILWIND ---
+&#123;&#37; block styles &#37;&#125;
+    &lt;!-- Load Bootstrap or a completely alternative asset pipeline instead --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;link href="&#123;&#123; base_url &#125;&#125;/public/themes/custom/legacy-app.css" rel="stylesheet"&gt;
+&#123;&#37; endblock &#37;&#125;
+
+&#123;&#37; block body_class &#37;&#125;container py-5 bootstrap-context&#123;&#37; endblock &#37;&#125;
+
+&#123;&#37; block content &#37;&#125;
+    &lt;div class="card shadow-sm"&gt;
+        &lt;div class="card-body"&gt;
+            &lt;h3 class="card-title text-primary"&gt;Decoupled Engine Instance&lt;/h3&gt;
+            &lt;p class="card-text"&gt;Tailwind was completely dropped at parsing. Core SEO schemas and scripts remain active.&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&#123;&#37; endblock &#37;&#125;</code></pre>
+
+    <p>
+        <strong>Architectural Note:</strong> Even when you override the default <code>styles</code> block, core processes—such as session notification flash messages, dark-mode preference handlers, application version update alerts, and rich structured microdata JSON-LD schemas for search engines—remain fully secure and functional at the root layer.
+    </p>
+
+{% endblock %}

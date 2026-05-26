@@ -1,0 +1,68 @@
+<!-- Header, Main Content, Footer -->
+<header class="glass text-white shadow-md sticky top-0 z-40">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex-shrink-0">
+                <a href="{{ base_url }}/" class="flex items-center space-x-3 group text-2xl logo">
+                    {# <img src="{{ base_url }}/public/img/rhap.png"> #}
+                    Rhapsody
+                </a>
+            </div>
+
+            <nav class="hidden md:flex md:items-center md:space-x-8">
+                <a href="{{ base_url }}/" class="nav-link text-white">Home</a>
+                <a href="{{ base_url }}/docs" class="nav-link text-white">Documentation</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <div id="theme-switcher" class="bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
+                    <button id="theme-btn" class="p-2 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600">
+                        </button>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="{{ base_url }}/" class="mobile-nav-link">Home</a>
+            <a href="{{ base_url }}/contact" class="mobile-nav-link">Contact</a>
+            
+            <hr class="dropdown-divider my-2">
+            <h3 class="mobile-dropdown-header">Docs</h3>
+            <a href="{{ base_url }}/docs/installation" class="mobile-nav-link pl-4">Installation & Setup</a>
+            <a href="{{ base_url }}/docs/updating" class="mobile-nav-link pl-4">Updating the Framework</a>
+            <a href="{{ base_url }}/docs/routing" class="mobile-nav-link pl-4">Routing</a>
+            <a href="{{ base_url }}/docs/controllers" class="mobile-nav-link pl-4">Controllers & DI</a>
+            <a href="{{ base_url }}/docs/views" class="mobile-nav-link pl-4">Views & Templating</a>
+            <a href="{{ base_url }}/docs/validation" class="mobile-nav-link pl-4">Validation</a>
+            <a href="{{ base_url }}/docs/models" class="mobile-nav-link pl-4">Basic DB (PDO)</a>
+            <a href="{{ base_url }}/docs/doctrine" class="mobile-nav-link pl-4">Doctrine ORM</a>
+            <a href="{{ base_url }}/docs/caching" class="mobile-nav-link pl-4">Performance & Caching</a>
+            <a href="{{ base_url }}/docs/middleware" class="mobile-nav-link pl-4">Middleware & Auth</a>
+            <a href="{{ base_url }}/docs/security" class="mobile-nav-link pl-4">Security (CSRF)</a>
+            <a href="{{ base_url }}/docs/events" class="dropdown-link">Events & Listeners</a>
+            <a href="{{ base_url }}/docs/file-uploader" class="mobile-nav-link pl-4">File Uploader</a>
+            <a href="{{ base_url }}/docs/pagination" class="mobile-nav-link pl-4">Pagination</a>
+            <a href="{{ base_url }}/docs/mailer" class="mobile-nav-link pl-4">Sending Mail</a>
+            <a href="{{ base_url }}/docs/cli" class="mobile-nav-link pl-4">The Rhapsody Console</a>
+            
+            <hr class="dropdown-divider my-2">
+            {% if auth.check %}
+                <a href="{{ base_url }}/dashboard" class="mobile-nav-link">Dashboard</a>
+                <a href="{{ base_url }}/logout" class="mobile-nav-link">Logout</a>
+            {% else %}
+                <a href="{{ base_url }}/login" class="mobile-nav-link">Login</a>
+                <a href="{{ base_url }}/register" class="mobile-nav-link">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
