@@ -1,5 +1,4 @@
 <?php
-
 namespace Core;
 
 use Symfony\Component\Mailer\Mailer as SymfonyMailer;
@@ -13,14 +12,19 @@ class Mailer
 
     public function __construct()
     {
-        $this->config = require dirname( __DIR__ ) . '/config.php';
+        $this->config = require dirname(__DIR__) . '/config.php';
         $mailConfig   = $this->config['mailer'];
 
-        // Create the DSN (Data Source Name) for the mailer transport
-        $dsn = "{$mailConfig['transport']}://{$mailConfig['username']}:{$mailConfig['password']}@{$mailConfig['host']}:{$mailConfig['port']}";
+        // Check if the host is empty; if so, skip initialization or use a null transport
+        if (empty($mailConfig['host'])) {
+            // You can either throw a custom exception or just return early
+            // Or set a mock transport if needed
+            return;
+        }
 
-        $transport    = Transport::fromDsn( $dsn );
-        $this->mailer = new SymfonyMailer( $transport );
+        $dsn          = "{$mailConfig['transport']}://{$mailConfig['username']}:{$mailConfig['password']}@{$mailConfig['host']}:{$mailConfig['port']}";
+        $transport    = Transport::fromDsn($dsn);
+        $this->mailer = new SymfonyMailer($transport);
     }
 
     /**
@@ -32,22 +36,21 @@ class Mailer
      * @param string|null $plainTextBody Optional plain text content.
      * @return void
      */
-    public function send( string $to, string $subject, string $htmlBody, ?string $plainTextBody = null ): void
+    public function send(string $to, string $subject, string $htmlBody, ?string $plainTextBody = null): void
     {
         $fromAddress = $this->config['mailer']['from_address'];
         $fromName    = $this->config['mailer']['from_name'];
 
-        $email = ( new Email() )
-            ->from( "{$fromName} <{$fromAddress}>" )
-            ->to( $to )
-            ->subject( $subject )
-            ->html( $htmlBody );
+        $email = (new Email())
+            ->from("{$fromName} <{$fromAddress}>")
+            ->to($to)
+            ->subject($subject)
+            ->html($htmlBody);
 
-        if ( $plainTextBody )
-        {
-            $email->text( $plainTextBody );
+        if ($plainTextBody) {
+            $email->text($plainTextBody);
         }
 
-        $this->mailer->send( $email );
+        $this->mailer->send($email);
     }
 }
