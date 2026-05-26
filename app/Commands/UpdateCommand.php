@@ -166,7 +166,7 @@ class UpdateCommand extends Command
      * @param OutputInterface $output
      * @param string $message
      */
-    private function runProcess( array $command, OutputInterface $output, string $message = null ): void
+    private function runProcess( array $command, OutputInterface $output, ?string $message = null ): void
     {
         $process = new Process( $command );
         $process->setTimeout( 300 );
