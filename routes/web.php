@@ -1,14 +1,30 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\BibleController;
 use App\Controllers\DocsController;
 use App\Controllers\PageController;
-use App\Controllers\UserController;
-use App\Middleware\AuthMiddleware;
-use App\Middleware\GuestMiddleware;
+use App\Controllers\SearchController;
+use App\Controllers\SitemapController;
+use App\Controllers\TopicsController;
+use App\Controllers\TriviaController;
+use App\Controllers\VideosController;
 use Core\Router;
 
 // Define your application routes using the static Router methods.
+
+// Bible Module Routes
+Router::get('/bible', [BibleController::class, 'index']);
+Router::get('/bible/search', [BibleController::class, 'search']);
+Router::get('/bible/trivia/random', [BibleController::class, 'random']);
+Router::get('/bible/{book}/{chapter}', [BibleController::class, 'show']);
+
+Router::get('/videos', [VideosController::class, 'index']);
+// Matches the core video category page (e.g., /videos/old-testament-overviews)
+Router::get('/videos/{category_slug}', [VideosController::class, 'category']);
+Router::get('/videos/{category_slug}/{video_slug}', [VideosController::class, 'play']);
+
+Router::get('/navigating-scripture/{group_slug}/{topic_slug}', [TopicsController::class, 'show']);
 
 // --- The routes below can be viewed by visitors and logged in users
 // --- DOCUMENTATION ROUTES ---
@@ -31,15 +47,15 @@ Router::get('/docs/response', [DocsController::class, 'response']);
 Router::get('/docs/routing', [DocsController::class, 'routing']);
 Router::get('/docs/security', [DocsController::class, 'security']);
 Router::get('/docs/seo', [DocsController::class, 'seo']);
-Router::get('/docs/themes', [DocsController::class, 'themes']);
 Router::get('/docs/updating', [DocsController::class, 'updating']);
 Router::get('/docs/validation', [DocsController::class, 'validation']);
 Router::get('/docs/views', [DocsController::class, 'views']);
 
 Router::get('/', [PageController::class, 'index']);
 Router::get('/about', [PageController::class, 'about']);
-Router::get('/contact', [App\Controllers\PageController::class, 'contact']);
-Router::post('/contact', [App\Controllers\PageController::class, 'handleContact']);
+Router::get('/contact', [PageController::class, 'contact']);
+Router::post('/contact', [PageController::class, 'handleContact']);
+Router::get('/search', [SearchController::class, 'search']);
 
 Router::get('/sitemap.xml', [SitemapController::class, 'generate']);
 
@@ -50,11 +66,14 @@ Router::get('/posts/{slug}', [PageController::class, 'showPost']);
 
 // --- PROTECTED ROUTES ---
 // This route should only be accessible to authenticated users.
+Router::get('/trivia', [TriviaController::class, 'index']);
 Router::get('/dashboard', [PageController::class, 'dashboard'])->middleware('auth');
 Router::get('/upload', [App\Controllers\PageController::class, 'showUploadForm'])->middleware('auth');
 Router::post('/upload', [App\Controllers\PageController::class, 'handleUpload'])->middleware('auth');
 Router::get('/users', [PageController::class, 'showUsers']);
 Router::get('/users/{user_id}', [PageController::class, 'viewUser']);
+// --- USER PREFERENCES ROUTE ---
+Router::post('/user/preferences/bible', [App\Controllers\BibleController::class, 'updateVersionPreference'])->middleware('auth');
 
 // These routes should only be accessible to guests.
 Router::get('/login', [AuthController::class, 'showLoginForm'])->middleware('guest');

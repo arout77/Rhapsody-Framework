@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tailwindcss -i ./public/css/main.css -o ./public/css/style.css --watch",
-    "build": "tailwindcss -i ./public/css/main.css -o ./public/css/style.css --minify",
+    "build": "tailwindcss -i ./frontend/src/App.css -o ./public/css/style.css --minify",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
