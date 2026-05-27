@@ -7,3 +7,6 @@ composer.lock
 
 /storage/cache
 /node_modules
+/frontend/node_modules
+
+/public/videos

@@ -1,0 +1,75 @@
+{# views/themes/default/videos/video_category.twig #}
+{% extends "layouts/main.twig" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="mb-8">
+        <a href="{{ base_url }}/videos" class="inline-flex items-center text-sm font-mono text-sky-400 hover:text-sky-300 transition-colors duration-200">
+            &larr; Back to Video Hub
+        </a>
+    </div>
+
+    <header class="p-8 rounded-2xl border border-slate-800/80 mb-12 bg-slate-900/40 backdrop-blur-sm">
+        <div class="flex flex-col sm:flex-row items-start gap-5">
+            <div class="text-4xl p-3 bg-slate-950/60 rounded-xl border border-slate-800 shadow-inner shrink-0">
+                {{ category.icon|default('📖') }}
+            </div>
+            <div>
+                <h1 class="text-3xl text-black dark:text-white tracking-tight">{{ category.name }}</h1>
+                <p class="text-slate-400 mt-2 text-lg max-w-3xl leading-relaxed">{{ category.description }}</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
+        {% for video in videos %}
+            <div class="group flex flex-col h-full bg-slate-900/30 border border-slate-800/60 rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-500/50 hover:bg-slate-900/40">
+                
+                <div class="relative bg-slate-950/70 aspect-video overflow-hidden border-b border-slate-950">
+                    {% if video.video_source == 'youtube' and video.video_id %}
+                        <img src="https://img.youtube.com/vi/{{ video.video_id }}/hqdefault.jpg" 
+                             alt="{{ video.title }}" 
+                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                             loading="lazy">
+                             
+                    {% elseif video.video_source == 'local' %}
+                        <img src="{{ base_url }}/public/img/thumbnails/{{ video.thumbnail }}" 
+                             alt="{{ video.title }}" 
+                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='{{ base_url }}/assets/images/thumbnails/fallback-poster.jpg';">
+                             
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <span class="text-xs font-mono text-slate-600 tracking-widest uppercase">[ No Thumbnail ]</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="absolute inset-0 flex items-center justify-center bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <span class="text-4xl text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]">&blacktriangleright;</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col flex-grow p-6">
+                    <h3 class="text-xl font-bold mb-2 tracking-tight group-hover:text-sky-400 transition-colors duration-150">
+                        {{ video.title }}
+                    </h3>
+                    
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">
+                        {{ video.description }}
+                    </p>
+                    
+                    <a href="{{ base_url }}/videos/{{ category.slug }}/{{ video.slug }}" 
+                       class="mt-auto inline-flex items-center justify-center gap-2 bg-slate-800/80 text-slate-200 border border-slate-700/80 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 hover:bg-sky-600 hover:border-sky-600 hover:text-white">
+                        <span>▶</span> Watch Episode
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-span-full text-center py-16 bg-slate-900/10 rounded-2xl border border-dashed border-slate-800/60">
+                <p class="text-slate-500 font-mono text-sm">No video episodes have been added to this series yet.</p>
+            </div>
+        {% endfor %}
+    </main>
+</div>
+{% endblock %}

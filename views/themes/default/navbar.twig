@@ -1,0 +1,355 @@
+<header class="site-nav bg-blue-900/80 dark:bg-slate-950 text-white sticky top-0 z-40 border-b border-blue-700/40 dark:border-slate-800/50 backdrop-blur-md">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 w-full">
+            
+            <div class="flex-shrink-0">
+                <a href="{{ base_url }}/" class="flex items-center space-x-3 group text-xl font-bold tracking-tight text-white transition hover:opacity-90">
+                    <span class="brand-mark bg-indigo-600 text-white px-2 py-0.5 rounded text-base font-black" aria-hidden="true">FP</span>
+                    <span>Faith Project</span>
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-6 h-full">
+                
+                <div class="relative group h-16 flex items-center">
+                    <button id="navBibleTrigger" class="nav-rgb-link nav-link text-slate-200 hover:text-white flex items-center gap-1.5 focus:outline-none cursor-pointer py-5 text-sm font-medium">
+                        <span>Read the Bible</span>
+                        <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div id="navBiblePopover" class="hidden group-hover:flex absolute left-0 top-full bg-slate-900 border border-slate-800 shadow-2xl rounded-b-xl w-[560px] p-6 text-slate-200 flex-row gap-6 z-50">
+                        
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 border-b border-slate-800 pb-1">Old Testament</h3>
+                            <div id="otBooksContainer" class="grid grid-cols-1 gap-y-1 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="flex-1 min-w-0 border-l border-slate-800 pl-6">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 border-b border-slate-800 pb-1">New Testament</h3>
+                            <div id="ntBooksContainer" class="grid grid-cols-1 gap-y-1 text-sm">
+                            </div>
+                        </div>
+
+                        <div id="chapterPanel" class="flex-1 min-w-0 border-l border-slate-800 pl-6 flex flex-col">
+                            <h3 id="chapterPanelTitle" class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3 border-b border-slate-800 pb-1 text-ellipsis overflow-hidden whitespace-nowrap">Chapters</h3>
+                            <div id="chaptersContainer" class="grid grid-cols-4 gap-1 overflow-y-auto max-h-[340px] pr-1 text-xs text-center">
+                                <div class="text-slate-500 text-left col-span-4 italic">Hover over a book to view chapters...</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <a href="{{ base_url }}/videos" class="nav-rgb-link text-slate-200 hover:text-white text-sm font-medium py-5">Videos</a>
+                <a href="{{ base_url }}/trivia" class="nav-rgb-link text-slate-200 hover:text-white text-sm font-medium py-5">Trivia</a>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button id="theme-btn" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition focus:outline-none" aria-label="Toggle UI Theme Mode">
+                    <span id="themeToggleIconContainer">
+                        </span>
+                </button>
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition focus:outline-none" aria-label="Open menu" aria-expanded="false">
+                    <svg id="mobileMenuIconOpen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg id="mobileMenuIconClose" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Menu Drawer -->
+<div id="mobileMenuDrawer" class="md:hidden hidden bg-blue-900/80 dark:bg-slate-950 border-b border-blue-700/40 dark:border-slate-800 backdrop-blur-md z-30">
+    <nav class="px-4 py-3 space-y-1">
+
+        <!-- Bible accordion -->
+        <div>
+            <button id="mobileBibleToggle" class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg text-slate-200 hover:bg-slate-800 text-sm font-medium transition">
+                <span>Read the Bible</span>
+                <svg id="mobileBibleChevron" class="w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div id="mobileBiblePanel" class="hidden mt-1 pl-3 border-l border-slate-800 space-y-3 pb-2">
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-2 pt-2 pb-1">Old Testament</p>
+                    <div id="mobileOtBooks" class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-sm"></div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-2 pb-1">New Testament</p>
+                    <div id="mobileNtBooks" class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <a href="{{ base_url }}/videos" class="block py-2.5 px-3 rounded-lg text-slate-200 hover:bg-slate-800 text-sm font-medium transition">Videos</a>
+        <a href="{{ base_url }}/trivia" class="block py-2.5 px-3 rounded-lg text-slate-200 hover:bg-slate-800 text-sm font-medium transition">Trivia</a>
+
+    </nav>
+</div>
+
+<style>
+    /* Light mode: translucent blue header already set via Tailwind.
+       Dark mode inherits the existing slate-950 via dark: variants. */
+
+    /* RGB cycling underline for nav links */
+    .nav-rgb-link {
+        position: relative;
+        text-decoration: none;
+    }
+    .nav-rgb-link::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+        background-size: 200% 100%;
+        border-radius: 1px;
+        transition: width 0.25s ease;
+        animation: rgbShift 2s linear infinite;
+        animation-play-state: paused;
+    }
+    .nav-rgb-link:hover::after {
+        width: 100%;
+        animation-play-state: running;
+    }
+    @keyframes rgbShift {
+        0%   { background-position: 0% 0%; }
+        100% { background-position: 200% 0%; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const baseUrl = "{{ base_url }}";
+
+        // Absolute Canonical Map containing all 66 Books and Chapter footprints
+        const bibleBooks = [
+            // Old Testament (39 Books)
+            { name: "Genesis", slug: "genesis", testament: "OT", chapters: 50 },
+            { name: "Exodus", slug: "exodus", testament: "OT", chapters: 40 },
+            { name: "Leviticus", slug: "leviticus", testament: "OT", chapters: 27 },
+            { name: "Numbers", slug: "numbers", testament: "OT", chapters: 36 },
+            { name: "Deuteronomy", slug: "deuteronomy", testament: "OT", chapters: 34 },
+            { name: "Joshua", slug: "joshua", testament: "OT", chapters: 24 },
+            { name: "Judges", slug: "judges", testament: "OT", chapters: 21 },
+            { name: "Ruth", slug: "ruth", testament: "OT", chapters: 4 },
+            { name: "1 Samuel", slug: "1-samuel", testament: "OT", chapters: 31 },
+            { name: "2 Samuel", slug: "2-samuel", testament: "OT", chapters: 24 },
+            { name: "1 Kings", slug: "1-kings", testament: "OT", chapters: 22 },
+            { name: "2 Kings", slug: "2-kings", testament: "OT", chapters: 25 },
+            { name: "1 Chronicles", slug: "1-chronicles", testament: "OT", chapters: 29 },
+            { name: "2 Chronicles", slug: "2-chronicles", testament: "OT", chapters: 36 },
+            { name: "Ezra", slug: "ezra", testament: "OT", chapters: 10 },
+            { name: "Nehemiah", slug: "nehemiah", testament: "OT", chapters: 13 },
+            { name: "Esther", slug: "esther", testament: "OT", chapters: 10 },
+            { name: "Job", slug: "job", testament: "OT", chapters: 42 },
+            { name: "Psalms", slug: "psalms", testament: "OT", chapters: 150 },
+            { name: "Proverbs", slug: "proverbs", testament: "OT", chapters: 31 },
+            { name: "Ecclesiastes", slug: "ecclesiastes", testament: "OT", chapters: 12 },
+            { name: "Song of Solomon", slug: "song-of-solomon", testament: "OT", chapters: 8 },
+            { name: "Isaiah", slug: "isaiah", testament: "OT", chapters: 66 },
+            { name: "Jeremiah", slug: "jeremiah", testament: "OT", chapters: 52 },
+            { name: "Lamentations", slug: "lamentations", testament: "OT", chapters: 5 },
+            { name: "Ezekiel", slug: "ezekiel", testament: "OT", chapters: 48 },
+            { name: "Daniel", slug: "daniel", testament: "OT", chapters: 12 },
+            { name: "Hosea", slug: "hosea", testament: "OT", chapters: 14 },
+            { name: "Joel", slug: "joel", testament: "OT", chapters: 3 },
+            { name: "Amos", slug: "amos", testament: "OT", chapters: 9 },
+            { name: "Obadiah", slug: "obadiah", testament: "OT", chapters: 1 },
+            { name: "Jonah", slug: "jonah", testament: "OT", chapters: 4 },
+            { name: "Micah", slug: "micah", testament: "OT", chapters: 7 },
+            { name: "Nahum", slug: "nahum", testament: "OT", chapters: 3 },
+            { name: "Habakkuk", slug: "habakkuk", testament: "OT", chapters: 3 },
+            { name: "Zephaniah", slug: "zephaniah", testament: "OT", chapters: 3 },
+            { name: "Haggai", slug: "haggai", testament: "OT", chapters: 2 },
+            { name: "Zechariah", slug: "zechariah", testament: "OT", chapters: 14 },
+            { name: "Malachi", slug: "malachi", testament: "OT", chapters: 4 },
+
+            // New Testament (27 Books)
+            { name: "Matthew", slug: "matthew", testament: "NT", chapters: 28 },
+            { name: "Mark", slug: "mark", testament: "NT", chapters: 16 },
+            { name: "Luke", slug: "luke", testament: "NT", chapters: 24 },
+            { name: "John", slug: "john", testament: "NT", chapters: 21 },
+            { name: "Acts", slug: "acts", testament: "NT", chapters: 28 },
+            { name: "Romans", slug: "romans", testament: "NT", chapters: 16 },
+            { name: "1 Corinthians", slug: "1-corinthians", testament: "NT", chapters: 16 },
+            { name: "2 Corinthians", slug: "2-corinthians", testament: "NT", chapters: 13 },
+            { name: "Galatians", slug: "galatians", testament: "NT", chapters: 6 },
+            { name: "Ephesians", slug: "ephesians", testament: "NT", chapters: 6 },
+            { name: "Philippians", slug: "philippians", testament: "NT", chapters: 4 },
+            { name: "Colossians", slug: "colossians", testament: "NT", chapters: 4 },
+            { name: "1 Thessalonians", slug: "1-thessalonians", testament: "NT", chapters: 5 },
+            { name: "2 Thessalonians", slug: "2-thessalonians", testament: "NT", chapters: 3 },
+            { name: "1 Timothy", slug: "1-timothy", testament: "NT", chapters: 6 },
+            { name: "2 Timothy", slug: "2-timothy", testament: "NT", chapters: 4 },
+            { name: "Titus", slug: "titus", testament: "NT", chapters: 3 },
+            { name: "Philemon", slug: "philemon", testament: "NT", chapters: 1 },
+            { name: "Hebrews", slug: "hebrews", testament: "NT", chapters: 13 },
+            { name: "James", slug: "james", testament: "NT", chapters: 5 },
+            { name: "1 Peter", slug: "1-peter", testament: "NT", chapters: 5 },
+            { name: "2 Peter", slug: "2-peter", testament: "NT", chapters: 3 },
+            { name: "1 John", slug: "1-john", testament: "NT", chapters: 5 },
+            { name: "2 John", slug: "2-john", testament: "NT", chapters: 1 },
+            { name: "3 John", slug: "3-john", testament: "NT", chapters: 1 },
+            { name: "Jude", slug: "jude", testament: "NT", chapters: 1 },
+            { name: "Revelation", slug: "revelation", testament: "NT", chapters: 22 }
+        ];
+
+        const otContainer = document.getElementById('otBooksContainer');
+        const ntContainer = document.getElementById('ntBooksContainer');
+        const chaptersContainer = document.getElementById('chaptersContainer');
+        const chapterPanelTitle = document.getElementById('chapterPanelTitle');
+
+        function populateMegaMenu() {
+            if (!otContainer || !ntContainer) return;
+            
+            otContainer.innerHTML = '';
+            ntContainer.innerHTML = '';
+
+            bibleBooks.forEach(book => {
+                const link = document.createElement('a');
+                // Maps to standard application reading interface convention: /bible/{book_slug}/1
+                link.href = `${baseUrl}/bible/${book.slug}/1`;
+                link.className = 'block py-0.5 text-slate-300 hover:text-indigo-400 transition cursor-pointer text-[13.5px] truncate';
+                link.textContent = book.name;
+
+                // Event listener overrides the sidebar chapter preview instantly on hover
+                link.addEventListener('mouseenter', () => {
+                    renderChapterPanel(book);
+                });
+
+                if (book.testament === 'OT') {
+                    otContainer.appendChild(link);
+                } else {
+                    ntContainer.appendChild(link);
+                }
+            });
+        }
+
+        function renderChapterPanel(book) {
+            if (!chaptersContainer || !chapterPanelTitle) return;
+            
+            chapterPanelTitle.textContent = book.name;
+            chaptersContainer.innerHTML = '';
+
+            for (let i = 1; i <= book.chapters; i++) {
+                const chapLink = document.createElement('a');
+                chapLink.href = `${baseUrl}/bible/${book.slug}/${i}`;
+                chapLink.className = 'p-1 rounded bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white transition font-medium text-[11px] select-none';
+                chapLink.textContent = i;
+                chaptersContainer.appendChild(chapLink);
+            }
+        }
+
+        // Initialize Menu Rendering Engine
+        populateMegaMenu();
+
+        // Application Native Light/Dark/System Theme Orchestration
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const iconContainer = document.getElementById('themeToggleIconContainer');
+
+        const themeIcons = {
+            light: `<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2.293a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zm4.707 4.707a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM14 15.707a1 1 0 010-1.414l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zm-4 2.293a1 1 0 01-1-1v-1a1 1 0 112 0v1a1 1 0 01-1 1zm-4.707-2.293a1 1 0 01-1.414 0l-.707-.707a1 1 0 011.414-1.414l.707.707a1 1 0 010 1.414zM2 11a1 1 0 110-2h1a1 1 0 110 2H2zm2.293-7a1 1 0 010 1.414L3.586 6.121A1 1 0 112.172 4.707l.707-.707a1 1 0 011.414 0zM10 5a5 5 0 100 10 5 5 0 000-10z"/></svg>`,
+            dark: `<svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>`,
+            system: `<svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`
+        };
+
+        function applyTheme(mode) {
+            const root = document.documentElement;
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (mode === 'dark' || (mode === 'system' && systemPrefersDark)) {
+                root.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+            }
+            
+            if (iconContainer) {
+                iconContainer.innerHTML = themeIcons[mode] || themeIcons.system;
+            }
+            localStorage.setItem('theme', mode);
+        }
+
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const currentMode = localStorage.getItem('theme') || 'system';
+                let nextMode = 'system';
+                if (currentMode === 'system') nextMode = 'light';
+                else if (currentMode === 'light') nextMode = 'dark';
+                applyTheme(nextMode);
+            });
+        }
+
+        // Apply theme footprint configuration instantly upon initialization layer
+        applyTheme(localStorage.getItem('theme') || 'system');
+
+        // --- Mobile Menu ---
+        const mobileMenuBtn      = document.getElementById('mobileMenuBtn');
+        const mobileMenuDrawer   = document.getElementById('mobileMenuDrawer');
+        const mobileMenuOpen     = document.getElementById('mobileMenuIconOpen');
+        const mobileMenuClose    = document.getElementById('mobileMenuIconClose');
+        const mobileBibleToggle  = document.getElementById('mobileBibleToggle');
+        const mobileBiblePanel   = document.getElementById('mobileBiblePanel');
+        const mobileBibleChevron = document.getElementById('mobileBibleChevron');
+        const mobileOtBooks      = document.getElementById('mobileOtBooks');
+        const mobileNtBooks      = document.getElementById('mobileNtBooks');
+
+        // Populate mobile book lists from the same bibleBooks array
+        if (mobileOtBooks && mobileNtBooks) {
+            bibleBooks.forEach(book => {
+                const a = document.createElement('a');
+                a.href = `${baseUrl}/bible/${book.slug}/1`;
+                a.className = 'block py-0.5 px-2 text-slate-300 hover:text-indigo-400 text-[13px] transition truncate';
+                a.textContent = book.name;
+                if (book.testament === 'OT') {
+                    mobileOtBooks.appendChild(a);
+                } else {
+                    mobileNtBooks.appendChild(a);
+                }
+            });
+        }
+
+        // Toggle drawer open/close
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = !mobileMenuDrawer.classList.contains('hidden');
+                mobileMenuDrawer.classList.toggle('hidden', isOpen);
+                mobileMenuOpen.classList.toggle('hidden', !isOpen);
+                mobileMenuClose.classList.toggle('hidden', isOpen);
+                mobileMenuBtn.setAttribute('aria-expanded', String(!isOpen));
+            });
+        }
+
+        // Toggle Bible accordion inside mobile drawer
+        if (mobileBibleToggle) {
+            mobileBibleToggle.addEventListener('click', () => {
+                const isOpen = !mobileBiblePanel.classList.contains('hidden');
+                mobileBiblePanel.classList.toggle('hidden', isOpen);
+                mobileBibleChevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+            });
+        }
+
+        // Close drawer when any link inside it is clicked
+        if (mobileMenuDrawer) {
+            mobileMenuDrawer.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuDrawer.classList.add('hidden');
+                    mobileMenuOpen.classList.remove('hidden');
+                    mobileMenuClose.classList.add('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+    });
+</script>
