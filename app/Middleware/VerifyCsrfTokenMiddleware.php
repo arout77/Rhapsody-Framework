@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Middleware;
 
 use Core\Request;
@@ -23,11 +22,15 @@ class VerifyCsrfTokenMiddleware extends Middleware
      * @param Request $request
      * @return void
      */
-    public function handle( Request $request ): void
+    public function handle(Request $request): void
     {
-        if ( $this->isPostRequest( $request ) && !$this->inExceptArray( $request ) ) {
-            $token = $request->get( '_token' );
-            Session::verifyCsrfToken( $token );
+        if ($this->isPostRequest($request) && ! $this->inExceptArray($request)) {
+            $token = $request->get('_token') ?? ($request->getBody()['_token'] ?? null);
+            if (! Session::verifyCsrfToken($token)) {
+                http_response_code(419);
+                echo "CSRF token mismatch.";
+                exit;
+            }
         }
     }
 
@@ -37,7 +40,7 @@ class VerifyCsrfTokenMiddleware extends Middleware
      * @param Request $request
      * @return bool
      */
-    protected function isPostRequest( Request $request ): bool
+    protected function isPostRequest(Request $request): bool
     {
         return $request->getMethod() === 'POST';
     }
@@ -48,11 +51,11 @@ class VerifyCsrfTokenMiddleware extends Middleware
      * @param Request $request
      * @return bool
      */
-    protected function inExceptArray( Request $request ): bool
+    protected function inExceptArray(Request $request): bool
     {
-        foreach ( $this->except as $except ) {
+        foreach ($this->except as $except) {
             // The request's `is` method handles wildcard matching
-            if ( $request->is( $except ) ) {
+            if ($request->is($except)) {
                 return true;
             }
         }

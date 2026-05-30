@@ -1,5 +1,4 @@
 <?php
-
 namespace Core;
 
 class Request
@@ -23,7 +22,7 @@ class Request
 
     public function getMethod(): string
     {
-        return strtolower( $this->server['REQUEST_METHOD'] ?? 'get' );
+        return strtolower($this->server['REQUEST_METHOD'] ?? 'get');
     }
 
     /**
@@ -33,21 +32,21 @@ class Request
     public function getPath(): string
     {
         $path     = $this->server['REQUEST_URI'] ?? '/';
-        $position = strpos( $path, '?' );
-        if ( $position !== false ) {
-            $path = substr( $path, 0, $position );
+        $position = strpos($path, '?');
+        if ($position !== false) {
+            $path = substr($path, 0, $position);
         }
 
         $baseUrl = $_ENV['APP_BASE_URL'] ?? '';
 
-        if ( !empty( $baseUrl ) && $baseUrl !== '/' && str_starts_with( $path, $baseUrl ) ) {
-            $path = substr( $path, strlen( $baseUrl ) );
+        if (! empty($baseUrl) && $baseUrl !== '/' && str_starts_with($path, $baseUrl)) {
+            $path = substr($path, strlen($baseUrl));
         }
 
-        if ( strlen( $path ) > 1 ) {
-            $path = rtrim( $path, '/' );
+        if (strlen($path) > 1) {
+            $path = rtrim($path, '/');
         }
-        return empty( $path ) ? '/' : $path;
+        return empty($path) ? '/' : $path;
     }
 
     /**
@@ -59,30 +58,23 @@ class Request
      */
     public function getBody(): array
     {
-        if ( $this->getMethod() !== 'post' ) {
-            return [];
+        // 1. JSON content type (always attempt, regardless of HTTP method)
+        if (isset($this->server['CONTENT_TYPE']) && str_contains(strtolower($this->server['CONTENT_TYPE']), 'application/json')) {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
+            return is_array($data) ? $data : [];
         }
 
-        // 1. Check for a JSON content-type header first.
-        if ( isset( $this->server['CONTENT_TYPE'] ) && str_contains( strtolower( $this->server['CONTENT_TYPE'] ), 'application/json' ) ) {
-            $json = file_get_contents( 'php://input' );
-            return json_decode( $json, true ) ?? [];
-        }
-
-        // 2. If no JSON header, return standard $_POST data (for forms) raw.
-        // Sanitization belongs in the Validator or at point of use, not here.
-        if ( !empty( $this->postParams ) ) {
+        // 2. For POST requests with form data, return $_POST
+        if ($this->getMethod() === 'post' && ! empty($this->postParams)) {
             return $this->postParams;
         }
 
-        // 3. FALLBACK: If $_POST is empty, it might be JSON sent without
-        // the correct header. Try to parse it anyway.
-        $json = file_get_contents( 'php://input' );
-        if ( !empty( $json ) ) {
-            $data = json_decode( $json, true );
-            if ( is_array( $data ) ) {
-                return $data;
-            }
+        // 3. Fallback: parse php://input for PUT/PATCH/DELETE with application/x-www-form-urlencoded
+        $input = file_get_contents('php://input');
+        if (! empty($input) && str_contains($input, '=')) {
+            parse_str($input, $data);
+            return $data;
         }
 
         return [];
@@ -93,7 +85,7 @@ class Request
      * @param $default
      * @return mixed
      */
-    public function get( string $key, $default = null )
+    public function get(string $key, $default = null)
     {
         return $this->getParams[$key] ?? $default;
     }
@@ -103,7 +95,7 @@ class Request
      * @param $default
      * @return mixed
      */
-    public function post( string $key, $default = null )
+    public function post(string $key, $default = null)
     {
         return $this->postParams[$key] ?? $default;
     }
@@ -112,9 +104,9 @@ class Request
      * @param string $key
      * @param $default
      */
-    public function getQueryParam( string $key, $default = null )
+    public function getQueryParam(string $key, $default = null)
     {
-        return filter_input( INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS ) ?? $default;
+        return filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS) ?? $default;
     }
 
     /**

@@ -1,0 +1,117 @@
+{% extends "docs/_layout.twig" %}
+
+{% block doc_content %}
+    <h1>Error Handling & Logging</h1>
+    <p>
+        Rhapsody includes a robust global error handler that catches exceptions, converts PHP errors to exceptions, and handles fatal shutdown errors. In development you get detailed Whoops pages; in production you get clean, user‑friendly error pages while all errors are logged.
+    </p>
+
+    <h2>How It Works</h2>
+    <p>
+        The <code>Core\ErrorHandler</code> class is registered early in <code>index.php</code>. It sets three PHP handlers:
+    </p>
+    <ul>
+        <li><code>set_error_handler()</code> – converts warnings, notices, etc. into <code>ErrorException</code>.</li>
+        <li><code>set_exception_handler()</code> – catches all uncaught exceptions.</li>
+        <li><code>register_shutdown_function()</code> – catches fatal errors (e.g., missing class, parse errors).</li>
+    </ul>
+
+    <h2>Configuration</h2>
+    <p>
+        The error handler reads the <code>logging</code> array from <code>config.php</code>. Add the <code>error_log_path</code> to specify where errors should be written:
+    </p>
+    <pre><code class="language-php">'logging' => [
+    'error_log_path' => __DIR__ . '/storage/logs/errors.log',
+    // other log paths...
+],</code></pre>
+
+    <h2>Development vs. Production</h2>
+
+    <h3>Development Mode (<code>APP_ENV=development</code>)</h3>
+    <p>
+        When an error occurs, the handler displays a <strong>Whoops</strong> error page with:
+    </p>
+    <ul>
+        <li>Full stack trace with clickable file links.</li>
+        <li>Code snippet around the error line.</li>
+        <li>Environment and request data.</li>
+        <li>Interactive console to inspect variables.</li>
+    </ul>
+    <p>Errors are still logged, but the visual feedback helps you debug quickly.</p>
+
+    <h3>Production Mode (<code>APP_ENV=production</code>)</h3>
+    <p>
+        The handler shows a generic error page to the user – no sensitive details are leaked. Meanwhile, the full error (including stack trace) is written to the configured log file.
+    </p>
+    <p>By default, HTTP status codes are respected:</p>
+    <ul>
+        <li><strong>404 Not Found</strong> – when a route doesn’t match.</li>
+        <li><strong>500 Internal Server Error</strong> – for all other exceptions.</li>
+    </ul>
+
+    <h2>Custom Error Views</h2>
+    <p>
+        You can create custom Twig templates for error pages. Place them in <code>views/errors/</code> with the status code as the filename:
+    </p>
+    <ul>
+        <li><code>views/errors/404.twig</code> – shown when a page is not found.</li>
+        <li><code>views/errors/500.twig</code> – shown for server errors.</li>
+        <li>You can add any HTTP status code (e.g., <code>403.twig</code>, <code>503.twig</code>).</li>
+    </ul>
+    <p>Example <code>404.twig</code>:</p>
+    <pre><code class="language-twig">{% extends "layouts/main.twig" %}
+
+{% block title %}404 Not Found{% endblock %}
+
+{% block content %}
+    &lt;div class="text-center py-20"&gt;
+        &lt;h1 class="text-6xl font-bold"&gt;404&lt;/h1&gt;
+        &lt;p class="text-xl mt-4"&gt;Page not found.&lt;/p&gt;
+        &lt;a href="{{ base_url }}/"&gt;Go Home&lt;/a&gt;
+    &lt;/div&gt;
+{% endblock %}</code></pre>
+    <p>
+        If no custom view exists for a status code, the handler falls back to a simple HTML error message.
+    </p>
+
+    <h2>Throwing HTTP Exceptions</h2>
+    <p>
+        For more control, you can throw <code>Core\Exceptions\HttpException</code> (optional class – you need to create it). Example:
+    </p>
+    <pre><code class="language-php">use Core\Exceptions\HttpException;
+
+public function show(string $id): Response
+{
+    $post = $this->postModel->findById($id);
+    if (!$post) {
+        throw new HttpException(404, 'Post not found.');
+    }
+    // ...
+}</code></pre>
+    <p>
+        The error handler will then use the provided status code and message, and show the corresponding error view (if exists).
+    </p>
+
+    <h2>Logging Format</h2>
+    <p>
+        Each error is logged using the <code>Core\Logger</code> class. A typical log entry looks like:
+    </p>
+    <pre><code>[2025-06-15 14:32:10] ERROR: [PDOException] SQLSTATE[42S02]: Base table or view not found in /var/www/app/Models/User.php:45
+Stack trace:
+#0 /var/www/app/Models/User.php(45): PDO->prepare()
+#1 /var/www/app/Controllers/UserController.php(22): App\Models\User->findById()
+#2 /var/www/core/Router.php(89): App\Controllers\UserController->show()
+...</code></pre>
+
+    <h2>Manual Logging</h2>
+    <p>
+        Even without errors, you can write to the same log file using the <code>Logger</code> class:
+    </p>
+    <pre><code class="language-php">$logger = new \Core\Logger($config['logging']['error_log_path']);
+$logger->log('User 123 logged out.', 'INFO');</code></pre>
+
+    <h2>Disabling the Error Handler</h2>
+    <p>
+        In rare cases (e.g., running unit tests), you may want to disable the custom handler. Call <code>restore_error_handler()</code> and <code>restore_exception_handler()</code> manually.
+    </p>
+{% endblock %}

@@ -1,11 +1,8 @@
 <?php
-
 namespace Core;
 
-use App\Middleware\AuthMiddleware;
-use App\Middleware\GuestMiddleware;
-use App\Middleware\Middleware;
 use App\Middleware\VerifyCsrfTokenMiddleware;
+use Core\Exceptions\HttpException;
 
 /**
  * The Rhapsody Router.
@@ -26,14 +23,10 @@ class Router
      * A map of middleware keys to their fully qualified class names.
      * @var array
      */
-    protected static array $middlewareMap = [
-        'auth'  => AuthMiddleware::class,
-        'guest' => GuestMiddleware::class,
-    ];
+    protected static array $middlewareMap = [];
 
     /**
      * Global middleware runs on every matched request.
-     * Moved to post-match so unmatched routes don't trigger CSRF checks etc.
      * @var array
      */
     protected static array $globalMiddleware = [
@@ -47,11 +40,23 @@ class Router
     protected static ?Route $matchedRoute = null;
 
     /**
+     * Set middleware configuration from the application.
+     *
+     * @param array $map Associative array of key => class name.
+     * @param array $global List of global middleware class names.
+     */
+    public static function setMiddlewareConfig(array $map, array $global): void
+    {
+        self::$middlewareMap    = $map;
+        self::$globalMiddleware = $global;
+    }
+
+    /**
      * Adds a new route to the collection.
      */
-    protected static function add( string $method, string $path, mixed $callback ): Route
+    protected static function add(string $method, string $path, mixed $callback): Route
     {
-        $route          = new Route( $method, $path, $callback );
+        $route          = new Route($method, $path, $callback);
         self::$routes[] = $route;
         return $route;
     }
@@ -59,55 +64,61 @@ class Router
     /**
      * Registers a GET route.
      */
-    public static function get( string $path, mixed $callback ): Route
+    public static function get(string $path, mixed $callback): Route
     {
-        return self::add( 'get', $path, $callback );
+        return self::add('get', $path, $callback);
     }
 
     /**
      * Registers a POST route.
      */
-    public static function post( string $path, mixed $callback ): Route
+    public static function post(string $path, mixed $callback): Route
     {
-        return self::add( 'post', $path, $callback );
+        return self::add('post', $path, $callback);
     }
 
     /**
      * Finds the matching route, executes middleware, and dispatches it.
      *
-     * Global middleware now runs only after a route is matched, so 404
-     * requests don't trigger CSRF checks or auth redirects unnecessarily.
+     * Global middleware runs only after a route is matched.
+     * Middleware can short‑circuit by returning a Response object.
      *
-     * @param Request $request The incoming request object.
+     * @param Request   $request   The incoming request object.
      * @param Container $container The application's service container.
      * @return Response
      */
-    public static function dispatch( Request $request, Container $container ): Response
+    public static function dispatch(Request $request, Container $container): Response
     {
         $path   = $request->getPath();
         $method = $request->getMethod();
 
-        foreach ( self::$routes as $route ) {
-            if ( $route->matches( $method, $path ) ) {
+        foreach (self::$routes as $route) {
+            if ($route->matches($method, $path)) {
                 self::$matchedRoute = $route;
 
-                // Run global middleware now that we have a matched route.
-                foreach ( self::$globalMiddleware as $middlewareClass ) {
-                    $middleware = $container->resolve( $middlewareClass );
-                    $middleware->handle( $request );
-                }
-
-                // Resolve and execute any middleware attached to the route.
-                $middlewareKey = $route->getMiddleware();
-                if ( $middlewareKey ) {
-                    $middlewareClass = self::$middlewareMap[$middlewareKey] ?? null;
-                    if ( $middlewareClass && class_exists( $middlewareClass ) ) {
-                        $middleware = new $middlewareClass();
-                        $middleware->handle( $request );
+                // Run global middleware (can return Response)
+                foreach (self::$globalMiddleware as $middlewareClass) {
+                    $middleware = $container->resolve($middlewareClass);
+                    $response   = $middleware->handle($request);
+                    if ($response instanceof Response) {
+                        return $response;
                     }
                 }
 
-                return self::execute( $route, $request, $container );
+                // Run route‑specific middleware (resolved via container)
+                $middlewareKey = $route->getMiddleware();
+                if ($middlewareKey) {
+                    $middlewareClass = self::$middlewareMap[$middlewareKey] ?? null;
+                    if ($middlewareClass && class_exists($middlewareClass)) {
+                        $middleware = $container->resolve($middlewareClass);
+                        $response   = $middleware->handle($request);
+                        if ($response instanceof Response) {
+                            return $response;
+                        }
+                    }
+                }
+
+                return self::execute($route, $request, $container);
             }
         }
 
@@ -117,28 +128,27 @@ class Router
     /**
      * Executes the controller action for a matched route.
      *
-     * @param Route $route The matched route object.
-     * @param Request $request The incoming request object.
+     * @param Route     $route     The matched route object.
+     * @param Request   $request   The incoming request object.
      * @param Container $container The application's service container.
      * @return Response
      */
-    protected static function execute( Route $route, Request $request, Container $container ): Response
+    protected static function execute(Route $route, Request $request, Container $container): Response
     {
         $callback = $route->getCallback();
         $params   = $route->getParams();
 
-        if ( is_array( $callback ) ) {
+        if (is_array($callback)) {
             $controllerClass = $callback[0];
             $action          = $callback[1];
 
-            $controller = $container->resolve( $controllerClass );
-
-            return $controller->{$action}( $request, ...$params );
+            $controller = $container->resolve($controllerClass);
+            return $controller->{$action}($request, ...$params);
         }
 
-        if ( $callback instanceof \Closure ) {
+        if ($callback instanceof \Closure) {
             $response = new Response();
-            $response->setContent( call_user_func( $callback, $request, ...$params ) );
+            $response->setContent(call_user_func($callback, $request, ...$params));
             return $response;
         }
 
@@ -150,10 +160,7 @@ class Router
      */
     protected static function handleNotFound(): Response
     {
-        $response = new Response();
-        $response->setStatusCode( 404 );
-        $response->setContent( "<h1>404 Not Found</h1>" );
-        return $response;
+        throw new HttpException(404, 'Page not found');
     }
 
     /**
@@ -169,7 +176,7 @@ class Router
         return self::$routes;
     }
 
-    public static function setRoutes( array $routes ): void
+    public static function setRoutes(array $routes): void
     {
         self::$routes = $routes;
     }

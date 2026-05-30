@@ -38,6 +38,9 @@ class Mailer
      */
     public function send(string $to, string $subject, string $htmlBody, ?string $plainTextBody = null): void
     {
+        if (! $this->mailer) {
+            throw new \RuntimeException('Mailer not configured. Please set MAIL_HOST in .env');
+        }
         $fromAddress = $this->config['mailer']['from_address'];
         $fromName    = $this->config['mailer']['from_name'];
 

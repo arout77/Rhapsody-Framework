@@ -1,5 +1,4 @@
 <?php
-
 namespace Core;
 
 class Route
@@ -11,6 +10,18 @@ class Route
     protected array $params = [];
 
     protected ?string $middleware = null;
+
+    /**
+     * Middleware mapping (loaded from config).
+     * @var array
+     */
+    protected static array $middlewareMap = [];
+
+    /**
+     * Global middleware list (loaded from config).
+     * @var array
+     */
+    protected static array $globalMiddleware = [];
 
     public function __construct(
         protected string $method,
@@ -26,11 +37,23 @@ class Route
      * @param array $properties An array of properties to set on the new object.
      * @return self A new instance of the Route class.
      */
-    public static function __set_state( array $properties ): self
+    public static function __set_state(array $properties): self
     {
-        $route             = new self( $properties['method'], $properties['path'], $properties['callback'] );
+        $route             = new self($properties['method'], $properties['path'], $properties['callback']);
         $route->middleware = $properties['middleware'] ?? null;
         return $route;
+    }
+
+    /**
+     * Set middleware configuration from the application.
+     *
+     * @param array $map Associative array of key => class name.
+     * @param array $global List of global middleware class names.
+     */
+    public static function setMiddlewareConfig(array $map, array $global): void
+    {
+        self::$middlewareMap    = $map;
+        self::$globalMiddleware = $global;
     }
 
     /**
@@ -42,24 +65,24 @@ class Route
      *
      * @return bool True if the route matches, false otherwise.
      */
-    public function matches( string $method, string $uri ): bool
+    public function matches(string $method, string $uri): bool
     {
         // First, check if the HTTP method matches.
-        if ( strtolower( $this->method ) !== strtolower( $method ) ) {
+        if (strtolower($this->method) !== strtolower($method)) {
             return false;
         }
 
         // Convert the route path into a regular expression.
         // 1. Replace dynamic segments {param} with a regex capture group.
-        $pattern = preg_replace( '/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $this->path );
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $this->path);
 
         // 2. Escape forward slashes and anchor the pattern.
         $pattern = "~^" . $pattern . "$~";
 
         // 3. Attempt to match the URI against the pattern.
-        if ( preg_match( $pattern, $uri, $matches ) ) {
+        if (preg_match($pattern, $uri, $matches)) {
             // Remove the full match from the beginning of the array.
-            array_shift( $matches );
+            array_shift($matches);
             // Store the captured parameter values.
             $this->params = $matches;
             return true;
@@ -108,7 +131,7 @@ class Route
      * @param string $key The middleware key (e.g., 'auth', 'guest').
      * @return self
      */
-    public function middleware( string $key ): self
+    public function middleware(string $key): self
     {
         $this->middleware = $key;
         return $this; // Return self to allow chaining

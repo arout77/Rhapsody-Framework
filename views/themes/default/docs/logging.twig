@@ -69,4 +69,9 @@ $recentErrors = $phpErrorLog->read(50);
 echo "&lt;pre&gt;{$recentErrors}&lt;/pre&gt;";
 </code></pre>
 
+<h2>Error Logging</h2>
+<p>
+    For uncaught exceptions, PHP errors, and fatal shutdown errors, Rhapsody uses a global error handler that logs everything to a dedicated error log file. See the <a href="{{ base_url }}/docs/error-handling">Error Handling &amp; Logging</a> documentation for details.
+</p>
+
 {% endblock %}

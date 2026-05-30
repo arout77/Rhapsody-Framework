@@ -57,6 +57,9 @@ php rhapsody route:cache
 # Remove the route cache file (necessary after changing routes)
 php rhapsody route:clear</code></pre>
     <p><strong>Important:</strong> You must clear and re-cache your routes whenever you make a change to your <code>routes/web.php</code> or <code>routes/api.php</code> files.</p>
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 my-4">
+        <strong>Note:</strong> The <code>route:cache</code> command will fail if any of your routes use a closure as the callback. Always use controller/action pairs when you plan to cache routes.
+    </div>
 
     <h3>Application Cache</h3>
     <p>This command will flush the entire application data cache, which is used by the <code>Core\Cache</code> service.</p>

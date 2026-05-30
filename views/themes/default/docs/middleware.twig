@@ -3,70 +3,79 @@
 {% block doc_content %}
     <h1>Middleware & Authentication</h1>
     <p>
-        Middleware provides a convenient mechanism for filtering HTTP requests entering your application. For example, Rhapsody includes
-        middleware that verifies if a user is authenticated. If the user is not authenticated, the middleware will redirect the user to the login screen.
-        If the user is authenticated, the middleware will allow the request to proceed further.
+        Middleware filters HTTP requests before they reach your controller. Rhapsody includes <code>auth</code> and <code>guest</code> middleware out of the box, and you can create your own.
     </p>
 
-    <h2>Assigning Middleware to Routes</h2>
+    <h2>How Middleware Works</h2>
     <p>
-        You can assign middleware to a route by chaining the <code>middleware()</code> method onto your route definition in
-        <code>routes/web.php</code>.
+        Middleware classes must implement a <code>handle(Request $request): ?Response</code> method. If the middleware returns a <code>Response</code> object (e.g., a redirect or error response), the request is short‑circuited and that response is sent immediately. If it returns <code>null</code>, the request proceeds to the next middleware or controller.
     </p>
-    <pre><code>// This route can only be accessed by authenticated users.
+
+    <h2>Configuration (No Core Edits)</h2>
+    <p>
+        Middleware configuration is stored in <code>config/middleware.php</code> – <strong>never modify files inside <code>/core</code></strong>. This keeps your customisations safe during framework updates.
+    </p>
+
+    <h3>The <code>middleware.php</code> File</h3>
+    <pre><code class="language-php">// config/middleware.php
+return [
+    // Route‑specific middleware (key => class)
+    'map' => [
+        'auth'    => \App\Middleware\AuthMiddleware::class,
+        'guest'   => \App\Middleware\GuestMiddleware::class,
+        'updates' => \App\Middleware\CheckUpdatesMiddleware::class,
+        // Add your own:
+        // 'admin' => \App\Middleware\AdminMiddleware::class,
+    ],
+    // Global middleware (runs on every matched request)
+    'global' => [
+        \App\Middleware\VerifyCsrfTokenMiddleware::class,
+    ],
+];</code></pre>
+
+    <h3>Assigning Middleware to Routes</h3>
+    <p>
+        Chain the <code>middleware()</code> method to your route definition using the keys defined in <code>middleware.php</code>.
+    </p>
+    <pre><code class="language-php">// Only for authenticated users
 Router::get('/dashboard', [PageController::class, 'dashboard'])->middleware('auth');
 
-// This route can only be accessed by guests (unauthenticated users).
+// Only for guests
 Router::get('/login', [AuthController::class, 'showLoginForm'])->middleware('guest');</code></pre>
 
-    <h2>Included Middleware</h2>
-    <p>Rhapsody comes with two essential middleware out of the box:</p>
-    <ul>
-        <li>
-            <strong><code>auth</code></strong>: This middleware checks if a user is logged into the session. If not, it redirects them to the <code>/login</code> page.
-            It's used to protect routes that require a user to be logged in, like a user dashboard or settings page.
-        </li>
-        <li>
-            <strong><code>guest</code></strong>: This middleware does the opposite of <code>auth</code>. It checks if a user is already logged in. If they are, it redirects them
-            away from the current page (usually to <code>/dashboard</code>). This is useful for pages like login and registration forms, which authenticated users
-            don't need to see.
-        </li>
-    </ul>
-
     <h2>Creating Custom Middleware</h2>
-    <p>
-        You can easily create your own middleware for other tasks, like role checking or logging.
-    </p>
     <ol>
-        <li>Create a new class in the <code>app/Middleware</code> directory that extends <code>App\Middleware\Middleware</code>.</li>
-        <li>Implement the <code>handle(Request $request)</code> method with your custom logic.</li>
-        <li>Register a short key for your middleware in the <code>$middlewareMap</code> array in <code>core/Router.php</code>.</li>
+        <li>Create a class in <code>app/Middleware</code> extending <code>App\Middleware\Middleware</code>.</li>
+        <li>Implement the <code>handle(Request $request): ?Response</code> method.</li>
+        <li>Add an entry to the <code>'map'</code> array in <code>config/middleware.php</code>.</li>
     </ol>
-    <pre><code>// Example: A new AdminMiddleware
+    <pre><code class="language-php">// Example AdminMiddleware
 namespace App\Middleware;
-// ...
+
+use Core\Request;
+use Core\Response;
+use Core\Session;
+
 class AdminMiddleware extends Middleware
 {
-    public function handle(Request $request): void
+    public function handle(Request $request): ?Response
     {
-        // Assuming you store user role in the session
         if (Session::get('user_role') !== 'admin') {
-            // Redirect non-admins away
-            header('Location: /');
-            exit();
+            return redirect('/');
         }
+        return null;
     }
-}
+}</code></pre>
+    <p>Then register it in <code>config/middleware.php</code>:</p>
+    <pre><code class="language-php">'map' => [
+    // ...
+    'admin' => \App\Middleware\AdminMiddleware::class,
+],</code></pre>
 
-// In core/Router.php
-protected static array $middlewareMap = [
-    'auth' => AuthMiddleware::class,
-    'guest' => GuestMiddleware::class,
-    'admin' => AdminMiddleware::class, // Register your new middleware
-];
-
-// In routes/web.php
-Router::get('/admin/panel', [AdminController::class, 'index'])->middleware('admin');
-</code></pre>
-
+    <h2>Included Middleware</h2>
+    <ul>
+        <li><strong><code>auth</code></strong> – redirects to <code>/login</code> if no user is logged in.</li>
+        <li><strong><code>guest</code></strong> – redirects to <code>/dashboard</code> if a user is already logged in.</li>
+        <li><strong><code>VerifyCsrfTokenMiddleware</code></strong> – global middleware that validates CSRF tokens on unsafe methods.</li>
+    </ul>
 {% endblock %}

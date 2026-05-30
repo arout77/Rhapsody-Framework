@@ -1,5 +1,4 @@
 <?php
-
 namespace Core;
 
 class FileUploader
@@ -13,9 +12,9 @@ class FileUploader
     /**
      * @param string $uploadDir
      */
-    public function __construct( string $uploadDir = 'storage/uploads/' )
+    public function __construct(string $uploadDir = 'storage/uploads/')
     {
-        $this->uploadDir = rtrim( $uploadDir, '/' ) . '/';
+        $this->uploadDir = rtrim($uploadDir, '/') . '/';
         $this->maxSize   = 2 * 1024 * 1024;
     }
 
@@ -23,7 +22,7 @@ class FileUploader
      * @param array $mimes
      * @return mixed
      */
-    public function setAllowedMimes( array $mimes ): self
+    public function setAllowedMimes(array $mimes): self
     {
         $this->allowedMimes = $mimes;
         return $this;
@@ -33,7 +32,7 @@ class FileUploader
      * @param int $bytes
      * @return mixed
      */
-    public function setMaxSize( int $bytes ): self
+    public function setMaxSize(int $bytes): self
     {
         $this->maxSize = $bytes;
         return $this;
@@ -42,62 +41,58 @@ class FileUploader
     /**
      * @return mixed
      */
-    public function getErrors(): array {
+    public function getErrors(): array
+    {
         return $this->errors;
     }
 
     /**
      * @return mixed
      */
-    public function getUploadedFiles(): array {
+    public function getUploadedFiles(): array
+    {
         return $this->uploadedFiles;
     }
 
     /**
      * @param string $fileInputName
      */
-    public function handle( string $fileInputName ): bool
+    public function handle(string $fileInputName): bool
     {
-        if ( empty( $_FILES[$fileInputName] ) )
-        {
+        if (empty($_FILES[$fileInputName])) {
             $this->errors[] = "No files were uploaded for '{$fileInputName}'.";
             return false;
         }
 
-        $files = $this->normalizeFiles( $_FILES[$fileInputName] );
+        $files = $this->normalizeFiles($_FILES[$fileInputName]);
 
-        foreach ( $files as $file )
-        {
-            if ( $this->validate( $file ) )
-            {
-                $this->move( $file );
+        foreach ($files as $file) {
+            if ($this->validate($file)) {
+                $this->move($file);
             }
         }
 
-        return empty( $this->errors );
+        return empty($this->errors);
     }
 
     /**
      * @param array $file
      */
-    protected function validate( array $file ): bool
+    protected function validate(array $file): bool
     {
         // Now using a more reliable MIME type check
-        $finfo    = new \finfo( FILEINFO_MIME_TYPE );
-        $mimeType = $finfo->file( $file['tmp_name'] );
+        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
 
-        if ( $file['error'] !== UPLOAD_ERR_OK )
-        {
+        if ($file['error'] !== UPLOAD_ERR_OK) {
             $this->errors[$file['name']][] = 'An error occurred during upload.';
             return false;
         }
-        if ( $file['size'] > $this->maxSize )
-        {
+        if ($file['size'] > $this->maxSize) {
             $this->errors[$file['name']][] = 'File is too large.';
             return false;
         }
-        if ( !empty( $this->allowedMimes ) && !in_array( $mimeType, $this->allowedMimes ) )
-        {
+        if (! empty($this->allowedMimes) && ! in_array($mimeType, $this->allowedMimes)) {
             $this->errors[$file['name']][] = 'Invalid file type.';
             return false;
         }
@@ -107,18 +102,19 @@ class FileUploader
     /**
      * @param array $file
      */
-    protected function move( array $file ): void
+    protected function move(array $file): void
     {
-        $extension   = pathinfo( $file['name'], PATHINFO_EXTENSION );
-        $newFilename = uniqid( '', true ) . '.' . $extension;
+        $extension   = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $newFilename = uniqid('', true) . '.' . $extension;
         $destination = $this->uploadDir . $newFilename;
 
-        if ( move_uploaded_file( $file['tmp_name'], $destination ) )
-        {
-            $this->uploadedFiles[] = $newFilename;
+        if (! is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0755, true);
         }
-        else
-        {
+
+        if (move_uploaded_file($file['tmp_name'], $destination)) {
+            $this->uploadedFiles[] = $newFilename;
+        } else {
             $this->errors[$file['name']][] = 'Failed to move uploaded file.';
         }
     }
@@ -127,12 +123,11 @@ class FileUploader
      * @param array $files
      * @return mixed
      */
-    protected function normalizeFiles( array $files ): array {
+    protected function normalizeFiles(array $files): array
+    {
         $normalized = [];
-        if ( is_array( $files['name'] ) )
-        {
-            foreach ( $files['name'] as $index => $name )
-            {
+        if (is_array($files['name'])) {
+            foreach ($files['name'] as $index => $name) {
                 $normalized[] = [
                     'name'     => $name,
                     'type'     => $files['type'][$index],
@@ -141,9 +136,7 @@ class FileUploader
                     'size'     => $files['size'][$index],
                 ];
             }
-        }
-        else
-        {
+        } else {
             $normalized[] = $files;
         }
         return $normalized;

@@ -14,7 +14,6 @@ use Core\QueryLogger;
 use Core\Session;
 use Core\Validator;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Predis\Client as RedisClient;
@@ -33,14 +32,18 @@ $container->bind(EventDispatcher::class, function (Container $c) {
     return new EventDispatcher($c, $eventServiceProvider->getListeners());
 });
 
+// --- QUERY LOGGER BINDING (SINGLETON) ---
+$container->bind(QueryLogger::class, function () {
+    return new QueryLogger();
+});
+
 // --- DOCTRINE ENTITY MANAGER BINDING ---
 $container->bind(EntityManager::class, function ($container) use ($config) {
     $paths     = [__DIR__ . '/app/Entities'];
     $isDevMode = ($config['app_env'] ?? 'production') === 'development';
 
-    // Create the SQL logger
-    $sqlLogger = new QueryLogger();
-    $container->bind(QueryLogger::class, fn() => $sqlLogger);
+    // Retrieve the same logger instance (singleton)
+    $sqlLogger = $container->resolve(QueryLogger::class);
 
     $cache          = $isDevMode ? new ArrayAdapter() : new FilesystemAdapter('', 0, __DIR__ . '/storage/cache/doctrine');
     $doctrineConfig = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode, null, $cache);
@@ -113,16 +116,15 @@ $container->bind(Environment::class, function (Container $c) use ($config) {
     $isDevelopment = ($config['app_env'] === 'development');
     $twigOptions   = [
         'debug'       => $isDevelopment,
-        'cache'       => __DIR__ . '/storage/cache/twig', // The path to the cache directory
-        'auto_reload' => $isDevelopment,                  // In dev, automatically recompile templates if they change
+        'cache'       => __DIR__ . '/storage/cache/twig',
+        'auto_reload' => $isDevelopment,
     ];
 
     $twig = new Environment($loader, $twigOptions);
     $twig->addGlobal('app_url', $_ENV['APP_URL'] ?? '');
     $twig->addGlobal('app_env', $_ENV['APP_ENV'] ?? 'production');
-    // Auth is wrapped in a lazy object (using __get) so it reflects session
-    // state at the time the template renders, not at container boot time.
-    // Mirrors the flash pattern and avoids instantiating User on every request.
+
+    // Auth lazy object
     $auth = new class($c)
     {
         public function __construct(private \Core\Container $container)
@@ -146,25 +148,15 @@ $container->bind(Environment::class, function (Container $c) use ($config) {
     };
     $twig->addGlobal('auth', $auth);
     $twig->addGlobal('base_url', $_ENV['APP_URL'] . $_ENV['APP_BASE_URL']);
-    // --- LAZY-LOADED FLASH MESSAGES ---
-    // This object defers calling getFlash() until the template actually accesses the property (e.g., {{ flash.success }})
+
+    // Lazy‑loaded flash messages
     $flash = new class {
-        /**
-         * @param $name
-         */
         public function __get($name)
         {
-            // This magic method is called on first access in Twig, e.g., {{ flash.success }}
-            // It retrieves and simultaneously removes the message from the session.
             return \Core\Session::getFlash($name);
         }
-        /**
-         * @param $name
-         */
         public function __isset($name)
         {
-            // This magic method is called for checks like {% if flash.success %}
-            // It checks for the message without removing it.
             return \Core\Session::hasFlash($name);
         }
     };;;
@@ -177,6 +169,7 @@ $container->bind(Environment::class, function (Container $c) use ($config) {
         $token = \Core\Session::csrfToken();
         return new \Twig\Markup('<input type="hidden" name="_token" value="' . $token . '">', 'UTF-8');
     }));
+
     return $twig;
 });
 
@@ -207,6 +200,12 @@ $container->bind(App\Commands\CheckVersionCommand::class, function ($c) use ($co
 $container->bind(App\Commands\CacheClearCommand::class, function ($c) {
     return new App\Commands\CacheClearCommand($c->resolve(Cache::class));
 });
+
+$middlewareConfig = $config['middleware'] ?? ['map' => [], 'global' => []];
+\Core\Router::setMiddlewareConfig(
+    $middlewareConfig['map'],
+    $middlewareConfig['global']
+);
 
 // 3. Return the fully configured container.
 return $container;

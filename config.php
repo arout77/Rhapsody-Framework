@@ -17,6 +17,7 @@ return [
         // Example for MAMP on Windows: 'C:/MAMP/logs/apache_error.log'
         // Example for MAMP on macOS: '/Applications/MAMP/logs/apache_error.log'
         'apache_error_log_path' => 'C:\MAMP\logs\apache_error.log',
+        'error_log_path'        => dirname(__DIR__) . '/storage/logs/errors.log',
     ],
     /**
      * The base URL of your application.
@@ -49,5 +50,18 @@ return [
         'password'     => $_ENV['MAIL_PASSWORD'] ?? null,
         'from_address' => $_ENV['MAIL_FROM_ADDRESS'] ?? 'hello@example.com',
         'from_name'    => $_ENV['MAIL_FROM_NAME'] ?? 'Example',
+    ],
+    'middleware'  => [
+        // Route-specific middleware (key => class)
+        'map'    => [
+            'auth'    => \App\Middleware\AuthMiddleware::class,
+            'guest'   => \App\Middleware\GuestMiddleware::class,
+            'updates' => \App\Middleware\CheckUpdatesMiddleware::class,
+            'docs'    => \App\Middleware\DocsAccessMiddleware::class,
+        ],
+        // Global middleware (runs on every matched request)
+        'global' => [
+            \App\Middleware\VerifyCsrfTokenMiddleware::class,
+        ],
     ],
 ];

@@ -213,4 +213,19 @@ class DocsController extends BaseController
     {
         return $this->view('docs/events.twig');
     }
+
+    public function debugging(): Response
+    {
+        return $this->view('docs/debugging.twig');
+    }
+
+    public function configuration(): Response
+    {
+        return $this->view('docs/configuration.twig');
+    }
+
+    public function errorHandling(): Response
+    {
+        return $this->view('docs/error-handling.twig');
+    }
 }

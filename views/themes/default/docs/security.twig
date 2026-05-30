@@ -1,28 +1,49 @@
 {% extends "docs/_layout.twig" %}
 {% block doc_content %}
     <h1>Security</h1>
-    <p>Rhapsody is built with security in mind and includes several features to help you protect your application from common vulnerabilities.</p>
+    <p>
+        Rhapsody is built with security in mind and includes several features to protect your application from common vulnerabilities.
+    </p>
 
     <h2>CSRF Protection</h2>
     <p>
-        Cross-Site Request Forgery (CSRF) is an attack that tricks a user into performing unwanted actions. Rhapsody makes it easy to protect your application from these attacks.
+        Cross-Site Request Forgery (CSRF) attacks trick users into performing unwanted actions. Rhapsody makes protection easy.
     </p>
     <p>
-        The <code>VerifyCsrfTokenMiddleware</code> is registered as a **global middleware**, which means it runs automatically on every request. It will automatically check for a valid CSRF token on all <code>POST</code> requests. If the token is missing or invalid, the request will be aborted with a "419 Page Expired" error.
+        The <code>VerifyCsrfTokenMiddleware</code> runs globally on every request. It automatically validates CSRF tokens for all <code>POST</code> requests (and other “unsafe” methods like <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>). If the token is missing or invalid, the request is aborted with a <strong>419 Page Expired</strong> error.
     </p>
+
     <h3>Adding the CSRF Token to Forms</h3>
     <p>
-        To make this work, you <strong>must</strong> include the <code>csrf_field()</code> Twig function inside every <code>&lt;form&gt;</code> that submits with `method="POST"`. This function generates a hidden input field containing the unique token for the user's session.
+        Include the <code>csrf_field()</code> Twig function inside every form that submits with <code>method="POST"</code> (or uses a spoofed method). This generates a hidden input containing the user’s unique token.
     </p>
     <pre><code class="language-twig">&lt;form action="/profile/update" method="POST"&gt;
     {{ csrf_field() }}
-
-    &lt;!-- Your other form fields --&gt;
+    &lt;!-- other fields --&gt;
     &lt;button type="submit"&gt;Update Profile&lt;/button&gt;
 &lt;/form&gt;</code></pre>
-    <p>GET requests do not need CSRF protection.</p>
+
+    <h3>CSRF for JSON APIs</h3>
+    <p>
+        For JSON requests, include the token in the request body under the key <code>_token</code>. The middleware intelligently looks for the token in both <code>$_POST</code> and the parsed JSON payload.
+    </p>
+    <pre><code class="language-json">{
+    "_token": "generated_token_here",
+    "name": "John Doe"
+}</code></pre>
+
+    <h3>CSRF Global Middleware</h3>
+    <p>
+        The <code>VerifyCsrfTokenMiddleware</code> is included in the <code>global</code> array in <code>config/middleware.php</code>. It runs automatically on every matched request. You can add your own global middleware there as well.
+    </p>
+
+    <h3>Excluding URIs from CSRF Verification</h3>
+    <p>
+        You can exclude certain URIs (e.g., webhooks) by editing the <code>$except</code> array in <code>app/Middleware/VerifyCsrfTokenMiddleware.php</code>. Wildcards (<code>*</code>) are supported.
+    </p>
 
     <h2>Password Hashing</h2>
-    <p>The framework uses PHP's native <code>password_hash()</code> and <code>password_verify()</code> functions for all user authentication. This ensures that passwords are never stored in plain text and are protected with a modern, secure hashing algorithm. Refer to the <code>app/Models/User.php</code> and <code>app/Controllers/AuthController.php</code> files for the implementation.</p>
-
+    <p>
+        The framework uses PHP's native <code>password_hash()</code> and <code>password_verify()</code> for all user authentication. Passwords are never stored in plain text and are protected with a modern, secure hashing algorithm. See <code>app/Models/User.php</code> and <code>app/Controllers/AuthController.php</code> for implementation details.
+    </p>
 {% endblock %}

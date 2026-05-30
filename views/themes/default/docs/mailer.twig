@@ -16,35 +16,27 @@ MAIL_FROM_ADDRESS="no-reply@rhapsody.test"
 MAIL_FROM_NAME="Rhapsody Framework"</code></pre>
 
     <h2>Sending an Email</h2>
-    <p>The easiest way to send mail is to inject the <code>Core\Mailer</code> service into your controller's constructor via dependency injection. Then, you can call the <code>send()</code> method.</p>
-    <pre><code>use Core\Mailer;
+    <p>The easiest way to send mail is to inject the <code>Core\Mailer</code> service into your controller's constructor via dependency injection. Then, call the <code>send()</code> method.</p>
+    <pre><code class="language-php">use Core\Mailer;
 use Core\Request;
 
 class ContactController extends BaseController
 {
-    public function __construct(
-        protected Mailer $mailer,
-        // ... other dependencies
-    ) {
-        // ...
-    }
+    public function __construct(protected Mailer $mailer) {}
 
-    public function submit(Request $request)
+    public function submit(Request $request): Response
     {
-        // ... validation logic ...
-
-        $to = 'admin@example.com';
-        $subject = 'New Contact Form Submission';
-        $htmlBody = '&lt;p&gt;You have a new message!&lt;/p&gt;';
-
+        // ... validation ...
         try {
-            $this->mailer->send($to, $subject, $htmlBody);
+            $this->mailer->send('admin@example.com', 'New Contact', '<p>Message</p>');
             return redirect('/contact')->with('success', 'Message sent!');
         } catch (\Exception $e) {
-            // Log the error
+            // Log error
             return redirect('/contact')->with('error', 'Could not send message.');
         }
     }
 }</code></pre>
-
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 my-4">
+        <strong>Important:</strong> If your <code>.env</code> file is missing <code>MAIL_HOST</code> (or it is empty), the <code>Mailer</code> service will throw a <code>RuntimeException</code> when you try to send an email. Always configure your mail settings before using the mailer in production.
+    </div>
 {% endblock %}

@@ -1,0 +1,69 @@
+{% extends "docs/_layout.twig" %}
+
+{% block doc_content %}
+    <h1>Debugging Helpers</h1>
+    <p>
+        Rhapsody includes a set of global helper functions to simplify debugging and inspecting variables during development. These helpers are available everywhere – in controllers, models, commands, and even in your view files (though not recommended).
+    </p>
+
+    <h2>Available Helpers</h2>
+
+    <h3><code>dd(...$vars)</code> – Dump and Die</h3>
+    <p>
+        This is the most commonly used debugging tool. It prints one or more variables in a beautifully formatted way and then stops script execution immediately.
+    </p>
+    {% verbatim %}
+    <pre><code class="language-php">// In a controller
+public function index(Request $request): Response
+{
+    $user = $this->userModel->findById(1);
+    dd($user, $request->getBody()); // Execution stops here
+}</code></pre>
+    {% endverbatim %}
+    <p>Output (using Symfony VarDumper) will look like:</p>
+    {% verbatim %}
+    <pre><code class="language-php">App\Models\User {#123 ▼
+  +db: PDO {#45 ...}
+  #user_id: "1"
+  #name: "John Doe"
+  #email: "john@example.com"
+}
+array:2 [▼
+  "name" => "Jane"
+  "email" => "jane@example.com"
+]</code></pre>
+    {% endverbatim %}
+
+    <h3><code>d(...$vars)</code> – Dump (without dying)</h3>
+    <p>
+        Same as <code>dd()</code>, but execution continues afterwards. Useful when you want to inspect intermediate values without breaking the page.
+    </p>
+    {% verbatim %}
+    <pre><code class="language-php">$result = processData($input);
+d($result); // Dump and continue
+// More code runs... </code></pre>
+    {% endverbatim %}
+
+    <h3><code>dump(...$vars)</code> – Alias for VarDumper</h3>
+    <p>
+        If Symfony VarDumper is installed (it comes with <code>filp/whoops</code>), this provides the same pretty output as <code>dd()</code> but without terminating the script. It’s an alias for <code>Symfony\Component\VarDumper\VarDumper::dump()</code>.
+    </p>
+
+    <h2>How It Works</h2>
+    <p>
+        The helpers are defined in <code>core/helpers.php</code>, which is automatically loaded via Composer. They use the <strong>Symfony VarDumper</strong> component (already a dependency of Whoops) for advanced formatting – including syntax highlighting, expandable arrays/objects, and proper recursion handling.
+    </p>
+    <p>If VarDumper is not available, the helpers fall back to simple <code>var_dump()</code>.</p>
+
+    <h2>Best Practices</h2>
+    <ul>
+        <li><strong>Never commit <code>dd()</code> or <code>d()</code> to production code.</strong> They are strictly for local development.</li>
+        <li>Use <code>dd($user)</code> instead of multiple <code>var_dump()</code> calls – it’s cleaner and safer.</li>
+        <li>You can pass any number of arguments: <code>dd($user, $posts, $_SERVER);</code></li>
+        <li>In Twig templates, you can use <code>&lcurl;{ dump(user) }}</code> if you add the Twig extension, but it’s not enabled by default. For quick debugging in views, consider dumping from the controller instead.</li>
+    </ul>
+
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 my-4">
+        <strong>Security Note:</strong> In production, <code>APP_ENV=production</code>, the <code>dump()</code> function still works but may expose sensitive data. Remove all debugging calls before deploying.
+    </div>
+{% endblock %}

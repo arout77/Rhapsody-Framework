@@ -39,112 +39,95 @@ class UpdateCommand extends Command
         $configPath      = $rootPath . '/config.php';
 
         $output->writeln('<comment>Checking for new releases...</comment>');
-        $currentVersion    = $this->config['app_version'];
+        $currentVersion    = $this->config['app_version'] ?? '1.0.0';
         $latestVersionData = $this->getLatestRelease('arout77/Rhapsody-Framework', $output);
 
         if (! $latestVersionData) {
-            $output->writeln('<error>Could not fetch release information from GitHub. Update aborted.</error>');
+            $output->writeln('<error>Failed to fetch release data from GitHub.</error>');
             return Command::FAILURE;
         }
 
-        $latestRelease = $latestVersionData[0] ?? null;
-        if (! $latestRelease || ! isset($latestRelease['tag_name'])) {
-            $output->writeln("<error>Could not find any releases in the API response.</error>");
-            return Command::FAILURE;
-        }
+        $latestVersion = $latestVersionData['tag_name'];
 
-        $latestVersion = $latestRelease['tag_name'];
-        $output->writeln("Current version: <info>{$currentVersion}</info>");
-        $output->writeln("Latest release: <info>{$latestVersion}</info>");
-
-        if (version_compare($latestVersion, $currentVersion, '<=')) {
-            $output->writeln('<info>Application is already up to date.</info>');
+        // Check if we are already current
+        if (version_compare($currentVersion, $latestVersion, '=')) {
+            $output->writeln("<info>You are already on the latest version ({$currentVersion}).</info>");
             return Command::SUCCESS;
         }
 
-        $output->writeln("\n<comment>New version found. Entering maintenance mode...</comment>");
-        if (! is_dir(dirname($maintenanceFile))) {
+        $output->writeln("<comment>New version detected: {$latestVersion} (Current: {$currentVersion})</comment>");
+        if (! empty($latestVersionData['body'])) {
+            $output->writeln("<info>Release Notes:</info>\n" . $latestVersionData['body'] . "\n");
+        }
+
+        // 1. Enter Maintenance Mode
+        $output->writeln('<comment>Bringing the application down for maintenance...</comment>');
+        if (! file_exists(dirname($maintenanceFile))) {
             mkdir(dirname($maintenanceFile), 0755, true);
         }
         touch($maintenanceFile);
 
-        $updateSucceeded = false;
         try {
-            $output->writeln('<bg=yellow;options=bold>[WARNING] This will discard any local modifications to tracked files.</>');
+            // 2. Fetch latest changes and release tags from remote tracking
+            $this->runProcess(['git', 'fetch', 'origin', '--tags'], $output, 'Fetching remote updates and tags...');
 
-            // 1. Fetch the latest changes from the remote repository.
-            $this->runProcess(['git', 'fetch'], $output, 'Fetching latest repository data...');
+            // 3. Stash local changes to prevent collision during checkout transitions
+            $this->runProcess(['git', 'stash'], $output, 'Stashing any temporary local changes...');
 
-            // 2. Forcefully reset the local branch to match the remote branch. This prevents all merge conflicts.
-            $this->runProcess(['git', 'reset', '--hard', 'origin/main'], $output, 'Resetting local branch to match remote...');
+            // 4. Checkout the specified tag release natively (pulls only changed bytes)
+            $this->runProcess(['git', 'checkout', $latestVersion], $output, "Switching codebase to version {$latestVersion}...");
 
-            // 3. Update dependencies based on the new composer.lock file.
-            $this->runProcess(['composer', 'install', '--no-dev', '--optimize-autoloader'], $output);
-
-            // 4. Run framework update and caching commands. Only run migrations if a DB is specified
-            $this->runProcess([PHP_BINARY, 'rhapsody', 'env:sync'], $output);
-            if (! empty($_ENV['DB_NAME'])) {
-                $this->runProcess([PHP_BINARY, 'rhapsody', 'migrate'], $output);
-            } else {
-                $output->writeln('<comment>Skipping database migrations: No DB_NAME specified in .env.</comment>');
-            }
-            $this->runProcess([PHP_BINARY, 'rhapsody', 'route:cache'], $output);
-            $this->runProcess([PHP_BINARY, 'rhapsody', 'cache:clear'], $output);
-
-            // 5. Finally, update the version number in the now-updated config.php
-            $output->writeln('<comment>Updating version in config.php...</comment>');
-            $configFileContent    = file_get_contents($configPath);
-            $newConfigFileContent = preg_replace("/('app_version'\s*=>\s*)'[^']*'/", "$1'{$latestVersion}'", $configFileContent);
-
-            if ($newConfigFileContent === null) {
-                throw new \RuntimeException('preg_replace failed while updating app_version in config.php.');
+            // 5. Optimize Composer dependencies if file configuration exists
+            if (file_exists($rootPath . '/composer.json')) {
+                $this->runProcess(['composer', 'install', '--no-dev', '--optimize-autoloader'], $output, 'Optimizing vendor dependencies...');
             }
 
-            file_put_contents($configPath, $newConfigFileContent);
-
-            // Invalidate OPcache for config.php so the next request picks up the
-            // new version immediately, rather than serving the old compiled bytecode.
-            if (function_exists('opcache_invalidate')) {
-                opcache_invalidate($configPath, true);
+            // 6. Clear framework application and views cache
+            $cacheDir = $rootPath . '/storage/framework/cache';
+            if (is_dir($cacheDir)) {
+                $output->writeln('<comment>Clearing internal framework caches...</comment>');
+                $this->clearDirectory($cacheDir);
             }
 
-            $updateSucceeded = true;
             $output->writeln("\n<info>Application successfully updated to version {$latestVersion}!</info>");
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $output->writeln('<error>An error occurred during the update process:</error>');
-            $output->writeln($e->getMessage());
-            $output->writeln('<error>Update failed! The application has been left in maintenance mode for manual inspection.</error>');
+            $output->writeln("\n<error>Update failed: " . $e->getMessage() . "</error>");
             return Command::FAILURE;
         } finally {
-            if ($updateSucceeded && file_exists($maintenanceFile)) {
-                $output->writeln('<comment>Exiting maintenance mode...</comment>');
+            // 7. Lift Maintenance Mode
+            if (file_exists($maintenanceFile)) {
+                $output->writeln('<comment>Bringing the application back live...</comment>');
                 unlink($maintenanceFile);
             }
         }
     }
 
     /**
-     * @param string $repository
+     * @param string $repo
      * @param OutputInterface $output
+     * @return array|null
      */
-    private function getLatestRelease(string $repository, OutputInterface $output): ?array
+    private function getLatestRelease(string $repo, OutputInterface $output): ?array
     {
-        $apiUrl     = "https://api.github.com/repos/{$repository}/releases";
-        $caCertPath = dirname(__DIR__, 2) . '/config/cacert.pem';
+        $apiUrl     = "https://api.github.com/repos/{$repo}/releases/latest";
+        $caCertPath = dirname(__DIR__, 2) . '/cacert.pem';
 
         if (! file_exists($caCertPath)) {
-            $output->writeln("<error>SSL Certificate bundle not found at '{$caCertPath}'.</error>");
-            return null;
+            $caCertPath = null;
         }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Rhapsody-Framework-Updater');
-        curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        if ($caCertPath) {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        }
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -167,20 +150,46 @@ class UpdateCommand extends Command
     /**
      * @param array $command
      * @param OutputInterface $output
-     * @param string $message
+     * @param string|null $message
      */
     private function runProcess(array $command, OutputInterface $output, ?string $message = null): void
     {
         $process = new Process($command);
         $process->setTimeout(300);
-        $output->writeln("\n<info>" . ($message ?: "Running: " . $process->getCommandLine()) . "</info>");
+        $output->writeln("\n<info>" . ($message ?: "Running: " . implode(' ', $command)) . "</info>");
 
         $process->run(function ($type, $buffer) use ($output) {
-            $output->write($buffer);
+            if (Process::ERR === $type) {
+                $output->write("<error>$buffer</error>");
+            } else {
+                $output->write($buffer);
+            }
         });
 
         if (! $process->isSuccessful()) {
-            throw new \RuntimeException($process->getErrorOutput() ?: $process->getOutput());
+            throw new \RuntimeException("Command failed: " . implode(' ', $command));
+        }
+    }
+
+    /**
+     * Helper to recursively empty a cache directory
+     * * @param string $dir
+     */
+    private function clearDirectory(string $dir): void
+    {
+        if (! is_dir($dir)) {
+            return;
+        }
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                rmdir($item->getRealPath());
+            } else {
+                unlink($item->getRealPath());
+            }
         }
     }
 }

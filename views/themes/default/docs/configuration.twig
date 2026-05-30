@@ -1,0 +1,50 @@
+{% extends "docs/_layout.twig" %}
+
+{% block doc_content %}
+    <h1>Application Configuration</h1>
+    <p>
+        Rhapsody keeps all configuration in the <code>config/</code> directory and the <code>.env</code> file. <strong>You should never modify files inside <code>/core</code>.</strong> This ensures that framework updates won't overwrite your customisations.
+    </p>
+
+    <h2>Configuration Files</h2>
+    <ul>
+        <li><code>.env</code> – environment‑specific variables (database, mail, caching driver, etc.).</li>
+        <li><code>config.php</code> – general settings (app version, theme, logging paths).</li>
+        <li><code>config/middleware.php</code> – middleware definitions (map and global list).</li>
+    </ul>
+
+    <h3>Adding New Configuration</h3>
+    <p>You can create additional config files in the <code>config/</code> folder and load them in your controllers or services as needed:</p>
+    <pre><code class="language-php">$myConfig = require __DIR__ . '/config/my-settings.php';</code></pre>
+
+    <h2>Environment Variables (<code>.env</code>)</h2>
+    <p>
+        The <code>.env</code> file contains sensitive or environment‑specific data. Never commit it to version control. Use <code>.env.example</code> as a template.
+    </p>
+    <pre><code>APP_ENV=development
+APP_BASE_URL="/rhapsody"
+DB_HOST=127.0.0.1
+CACHE_DRIVER=file</code></pre>
+
+    <h2>Middleware Configuration</h2>
+    <p>See the <a href="{{ base_url }}/docs/middleware">Middleware documentation</a> for details on <code>config/middleware.php</code>.</p>
+
+    <h2>Theme and View Configuration</h2>
+    <p>Set the active theme in <code>.env</code>:</p>
+    <pre><code>APP_THEME=my_custom_theme</code></pre>
+    <p>The framework automatically looks for templates in <code>views/themes/my_custom_theme/</code> and falls back to <code>views/themes/default/</code>.</p>
+
+    <h2>Cache Driver</h2>
+    <p>Switch between <code>file</code> and <code>redis</code> drivers in <code>.env</code>:</p>
+    <pre><code>CACHE_DRIVER=redis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379</code></pre>
+
+    <h2>Logging</h2>
+    <p>Configure log paths in <code>config.php</code> under the <code>logging</code> key.</p>
+
+    <hr>
+    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4">
+        <strong>Golden Rule:</strong> If you need to change behaviour, look for a configuration file first. Only extend or replace classes – never edit core files directly.
+    </div>
+{% endblock %}

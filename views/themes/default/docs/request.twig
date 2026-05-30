@@ -27,18 +27,17 @@ public function updateUser(Request $request, string $id): Response
     // ...
 }</code></pre>
 
-    <h3>Retrieving Input</h3>
-    <p>The <code>getBody()</code> method intelligently retrieves all input from the request, whether it's from a standard form submission or a JSON payload from an API call.</p>
-    <pre><code class="language-php">public function handleForm(Request $request): Response
-{
-    // For form data (application/x-www-form-urlencoded) or JSON
-    $allInput = $request->getBody();
-    
-    // You can also get a specific key from the body
-    $email = $allInput['email'] ?? null;
-    
-    // ...
-}</code></pre>
+    <h3>Retrieving Input (GET, POST, JSON, PUT, etc.)</h3>
+    <p>
+        The <code>getBody()</code> method intelligently handles all input sources:
+    </p>
+    <ul>
+        <li>If the <code>Content-Type</code> is <code>application/json</code>, it decodes the JSON payload.</li>
+        <li>For standard form submissions (<code>application/x-www-form-urlencoded</code>), it returns <code>$_POST</code>.</li>
+        <li>For <code>PUT</code>, <code>PATCH</code>, or <code>DELETE</code> requests with form data, it parses <code>php://input</code> automatically.</li>
+    </ul>
+    <pre><code class="language-php">$allInput = $request->getBody();
+$email    = $allInput['email'] ?? null;</code></pre>
 
     <h3>Retrieving Query Parameters</h3>
     <p>To get a value from the URL's query string (e.g., <code>/users?page=2</code>), use the <code>getQueryParam()</code> method. It includes a second argument to specify a default value if the parameter is not present.</p>
