@@ -1,4 +1,4 @@
-# Upgrade Guide for Rhapsody Framework v1.4.6
+# Upgrade Guide for Rhapsody Framework v1.5.1
 
 This guide helps you update your application to the latest framework version, incorporating all recent security and bug fixes.
 
