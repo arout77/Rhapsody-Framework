@@ -39,7 +39,7 @@ class UpdateCommand extends Command
         $configPath      = $rootPath . '/config.php';
 
         $output->writeln('<comment>Checking for new releases...</comment>');
-        $currentVersion    = $this->config['app_version'] ?? '1.0.0';
+        $currentVersion    = $this->config['app_version'] ?? '1.5.0';
         $latestVersionData = $this->getLatestRelease('arout77/Rhapsody-Framework', $output);
 
         if (! $latestVersionData) {

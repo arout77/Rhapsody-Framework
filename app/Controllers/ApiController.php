@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\User;
-use App\Models\Trivia;
 use Core\BaseController;
 use Core\Request;
 use Core\Response;
@@ -38,23 +37,5 @@ class ApiController extends BaseController
         }
 
         return $this->json( $user );
-    }
-
-    /**
-     * Returns a randomised set of trivia questions as JSON.
-     * Accepts optional query params: ?limit=10&difficulty=easy
-     */
-    public function getTriviaQuestions( Request $request ): Response
-    {
-        $limit      = (int) ( $request->get( 'limit', 10 ) );
-        $difficulty = $request->get( 'difficulty' ) ?: null;
-
-        $triviaModel = new Trivia();
-        $questions   = $triviaModel->getQuestions( $limit, $difficulty );
-
-        return $this->json( [
-            'success' => true,
-            'data'    => $questions,
-        ] );
     }
 }
