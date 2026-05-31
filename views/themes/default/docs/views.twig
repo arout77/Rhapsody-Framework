@@ -64,4 +64,9 @@ return $this->view('profile.twig', ['username' => 'Alice']);
         The framework also includes a theme switcher with light/dark/system modes.
     </p>
 
+    <h3>Warming the Twig Cache</h3>
+    <p>
+        Twig compiles templates the first time they are rendered. In production, you can pre‑compile all templates to eliminate the first‑visit delay, giving you significantly faster page load times. See the <a href="{{ base_url }}/docs/caching">caching documentation</a> for more details.
+    </p>
+
 {% endblock %}

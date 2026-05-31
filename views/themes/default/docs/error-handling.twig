@@ -59,17 +59,17 @@
         <li>You can add any HTTP status code (e.g., <code>403.twig</code>, <code>503.twig</code>).</li>
     </ul>
     <p>Example <code>404.twig</code>:</p>
-    <pre><code class="language-twig">{% extends "layouts/main.twig" %}
+    <pre><code class="language-twig">&lcur;% extends "layouts/main.twig" %}
 
-{% block title %}404 Not Found{% endblock %}
+&lcur;% block title %}404 Not Found&lcur;% endblock %}
 
-{% block content %}
+&lcur;% block content %}
     &lt;div class="text-center py-20"&gt;
         &lt;h1 class="text-6xl font-bold"&gt;404&lt;/h1&gt;
         &lt;p class="text-xl mt-4"&gt;Page not found.&lt;/p&gt;
-        &lt;a href="{{ base_url }}/"&gt;Go Home&lt;/a&gt;
+        &lt;a href="&lcur;&lcur; base_url }}/"&gt;Go Home&lt;/a&gt;
     &lt;/div&gt;
-{% endblock %}</code></pre>
+&lcur;% endblock %}</code></pre>
     <p>
         If no custom view exists for a status code, the handler falls back to a simple HTML error message.
     </p>

@@ -75,4 +75,16 @@ class PostController extends BaseController
         <li><code>$this->cache->has('key')</code>: Check if an item exists in the cache.</li>
         <li><code>$this->cache->forget('key')</code>: Remove an item from the cache.</li>
     </ul>
+
+    <h3>Warming the Twig Cache</h3>
+    <p>
+        Twig compiles templates the first time they are rendered. In production, you can pre‑compile all templates to eliminate the first‑visit delay. Use the CLI command:
+    </p>
+    <pre><code class="language-bash">php rhapsody app:cache-warm</code></pre>
+    <p>
+        The command walks through every Twig file in your active theme (and the default theme) and forces Twig to compile each one. It respects the theme fallback system, so templates that exist only in the default theme are also compiled.
+    </p>
+    <p>
+        Run this command after clearing caches or after deploying new template files to ensure optimal performance.
+    </p>
 {% endblock %}

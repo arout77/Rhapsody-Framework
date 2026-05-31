@@ -48,6 +48,16 @@
 
     <h2>Caching</h2>
     <p>Rhapsody provides caching mechanisms to improve your application's performance in production. The console provides commands to manage these caches.</p>
+
+    <h3>Twig Cache Warmup</h3>
+    <p>
+        After clearing caches (or after a fresh deployment), the first visitor to a page may experience a slight delay because Twig compiles templates on the fly. To avoid this, you can pre‑compile all templates using the cache warmer.
+    </p>
+    <pre class="command-line"><code class="language-bash">php rhapsody app:cache-warm</code></pre>
+    <p>
+        The command scans both your active theme and the default theme, compiles every <code>.twig</code> file into the Twig cache directory. Subsequent requests will serve the pre‑compiled templates immediately.
+    </p>
+    <p>By default, the command uses the <strong>direct compilation</strong> method. An alternative <strong>crawl</strong> method (which hits actual URLs) is also available for warming other caches (Doctrine, routes) – use <code>--method=crawl --base-url=https://yourdomain.com</code> if needed.</p>
     
     <h3>Route Caching</h3>
     <p>For a significant performance boost, you can compile all of your application's route definitions into a single, cached file.</p>
