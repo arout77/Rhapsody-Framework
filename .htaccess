@@ -21,4 +21,4 @@
 #
 # --- If you experience issues with routing or mod_rewrite, 
 # --- comment this out and uncomment the rules above.
-FallbackResource /faith/index.php
+FallbackResource /rhapsody/index.php

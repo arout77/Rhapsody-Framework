@@ -6,14 +6,12 @@ use Core\Database;
 use PDO;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
-use Twig\TwigFunction;
 
 abstract class BaseController
 {
     protected Environment $twig;
     protected PDO $db;
     protected Cache $cache;
-    protected ?array $assetManifest = null;
 
     /**
      * @param Environment $twig
@@ -24,7 +22,11 @@ abstract class BaseController
         $this->db    = Database::getInstance();
         $this->cache = Cache::getInstance();
 
-        $this->registerReactAssetHelpers();
+        $this->twig->addGlobal('session', $_SESSION);
+
+        // Safely pull flash data without prematurely erasing it
+        $this->twig->addGlobal('flash_error', $_SESSION['error'] ?? null);
+        $this->twig->addGlobal('flash_success', $_SESSION['success'] ?? null);
     }
 
     /**
@@ -48,7 +50,7 @@ abstract class BaseController
 
         $response = new Response();
         $response->setContent($output);
-        // echo self::react_asset('src/main.jsx');
+        // echo '<script type="module" src="'. self::vite_asset('src/main.jsx') .'"></script>';
         return $response;
     }
 
@@ -66,104 +68,6 @@ abstract class BaseController
         $response->setHeader('Content-Type', 'application/json');
         $response->setContent(json_encode($data, JSON_PRETTY_PRINT)); // JSON_PRETTY_PRINT makes it readable
         return $response;
-    }
-
-    /**
-     * Registers the React asset functions with the Twig environment
-     */
-    private function registerReactAssetHelpers(): void
-    {
-        $this->twig->addFunction(new TwigFunction('react_asset', [$this, 'react_asset']));
-        $this->twig->addFunction(new TwigFunction('react_asset_css', [$this, 'react_asset_css']));
-    }
-
-    /**
-     * Resolves JavaScript files dynamically via manifest or local fallback
-     */
-    public function react_asset(string $entry): string
-    {
-        $baseUrl  = $this->getBaseUrl();
-        $manifest = $this->loadManifest();
-
-        // 1. Direct key matching (e.g., 'src/main.jsx')
-        if (isset($manifest[$entry]['file'])) {
-            return $baseUrl . '/public/build/' . $manifest[$entry]['file'];
-        }
-
-        // 2. Loose matching fallback (searches keys matching the end of the string)
-        foreach ($manifest as $key => $value) {
-            if (str_ends_with($key, $entry) && isset($value['file'])) {
-                return $baseUrl . '/public/build/' . $value['file'];
-            }
-        }
-
-        // 3. Fallback to flat mix structures if they exist
-        if (isset($manifest['/public/js/' . $entry])) {
-            return $baseUrl . $manifest['/public/js/' . $entry];
-        }
-
-        // 4. Emergency local development path if manifest doesn't contain the key
-        return $baseUrl . '/public/js/' . $entry;
-    }
-
-    /**
-     * Resolves CSS files dynamically via manifest or local fallback
-     */
-    public function react_asset_css(string $entry): string
-    {
-        $baseUrl  = $this->getBaseUrl();
-        $manifest = $this->loadManifest();
-
-        // 1. Production lookup for CSS attached to a JS entry point (Vite style)
-        if (isset($manifest[$entry]['css'][0])) {
-            // Points cleanly to /public/build/assets/style-xxxx.css
-            return $baseUrl . '/public/build/' . $manifest[$entry]['css'][0];
-        }
-
-        // 2. Production lookup for dedicated flat CSS keys
-        if (isset($manifest[$entry]['file'])) {
-            return $baseUrl . '/public/build/' . $manifest[$entry]['file'];
-        }
-
-        if (isset($manifest['/public/css/' . $entry])) {
-            return $baseUrl . $manifest['/public/css/' . $entry];
-        }
-
-        // 3. Local Development Fallback
-        return $baseUrl . '/public/css/' . $entry;
-    }
-
-    /**
-     * Internal cache engine to minimize file reads
-     */
-    protected function loadManifest(): array
-    {
-        if ($this->assetManifest !== null) {
-            return $this->assetManifest;
-        }
-
-        // Points directly to the file you found!
-        $viteManifest = dirname(__DIR__) . '/frontend/dist/.vite/manifest.json';
-        $mixManifest  = dirname(__DIR__) . '/mix-manifest.json';
-
-        if (file_exists($viteManifest)) {
-            $this->assetManifest = json_decode(file_get_contents($viteManifest), true) ?? [];
-        } elseif (file_exists($mixManifest)) {
-            $this->assetManifest = json_decode(file_get_contents($mixManifest), true) ?? [];
-        } else {
-            $this->assetManifest = [];
-        }
-
-        return $this->assetManifest;
-    }
-
-    /**
-     * Helper to get base application URL safely
-     */
-    private function getBaseUrl(): string
-    {
-        // Adjust this to pull from your global config layer or environment variables
-        return $_ENV['APP_URL'] . $_ENV['APP_BASE_URL'] ?? '';
     }
 
 }

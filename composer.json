@@ -4,7 +4,8 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "Core\\": "core/"
+            "Core\\": "core/",
+            "Core\\Exceptions\\": "core/Exceptions/"
         },
         "files": [
             "core/helpers.php"

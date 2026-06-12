@@ -159,7 +159,7 @@ $container->bind(Environment::class, function (Container $c) use ($config) {
         {
             return \Core\Session::hasFlash($name);
         }
-    };;;
+    };;;;
     $twig->addGlobal('flash', $flash);
 
     $cache = $c->resolve(Cache::class);
@@ -199,6 +199,10 @@ $container->bind(App\Commands\CheckVersionCommand::class, function ($c) use ($co
 
 $container->bind(App\Commands\CacheClearCommand::class, function ($c) {
     return new App\Commands\CacheClearCommand($c->resolve(Cache::class));
+});
+
+$container->bind(\App\Commands\CacheWarmCommand::class, function ($c) {
+    return new \App\Commands\CacheWarmCommand();
 });
 
 $middlewareConfig = $config['middleware'] ?? ['map' => [], 'global' => []];

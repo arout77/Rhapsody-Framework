@@ -8,24 +8,34 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
-// Turn off warnings in production env
+// 1. Load environment variables FIRST (so $_ENV is populated)
+$rootPath = __DIR__;
+$dotenv = Dotenv\Dotenv::createImmutable($rootPath);
+$dotenv->load();
+
+// 2. Set a fallback APP_ENV for CLI if not defined in .env
+if (!isset($_ENV['APP_ENV'])) {
+    $_ENV['APP_ENV'] = 'cli';
+}
+
+// 3. Now it's safe to check APP_ENV for error reporting
 if ($_ENV['APP_ENV'] === 'production') {
     error_reporting(E_ALL & ~E_WARNING & ~E_DEPRECATED & ~E_NOTICE);
 }
 
-// 1. Bootstrap Application
-$rootPath = __DIR__;
-$dotenv = Dotenv\Dotenv::createImmutable($rootPath);
-$dotenv->load();
+// 4. Bootstrap configuration and container
 $config = require_once $rootPath . '/config.php';
 $container = require_once $rootPath . '/bootstrap.php';
 
-// 2. Create the Console Application
+// 5. Make container globally accessible (for commands that need it)
+$GLOBALS['container'] = $container;
+
+// 6. Create the Console Application
 use Symfony\Component\Console\Application;
 
 $application = new Application('Rhapsody Framework Console', $config['app_version']);
 
-// 3. Define all application commands
+// 7. Register all application commands (including the new cache warmer)
 $commands = [
     App\Commands\MakeControllerCommand::class,
     App\Commands\MakeModelCommand::class,
@@ -35,6 +45,7 @@ $commands = [
     App\Commands\RouteCacheCommand::class,
     App\Commands\RouteClearCommand::class,
     App\Commands\CacheClearCommand::class,
+    App\Commands\CacheWarmCommand::class,
     App\Commands\EnvSyncCommand::class,
     App\Commands\UpdateCommand::class,
     App\Commands\CheckVersionCommand::class,
@@ -42,11 +53,10 @@ $commands = [
     App\Commands\MakeListenerCommand::class,
 ];
 
-// 4. Use the container to resolve and register each command
+// 8. Use the container to resolve and register each command
 foreach ($commands as $commandClass) {
-    // This ensures every command gets its dependencies injected correctly.
     $application->add($container->resolve($commandClass));
 }
 
-// 5. Run the application
+// 9. Run the application
 $application->run();

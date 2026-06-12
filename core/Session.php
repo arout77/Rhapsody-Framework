@@ -1,5 +1,4 @@
 <?php
-
 namespace Core;
 
 /**
@@ -15,16 +14,32 @@ class Session
      */
     public static function start(): void
     {
-        if ( session_status() === PHP_SESSION_NONE )
-        {
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+
+        // 1. Age out old flash data from the PREVIOUS request
+        if (isset($_SESSION['_flash_old'])) {
+            foreach ($_SESSION['_flash_old'] as $key) {
+                unset($_SESSION[$key]);
+            }
+        }
+
+        // 2. Mark current flashes to be deleted on the NEXT request
+        $_SESSION['_flash_old'] = isset($_SESSION['_flash_new']) ? $_SESSION['_flash_new'] : [];
+        $_SESSION['_flash_new'] = [];
+    }
+
+    public static function flash(string $key, mixed $message): void
+    {
+        $_SESSION[$key]           = $message;
+        $_SESSION['_flash_new'][] = $key;
     }
 
     /**
      * Sets a value in the session.
      */
-    public static function set( string $key, $value ): void
+    public static function set(string $key, $value): void
     {
         $_SESSION[$key] = $value;
     }
@@ -32,7 +47,7 @@ class Session
     /**
      * Retrieves a value from the session by its key.
      */
-    public static function get( string $key, $default = null )
+    public static function get(string $key, $default = null)
     {
         return $_SESSION[$key] ?? $default;
     }
@@ -40,17 +55,17 @@ class Session
     /**
      * Checks if a key exists in the session.
      */
-    public static function has( string $key ): bool
+    public static function has(string $key): bool
     {
-        return isset( $_SESSION[$key] );
+        return isset($_SESSION[$key]);
     }
 
     /**
      * Removes a value from the session by its key.
      */
-    public static function remove( string $key ): void
+    public static function remove(string $key): void
     {
-        unset( $_SESSION[$key] );
+        unset($_SESSION[$key]);
     }
 
     /**
@@ -64,7 +79,7 @@ class Session
         $_SESSION = [];
 
         // 2. Expire the session cookie in the browser.
-        if ( ini_get( 'session.use_cookies' ) ) {
+        if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
             setcookie(
                 session_name(),
@@ -87,7 +102,7 @@ class Session
      */
     public static function regenerate(): void
     {
-        session_regenerate_id( true );
+        session_regenerate_id(true);
     }
 
     /**
@@ -100,29 +115,21 @@ class Session
     }
 
     /**
-     * Sets a flash message that will be removed after the next request.
-     */
-    public static function flash( string $key, string $message ): void
-    {
-        self::set( 'flash_' . $key, $message );
-    }
-
-    /**
      * Retrieves a flash message and then removes it from the session.
      */
-    public static function getFlash( string $key, $default = null ): ?string
+    public static function getFlash(string $key, $default = null): ?string
     {
-        $message = self::get( 'flash_' . $key, $default );
-        self::remove( 'flash_' . $key );
+        $message = self::get('flash_' . $key, $default);
+        self::remove('flash_' . $key);
         return $message;
     }
 
     /**
      * Checks if a flash message exists for a given key.
      */
-    public static function hasFlash( string $key ): bool
+    public static function hasFlash(string $key): bool
     {
-        return self::has( 'flash_' . $key );
+        return self::has('flash_' . $key);
     }
 
     /**
@@ -130,20 +137,19 @@ class Session
      */
     public static function csrfToken(): string
     {
-        if ( !self::has( '_token' ) )
-        {
-            $token = bin2hex( random_bytes( 32 ) );
-            self::set( '_token', $token );
+        if (! self::has('_token')) {
+            $token = bin2hex(random_bytes(32));
+            self::set('_token', $token);
         }
-        return self::get( '_token' );
+        return self::get('_token');
     }
 
     /**
      * Verifies a submitted CSRF token against the one stored in the session.
      * Uses hash_equals for timing-attack-safe comparison.
      */
-    public static function verifyCsrfToken( string $token ): bool
+    public static function verifyCsrfToken(string $token): bool
     {
-        return self::has( '_token' ) && hash_equals( self::get( '_token' ), $token );
+        return self::has('_token') && hash_equals(self::get('_token'), $token);
     }
 }
