@@ -2,7 +2,11 @@
 I'm only keeping this alive for historical purposes. To install the framework, simply run 
 
 <div>`composer create-project arout/rhapsody-app my-awesome-app`</div>
-<br>
+
+<p>View the documentation here:</p>
+
+<div>https://rhapsodyframework.com/docs</div>
+
 <p>The repositories are here if you need to view it:</p>
 
 <div>https://github.com/arout77/rhapsody-app</div>
