@@ -1,7 +1,7 @@
 ## LEGACY REPOSITORY
 I'm only keeping this alive for historical purposes. To install the framework, simply run 
 
-<div>`composer create-project arout/rhapsody-app my-awesome-app`</div>
+<div style="background-color: #0000FF; color: limegreen;">`composer create-project arout/rhapsody-app my-awesome-app`</div>
 
 <p>View the documentation here:</p>
 
