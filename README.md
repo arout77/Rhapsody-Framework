@@ -7,6 +7,8 @@ I'm only keeping this alive for historical purposes. To install the framework, s
 
 <div>https://rhapsodyframework.com/docs</div>
 
+<br>
+
 <p>The repositories are here if you need to view it:</p>
 
 <div>https://github.com/arout77/rhapsody-app</div>
